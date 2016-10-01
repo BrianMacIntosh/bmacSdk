@@ -28,7 +28,7 @@ var ThreeUtils;
         if (!(geometry instanceof THREE.Geometry)) {
             console.error("'geometry' is not a THREE.Geometry.");
             console.log(geometry);
-            return;
+            return undefined;
         }
         if (ThreeUtils.serverMode) {
             return new THREE.Object3D();
@@ -230,11 +230,11 @@ var ThreeUtils;
     function _setAtlasUVs(geometry, atlas, key, flipX, flipY) {
         if (!atlas) {
             console.error("Geometry is not atlased.");
-            return;
+            return geometry;
         }
         if (atlas.sprites[key] === undefined) {
             console.error("Atlas '" + atlas.url + "' has not key '" + key + "'");
-            return;
+            return geometry;
         }
         var uvs = geometry.faceVertexUvs[0];
         var l = atlas.sprites[key][0] / atlas.width;
@@ -272,11 +272,11 @@ var ThreeUtils;
     function setAtlasGeometry(geometry, atlas, key, flipX, flipY) {
         if (!atlas) {
             console.error("Geometry is not atlased.");
-            return;
+            return geometry;
         }
         if (atlas.sprites[key] === undefined) {
             console.error("Atlas '" + atlas.url + "' has not key '" + key + "'");
-            return;
+            return geometry;
         }
         _setAtlasUVs(geometry, atlas, key, flipX, flipY);
         var w = atlas.sprites[key][2] / 2;
@@ -299,7 +299,7 @@ var ThreeUtils;
      */
     function setAtlasMeshFlip(mesh, flipX, flipY) {
         if (!mesh.geometry) {
-            return;
+            return mesh;
         }
         if (!mesh.geometry.dynamic) {
             console.error("Geometry is not dynamic.");

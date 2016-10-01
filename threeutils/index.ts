@@ -38,7 +38,7 @@ export module ThreeUtils
 		{
 			console.error("'geometry' is not a THREE.Geometry.");
 			console.log(geometry);
-			return;
+			return undefined;
 		}
 		
 		if (serverMode)
@@ -254,12 +254,12 @@ export module ThreeUtils
 		if (!atlas)
 		{
 			console.error("Geometry is not atlased.");
-			return;
+			return geometry;
 		}
 		if (atlas.sprites[key] === undefined)
 		{
 			console.error("Atlas '"+atlas.url+"' has not key '"+key+"'");
-			return;
+			return geometry;
 		}
 		
 		var uvs = geometry.faceVertexUvs[0];
@@ -295,12 +295,12 @@ export module ThreeUtils
 		if (!atlas)
 		{
 			console.error("Geometry is not atlased.");
-			return;
+			return geometry;
 		}
 		if (atlas.sprites[key] === undefined)
 		{
 			console.error("Atlas '"+atlas.url+"' has not key '"+key+"'");
-			return;
+			return geometry;
 		}
 		_setAtlasUVs(geometry,atlas,key,flipX,flipY);
 		
@@ -325,7 +325,7 @@ export module ThreeUtils
 	{
 		if (!mesh.geometry)
 		{
-			return;
+			return mesh;
 		}
 		if (!mesh.geometry.dynamic)
 		{

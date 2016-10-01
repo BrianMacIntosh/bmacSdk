@@ -236,7 +236,7 @@ export namespace Gamepad
 			if (source[i])
 			{
 				var gamepad = source[i];
-				var state: Gamepad = {} as Gamepad;
+				var state: any = {};
 				state.buttons = [];
 				state.buttons.length = gamepad.buttons.length;
 				state.axes = [];
