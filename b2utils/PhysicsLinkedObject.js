@@ -1,7 +1,7 @@
 "use strict";
 var THREE = require("three");
 var _1 = require("./");
-var box2d_1 = require("../../thirdparty/box2d");
+var box2d_1 = require("../thirdparty/box2d");
 /**
  * Base class for an object that has three.js visuals and a Box2D body.
  * Visual elements should be parented to 'this.transform'. The position of

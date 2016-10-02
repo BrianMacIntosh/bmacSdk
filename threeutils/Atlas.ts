@@ -9,6 +9,7 @@ export class Atlas
 	
 	public sprites: any[];
 	public texture: THREE.Texture;
+	public material: THREE.Material;
 
 	/**
 	 * Creates a new atlas.

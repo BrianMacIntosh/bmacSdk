@@ -1,5 +1,6 @@
 "use strict";
 var THREE = require("three");
+exports.THREE = THREE;
 var Atlas_1 = require("./Atlas");
 var Atlas_2 = require("./Atlas");
 exports.Atlas = Atlas_2.Atlas;
@@ -48,9 +49,9 @@ var ThreeUtils;
      * @returns {THREE.Geometry}
      */
     function makeSpriteGeo(width, height) {
-        var geo = new THREE.PlaneGeometry(width, height);
-        geo.applyMatrix(ThreeUtils.c_planeCorrection);
-        return geo;
+        var geometry = new THREE.PlaneGeometry(width, height);
+        geometry.applyMatrix(ThreeUtils.c_planeCorrection);
+        return geometry;
     }
     ThreeUtils.makeSpriteGeo = makeSpriteGeo;
     ;
@@ -200,7 +201,7 @@ var ThreeUtils;
     ;
     /**
      * Creates a mesh for the given sprite in the atlas.
-     * @param {ThreeUtils.Atlas} atlas
+     * @param {Atlas} atlas
      * @param {string} key
      * @param {boolean} dynamic Set if you want to be able to flip the sprite or dynamically switch its texture.
      */
@@ -209,18 +210,26 @@ var ThreeUtils;
             console.error("Atlas '" + atlas.url + "' has no key '" + key + "'.");
             return null;
         }
-        if (!atlas.sprites[key].geo) {
-            atlas.sprites[key].geo = makeSpriteGeo(atlas.sprites[key][2], atlas.sprites[key][3]);
-            _setAtlasUVs(atlas.sprites[key].geo, atlas, key);
+        if (!atlas.sprites[key].geometry) {
+            atlas.sprites[key].geometry = makeSpriteGeo(atlas.sprites[key][2], atlas.sprites[key][3]);
+            _setAtlasUVs(atlas.sprites[key].geometry, atlas, key);
         }
-        var geo = atlas.sprites[key].geo;
+        if (!atlas.material) {
+            atlas.material = new THREE.MeshBasicMaterial({
+                map: atlas.texture, transparent: true });
+        }
+        var geometry;
         if (dynamic) {
-            geo = geo.clone();
-            geo.dynamic = true;
-            geo.atlas_flipx = false;
-            geo.atlas_flipy = false;
+            geometry = makeSpriteGeo(atlas.sprites[key][2], atlas.sprites[key][3]);
+            _setAtlasUVs(geometry, atlas, key);
+            geometry.dynamic = true;
+            geometry.atlas_flipx = false;
+            geometry.atlas_flipy = false;
         }
-        var mesh = ThreeUtils.makeSpriteMesh(atlas.texture, geo);
+        else {
+            geometry = atlas.sprites[key].geometry;
+        }
+        var mesh = new THREE.Mesh(geometry, atlas.material);
         mesh.atlas = atlas;
         mesh.atlas_key = key;
         return mesh;

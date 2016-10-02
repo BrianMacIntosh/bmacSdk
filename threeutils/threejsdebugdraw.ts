@@ -2,7 +2,7 @@
 import THREE = require("three");
 
 import { b2Utils } from "../b2utils";
-import { Box2D } from "../../thirdparty/box2d";
+import { Box2D } from "../thirdparty/box2d";
 
 /**
  * An object that manages drawing debug shapes for bodies in a Box2D world.

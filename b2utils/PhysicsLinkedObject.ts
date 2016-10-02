@@ -2,7 +2,7 @@
 import THREE = require("three");
 
 import { b2Utils } from "./";
-import { Box2D } from "../../thirdparty/box2d";
+import { Box2D } from "../thirdparty/box2d";
 
 /**
  * Base class for an object that has three.js visuals and a Box2D body.

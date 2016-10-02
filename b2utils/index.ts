@@ -6,7 +6,7 @@
 import THREE = require("three");
 
 import { PhysicsLinkedObject } from "./PhysicsLinkedObject";
-import { Box2D } from "../../thirdparty/box2d";
+import { Box2D } from "../thirdparty/box2d";
 
 export { PhysicsLinkedObject } from "./PhysicsLinkedObject";
 

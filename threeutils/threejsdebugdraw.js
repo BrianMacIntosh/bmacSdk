@@ -6,7 +6,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var THREE = require("three");
 var b2utils_1 = require("../b2utils");
-var box2d_1 = require("../../thirdparty/box2d");
+var box2d_1 = require("../thirdparty/box2d");
 /**
  * An object that manages drawing debug shapes for bodies in a Box2D world.
  * @namespace
