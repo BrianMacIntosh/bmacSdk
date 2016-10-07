@@ -44,6 +44,7 @@ export class Engine
 	public screenWidth: number;
 	public screenHeight: number;
 
+	public mousePosRel: THREE.Vector2;
 	public mousePosWorld: THREE.Vector2;
 
 	constructor(canvasDivName: string)
@@ -145,11 +146,11 @@ export class Engine
 	public _animate(): void
 	{
 		// calculate mouse pos
-		var mousePos = Mouse.getPosition(this.canvasDiv);
+		this.mousePosRel = Mouse.getPosition(this.canvasDiv);
 		if (!this.mousePosWorld) this.mousePosWorld = new THREE.Vector2();
 		this.mousePosWorld.set(
-			mousePos.x + this.mainCamera.position.x,
-			mousePos.y + this.mainCamera.position.y);
+			this.mousePosRel.x + this.mainCamera.position.x,
+			this.mousePosRel.y + this.mainCamera.position.y);
 		
 		// update objects
 		for (var c = 0; c < this.objects.length; c++)

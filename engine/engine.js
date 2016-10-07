@@ -106,10 +106,10 @@ var Engine = (function () {
     };
     Engine.prototype._animate = function () {
         // calculate mouse pos
-        var mousePos = input_1.Mouse.getPosition(this.canvasDiv);
+        this.mousePosRel = input_1.Mouse.getPosition(this.canvasDiv);
         if (!this.mousePosWorld)
             this.mousePosWorld = new THREE.Vector2();
-        this.mousePosWorld.set(mousePos.x + this.mainCamera.position.x, mousePos.y + this.mainCamera.position.y);
+        this.mousePosWorld.set(this.mousePosRel.x + this.mainCamera.position.x, this.mousePosRel.y + this.mainCamera.position.y);
         // update objects
         for (var c = 0; c < this.objects.length; c++) {
             if (this.objects[c].update) {
