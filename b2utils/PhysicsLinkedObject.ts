@@ -1,5 +1,5 @@
 
-import THREE = require("three");
+import THREE = require("three")
 
 import { b2Utils } from "./";
 import { Box2D } from "../thirdparty/box2d";
@@ -92,6 +92,38 @@ export class PhysicsLinkedObject
 			b2Utils.tempVector2.y = this.transform.position.y / b2Utils.B2_SCALE;
 			var rotationMatrix = Box2D.b2Mat22.FromAngle(this.transform.rotation.z);
 			this.body.SetTransform(new Box2D.b2Transform(b2Utils.tempVector2, rotationMatrix));
+		}
+	}
+
+	/**
+	 * Applies the specified impulse to the center of the body, but does not allow it to
+	 * increase the velocity above 'maxSpeed'. If the velocity is already above that, it can stay there.
+	 * @param {Box2D.b2Vec2} impulse
+	 * @param {Number} maxSpeed
+	 */
+	public applyLinearImpulseWithVelocityCap(impulse: Box2D.b2Vec2, maxSpeed: number): void
+	{
+		if (impulse.x == 0 && impulse.y == 0) return;
+		
+		var velocity = this.body.GetLinearVelocity();
+		var velocityLength = velocity.Length();
+		this.body.ApplyImpulse(impulse, this.body.GetPosition());
+		this.limitSpeed(Math.max(maxSpeed, velocityLength));
+	}
+
+	/**
+	 * Reduces the object's velocity to be no greater than the specified speed.
+	 * @param {Number} maxSpeed
+	 */
+	public limitSpeed(maxSpeed: number)
+	{
+		var postVelocity = this.body.GetLinearVelocity();
+		var postVelocityLength = postVelocity.Length();
+		if (postVelocityLength > maxSpeed)
+		{
+			postVelocity.x = maxSpeed * postVelocity.x / postVelocityLength;
+			postVelocity.y = maxSpeed * postVelocity.y / postVelocityLength;
+			this.body.SetLinearVelocity(postVelocity);
 		}
 	}
 

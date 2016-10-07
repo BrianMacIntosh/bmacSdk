@@ -1,5 +1,5 @@
 
-import THREE = require("three");
+import THREE = require("three")
 
 export namespace Mouse
 {
@@ -21,6 +21,9 @@ export namespace Mouse
 	var mousePressedBuffer: { [s: string]: boolean } = {};
 	var mouseReleasedBuffer: { [s: string]: boolean } = {};
 
+	var wheelDelta: number = 0;
+	var wheelDeltaBuffer: number = 0;
+
 	export enum Button
 	{
 		Left	= 1,
@@ -40,6 +43,7 @@ export namespace Mouse
 			document.addEventListener("dragover", _onDragOver, false);
 			document.addEventListener("mousedown", _onMouseDown, false);
 			document.addEventListener("mouseup", _onMouseUp, false);
+			document.addEventListener("wheel", _onMouseWheel, false);
 		}
 		else
 		{
@@ -58,6 +62,7 @@ export namespace Mouse
 			document.removeEventListener("dragover", _onDragOver, false);
 			document.removeEventListener("mousedown", _onMouseDown, false);
 			document.removeEventListener("mouseup", _onMouseUp, false);
+			document.removeEventListener("wheel", _onMouseWheel, false);
 		}
 	};
 
@@ -73,6 +78,9 @@ export namespace Mouse
 		var temp = mouseReleased;
 		mouseReleased = mouseReleasedBuffer;
 		mouseReleasedBuffer = temp;
+
+		wheelDelta = wheelDeltaBuffer;
+		wheelDeltaBuffer = 0;
 		
 		//clear new buffer
 		for (var i in mousePressedBuffer)
@@ -121,6 +129,21 @@ export namespace Mouse
 	{
 		e = e || window.event;
 		mouseReleasedBuffer[e.which || e.keyCode] = true;
+	}
+
+	function _onMouseWheel(e)
+	{
+		e = e || window.event;
+		wheelDeltaBuffer = e.wheelDelta;
+	}
+
+	/**
+	 * Returns the mousewheel delta on this frame.
+	 * @returns {number}
+	 */
+	export function getMouseWheelDelta(): number
+	{
+		return wheelDelta;
 	}
 
 	/**

@@ -17,7 +17,7 @@ var Atlas = (function () {
         this.sprites = data.sprites;
         if (!suppressTextureLoad) {
             this.texture = _1.ThreeUtils.loadTexture(this.url);
-            this.texture.minFilter = this.texture.magFilter = data.filter;
+            //this.texture.minFilter = this.texture.magFilter = data.filter;
             _1.ThreeUtils.setTextureNpot(this.texture);
         }
     }

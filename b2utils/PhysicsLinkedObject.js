@@ -67,6 +67,33 @@ var PhysicsLinkedObject = (function () {
         }
     };
     /**
+     * Applies the specified impulse to the center of the body, but does not allow it to
+     * increase the velocity above 'maxSpeed'. If the velocity is already above that, it can stay there.
+     * @param {Box2D.b2Vec2} impulse
+     * @param {Number} maxSpeed
+     */
+    PhysicsLinkedObject.prototype.applyLinearImpulseWithVelocityCap = function (impulse, maxSpeed) {
+        if (impulse.x == 0 && impulse.y == 0)
+            return;
+        var velocity = this.body.GetLinearVelocity();
+        var velocityLength = velocity.Length();
+        this.body.ApplyImpulse(impulse, this.body.GetPosition());
+        this.limitSpeed(Math.max(maxSpeed, velocityLength));
+    };
+    /**
+     * Reduces the object's velocity to be no greater than the specified speed.
+     * @param {Number} maxSpeed
+     */
+    PhysicsLinkedObject.prototype.limitSpeed = function (maxSpeed) {
+        var postVelocity = this.body.GetLinearVelocity();
+        var postVelocityLength = postVelocity.Length();
+        if (postVelocityLength > maxSpeed) {
+            postVelocity.x = maxSpeed * postVelocity.x / postVelocityLength;
+            postVelocity.y = maxSpeed * postVelocity.y / postVelocityLength;
+            this.body.SetLinearVelocity(postVelocity);
+        }
+    };
+    /**
      * Called by box2d when this object starts touching another.
      * You cannot create or destroy bodies in here.
      * @param {Box2D.b2Contact} contact

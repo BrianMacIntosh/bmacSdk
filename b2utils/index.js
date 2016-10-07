@@ -31,7 +31,7 @@ var b2Utils;
     b2Utils.filter_none.categoryBits = 0;
     b2Utils.staticBodyDef = new box2d_1.Box2D.b2BodyDef();
     b2Utils.dynamicBodyDef = new box2d_1.Box2D.b2BodyDef();
-    b2Utils.dynamicBodyDef.type = box2d_1.Box2D.b2Body.b2_kinematicBody;
+    b2Utils.dynamicBodyDef.type = box2d_1.Box2D.b2Body.b2_dynamicBody;
     var contactFilter;
     var contactListener;
     /**
@@ -101,7 +101,7 @@ var b2Utils;
             bodyDef = b2Utils.staticBodyDef;
         b2Utils.tempVector2.x = x / b2Utils.B2_SCALE;
         b2Utils.tempVector2.y = y / b2Utils.B2_SCALE;
-        bodyDef.set_position(b2Utils.tempVector2);
+        bodyDef.position = b2Utils.tempVector2;
         var body = world.CreateBody(bodyDef);
         if (fixtureDef) {
             body.CreateFixture(fixtureDef);
@@ -123,7 +123,7 @@ var b2Utils;
             bodyDef = b2Utils.dynamicBodyDef;
         b2Utils.tempVector2.x = x / b2Utils.B2_SCALE;
         b2Utils.tempVector2.y = y / b2Utils.B2_SCALE;
-        bodyDef.set_position(b2Utils.tempVector2);
+        bodyDef.position = b2Utils.tempVector2;
         var body = world.CreateBody(bodyDef);
         if (fixtureDef) {
             body.CreateFixture(fixtureDef);
@@ -170,6 +170,7 @@ var b2Utils;
         };
         return ContactListener;
     }(box2d_1.Box2D.b2ContactListener));
+    b2Utils.ContactListener = ContactListener;
     /**
      * Returns the contact filter for the game.
      * @returns {Box2D.b2ContactFilter}
@@ -192,6 +193,7 @@ var b2Utils;
         };
         return ContactFilter;
     }(box2d_1.Box2D.b2ContactFilter));
+    b2Utils.ContactFilter = ContactFilter;
     /**
      * If the specified object is involved in the contact, returns the other fixture involved.
      * @param {Box2D.b2Contact} contact

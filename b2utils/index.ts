@@ -3,7 +3,7 @@
  * @fileOverview Contains utility functions for interacting with Box2D. 
  */
 
-import THREE = require("three");
+import THREE = require("three")
 
 import { PhysicsLinkedObject } from "./PhysicsLinkedObject";
 import { Box2D } from "../thirdparty/box2d";
@@ -37,7 +37,7 @@ export namespace b2Utils
 	export var staticBodyDef = new Box2D.b2BodyDef();
 
 	export var dynamicBodyDef = new Box2D.b2BodyDef();
-	dynamicBodyDef.type = Box2D.b2Body.b2_kinematicBody;
+	dynamicBodyDef.type = Box2D.b2Body.b2_dynamicBody;
 
 	var contactFilter: Box2D.b2ContactFilter;
 	var contactListener: Box2D.b2ContactListener;
@@ -115,7 +115,7 @@ export namespace b2Utils
 		if (!bodyDef) bodyDef = staticBodyDef;
 		tempVector2.x = x / B2_SCALE;
 		tempVector2.y = y / B2_SCALE;
-		bodyDef.set_position(tempVector2);
+		bodyDef.position = tempVector2;
 		var body = world.CreateBody(bodyDef);
 		if (fixtureDef)
 		{
@@ -138,7 +138,7 @@ export namespace b2Utils
 		if (!bodyDef) bodyDef = dynamicBodyDef;
 		tempVector2.x = x / B2_SCALE;
 		tempVector2.y = y / B2_SCALE;
-		bodyDef.set_position(tempVector2);
+		bodyDef.position = tempVector2;
 		var body = world.CreateBody(bodyDef);
 		if (fixtureDef)
 		{
@@ -147,7 +147,7 @@ export namespace b2Utils
 		return body;
 	}
 	
-	class ContactListener extends Box2D.b2ContactListener
+	export class ContactListener extends Box2D.b2ContactListener
 	{
 		public BeginContact(contact: Box2D.b2Contact)
 		{
@@ -211,7 +211,7 @@ export namespace b2Utils
 		return contactFilter;
 	}
 
-	class ContactFilter extends Box2D.b2ContactFilter
+	export class ContactFilter extends Box2D.b2ContactFilter
 	{
 		constructor (private shouldCollide: any) //TODO: predicate
 		{

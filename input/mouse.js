@@ -16,6 +16,8 @@ var Mouse;
     var mouseReleased = {};
     var mousePressedBuffer = {};
     var mouseReleasedBuffer = {};
+    var wheelDelta = 0;
+    var wheelDeltaBuffer = 0;
     (function (Button) {
         Button[Button["Left"] = 1] = "Left";
         Button[Button["Middle"] = 2] = "Middle";
@@ -32,6 +34,7 @@ var Mouse;
             document.addEventListener("dragover", _onDragOver, false);
             document.addEventListener("mousedown", _onMouseDown, false);
             document.addEventListener("mouseup", _onMouseUp, false);
+            document.addEventListener("wheel", _onMouseWheel, false);
         }
         else {
             Mouse.isHeadless = true;
@@ -48,6 +51,7 @@ var Mouse;
             document.removeEventListener("dragover", _onDragOver, false);
             document.removeEventListener("mousedown", _onMouseDown, false);
             document.removeEventListener("mouseup", _onMouseUp, false);
+            document.removeEventListener("wheel", _onMouseWheel, false);
         }
     }
     Mouse._destroy = _destroy;
@@ -63,6 +67,8 @@ var Mouse;
         var temp = mouseReleased;
         mouseReleased = mouseReleasedBuffer;
         mouseReleasedBuffer = temp;
+        wheelDelta = wheelDeltaBuffer;
+        wheelDeltaBuffer = 0;
         //clear new buffer
         for (var i in mousePressedBuffer) {
             mousePressedBuffer[i] = false;
@@ -101,6 +107,18 @@ var Mouse;
         e = e || window.event;
         mouseReleasedBuffer[e.which || e.keyCode] = true;
     }
+    function _onMouseWheel(e) {
+        e = e || window.event;
+        wheelDeltaBuffer = e.wheelDelta;
+    }
+    /**
+     * Returns the mousewheel delta on this frame.
+     * @returns {number}
+     */
+    function getMouseWheelDelta() {
+        return wheelDelta;
+    }
+    Mouse.getMouseWheelDelta = getMouseWheelDelta;
     /**
      * Returns the current position of the mouse relative to the specified HTML element.
      * @param {Element} relativeTo

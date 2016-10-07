@@ -29,7 +29,7 @@ export class Atlas
 		if (!suppressTextureLoad)
 		{
 			this.texture = ThreeUtils.loadTexture(this.url);
-			this.texture.minFilter = this.texture.magFilter = data.filter;
+			//this.texture.minFilter = this.texture.magFilter = data.filter;
 			ThreeUtils.setTextureNpot(this.texture);
 		}
 	}

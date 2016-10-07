@@ -1,5 +1,5 @@
 
-import THREE = require("three");
+import THREE = require("three")
 
 import { b2Utils } from "../b2utils";
 import { Box2D } from "../thirdparty/box2d";

@@ -1,5 +1,5 @@
 
-import THREE = require("three");
+import THREE = require("three")
 
 import { Atlas } from "./Atlas";
 

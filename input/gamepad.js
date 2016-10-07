@@ -7,7 +7,7 @@ var Gamepad;
      */
     Gamepad.isHeadless = false;
     var STICK_THRESHOLD = 0.5;
-    var DEAD_ZONE = 0.3;
+    Gamepad.DEAD_ZONE = 0.3;
     (function (Button) {
         Button[Button["A"] = 0] = "A";
         Button[Button["B"] = 1] = "B";
@@ -20,7 +20,7 @@ var Gamepad;
         Button[Button["Back"] = 8] = "Back";
         Button[Button["Start"] = 9] = "Start";
         Button[Button["LeftStick"] = 10] = "LeftStick";
-        Button[Button["RightStic"] = 11] = "RightStic";
+        Button[Button["RightStick"] = 11] = "RightStick";
         Button[Button["DPadUp"] = 12] = "DPadUp";
         Button[Button["DPadDown"] = 13] = "DPadDown";
         Button[Button["DPadLeft"] = 14] = "DPadLeft";
@@ -178,7 +178,7 @@ var Gamepad;
     function getAxis(index, axisIndex) {
         if (gamepads && gamepads[index] && gamepads[index].axes.length > axisIndex) {
             var val = gamepads[index].axes[axisIndex];
-            if (Math.abs(val) <= DEAD_ZONE)
+            if (Math.abs(val) <= Gamepad.DEAD_ZONE)
                 val = 0;
             return val;
         }
@@ -190,7 +190,7 @@ var Gamepad;
     function _getOldAxis(index, axisIndex) {
         if (oldGamepads && oldGamepads[index] && oldGamepads[index].axes.length > axisIndex) {
             var val = oldGamepads[index].axes[axisIndex];
-            if (Math.abs(val) <= DEAD_ZONE)
+            if (Math.abs(val) <= Gamepad.DEAD_ZONE)
                 val = 0;
             return val;
         }

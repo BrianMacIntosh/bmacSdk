@@ -8,7 +8,7 @@ export namespace Gamepad
 	export var isHeadless = false;
 
 	var STICK_THRESHOLD = 0.5;
-	var DEAD_ZONE = 0.3;
+	export var DEAD_ZONE = 0.3;
 
 	export enum Button
 	{
@@ -23,7 +23,7 @@ export namespace Gamepad
 		Back = 8,
 		Start = 9,
 		LeftStick = 10,
-		RightStic = 11,
+		RightStick = 11,
 		DPadUp = 12,
 		DPadDown = 13,
 		DPadLeft = 14,

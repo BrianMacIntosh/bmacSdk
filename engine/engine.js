@@ -25,6 +25,7 @@ var Engine = (function () {
     function Engine(canvasDivName) {
         this.objects = [];
         this.scene = new THREE.Scene();
+        this.cameraZoom = 1;
         this.canvasDivName = canvasDivName;
         this.mainCamera = new THREE.OrthographicCamera(0, 0, 0, 0, 1, 100);
         this.mainCamera.position.set(0, 0, 0);
@@ -58,6 +59,13 @@ var Engine = (function () {
     };
     ;
     /**
+     * Sets the zoom level of the main camera.
+     */
+    Engine.prototype.setCameraZoom = function (factor) {
+        this.cameraZoom = Math.clamp(factor, 0.1, 100);
+        this._updateCameraSize();
+    };
+    /**
      * Initializes the engine.
      */
     Engine.prototype._attachDom = function () {
@@ -86,13 +94,16 @@ var Engine = (function () {
             this.screenHeight = this.canvasDiv.offsetHeight;
             this.renderer.setSize(this.screenWidth, this.screenHeight);
         }
-        this.mainCamera.left = -this.screenWidth / 2;
-        this.mainCamera.right = this.screenWidth / 2;
-        this.mainCamera.top = -this.screenHeight / 2;
-        this.mainCamera.bottom = this.screenHeight / 2;
-        this.mainCamera.updateProjectionMatrix();
+        this._updateCameraSize();
     };
     ;
+    Engine.prototype._updateCameraSize = function () {
+        this.mainCamera.left = (-this.screenWidth / 2) / this.cameraZoom;
+        this.mainCamera.right = (this.screenWidth / 2) / this.cameraZoom;
+        this.mainCamera.top = (-this.screenHeight / 2) / this.cameraZoom;
+        this.mainCamera.bottom = (this.screenHeight / 2) / this.cameraZoom;
+        this.mainCamera.updateProjectionMatrix();
+    };
     Engine.prototype._animate = function () {
         // calculate mouse pos
         var mousePos = input_1.Mouse.getPosition(this.canvasDiv);

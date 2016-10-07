@@ -1,5 +1,5 @@
 
-import THREE = require("three");
+import THREE = require("three")
 
 import { bmacSdk } from "./";
 import { Mouse } from "../input";
@@ -36,6 +36,8 @@ export class Engine
 
 	public scene: THREE.Scene = new THREE.Scene();
 	public mainCamera: THREE.OrthographicCamera;
+
+	private cameraZoom: number = 1;
 
 	private renderer: THREE.WebGLRenderer;
 
@@ -82,6 +84,15 @@ export class Engine
 	};
 
 	/**
+	 * Sets the zoom level of the main camera.
+	 */
+	public setCameraZoom(factor: number)
+	{
+		this.cameraZoom = Math.clamp(factor, 0.1, 100);
+		this._updateCameraSize();
+	}
+
+	/**
 	 * Initializes the engine.
 	 */
 	public _attachDom(): void
@@ -119,12 +130,17 @@ export class Engine
 			this.screenHeight = this.canvasDiv.offsetHeight;
 			this.renderer.setSize(this.screenWidth, this.screenHeight);
 		}
-		this.mainCamera.left = -this.screenWidth/2;
-		this.mainCamera.right = this.screenWidth/2;
-		this.mainCamera.top = -this.screenHeight/2;
-		this.mainCamera.bottom = this.screenHeight/2;
-		this.mainCamera.updateProjectionMatrix();
+		this._updateCameraSize();
 	};
+
+	public _updateCameraSize()
+	{
+		this.mainCamera.left = (-this.screenWidth/2)/this.cameraZoom;
+		this.mainCamera.right = (this.screenWidth/2)/this.cameraZoom;
+		this.mainCamera.top = (-this.screenHeight/2)/this.cameraZoom;
+		this.mainCamera.bottom = (this.screenHeight/2)/this.cameraZoom;
+		this.mainCamera.updateProjectionMatrix();
+	}
 
 	public _animate(): void
 	{

@@ -1,0 +1,7 @@
+{
+  "name": "bmacsdk",
+  "dependencies": {},
+  "globalDependencies": {
+    "text-encoding": "registry:dt/text-encoding#0.0.0+20160325124532"
+  }
+}

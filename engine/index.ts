@@ -1,11 +1,11 @@
 
-import THREE = require("three");
+import THREE = require("three")
 require("../polyfills");
 
 import { Input } from "../input";
 import { Engine } from "./engine";
 
-export { EngineObject } from "./engine";
+export { EngineObject, Engine } from "./engine";
 
 /**
  * @namespace

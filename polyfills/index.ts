@@ -111,6 +111,11 @@ interface String
 	 * Removes whitespace characters from the end of the string.
 	 */
 	trimEnd(): string;
+
+	/**
+	 * Returns the djb2 32-bit signed integer hash of the string.
+	 */
+	djb2Hash(): number;
 }
 
 String.prototype.trim = String.prototype.trim || function trim(): string
@@ -127,6 +132,18 @@ String.prototype.trimEnd = String.prototype.trimEnd || function trimEnd(): strin
 {
 	return this.replace(/\s\s*$/, '');
 };
+
+String.prototype.djb2Hash = String.prototype.djb2Hash || function djb2Hash(): number
+{
+	var hash = 5381;
+	for (var i = 0; i < this.length; i++)
+	{
+		var char = this.charCodeAt(i);
+		hash = ((hash << 5) + hash) + char; /* hash * 33 + c */
+		hash = hash & hash; //force to 32-bit int (thanks JS)
+	}
+	return hash;
+}
 
 interface Array<T>
 {

@@ -52,6 +52,15 @@ String.prototype.trimStart = String.prototype.trimStart || function trimStart() 
 String.prototype.trimEnd = String.prototype.trimEnd || function trimEnd() {
     return this.replace(/\s\s*$/, '');
 };
+String.prototype.djb2Hash = String.prototype.djb2Hash || function djb2Hash() {
+    var hash = 5381;
+    for (var i = 0; i < this.length; i++) {
+        var char = this.charCodeAt(i);
+        hash = ((hash << 5) + hash) + char; /* hash * 33 + c */
+        hash = hash & hash; //force to 32-bit int (thanks JS)
+    }
+    return hash;
+};
 Array.prototype.remove = Array.prototype.remove || function remove(object) {
     for (var c = 0; c < this.length; c++) {
         if (this[c] === object) {
