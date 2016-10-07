@@ -1,7 +1,6 @@
 "use strict";
 var THREE = require("three");
 var _1 = require("./");
-var box2d_1 = require("../thirdparty/box2d");
 /**
  * Base class for an object that has three.js visuals and a Box2D body.
  * Visual elements should be parented to 'this.transform'. The position of
@@ -62,8 +61,7 @@ var PhysicsLinkedObject = (function () {
         if (this.body) {
             _1.b2Utils.tempVector2.x = this.transform.position.x / _1.b2Utils.B2_SCALE;
             _1.b2Utils.tempVector2.y = this.transform.position.y / _1.b2Utils.B2_SCALE;
-            var rotationMatrix = box2d_1.Box2D.b2Mat22.FromAngle(this.transform.rotation.z);
-            this.body.SetTransform(new box2d_1.Box2D.b2Transform(_1.b2Utils.tempVector2, rotationMatrix));
+            this.body.SetPositionAndAngle(_1.b2Utils.tempVector2, this.transform.rotation.z);
         }
     };
     /**

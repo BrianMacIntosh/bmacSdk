@@ -43,7 +43,8 @@ var b2Utils;
      * @returns {Box2D.b2Shape}
      */
     function createEdgeShape(x1, y1, x2, y2) {
-        var shape = new box2d_1.Box2D.b2EdgeShape(new box2d_1.Box2D.b2Vec2(x1 / b2Utils.B2_SCALE, y1 / b2Utils.B2_SCALE), new box2d_1.Box2D.b2Vec2(x2 / b2Utils.B2_SCALE, y2 / b2Utils.B2_SCALE));
+        var shape = new box2d_1.Box2D.b2PolygonShape();
+        shape.SetAsEdge(new box2d_1.Box2D.b2Vec2(x1 / b2Utils.B2_SCALE, y1 / b2Utils.B2_SCALE), new box2d_1.Box2D.b2Vec2(x2 / b2Utils.B2_SCALE, y2 / b2Utils.B2_SCALE));
         return shape;
     }
     b2Utils.createEdgeShape = createEdgeShape;

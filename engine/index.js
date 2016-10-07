@@ -141,6 +141,7 @@ var bmacSdk;
             engines[c]._animate();
         }
     }
+    bmacSdk._animate = _animate;
     ;
 })(bmacSdk = exports.bmacSdk || (exports.bmacSdk = {}));
 ;

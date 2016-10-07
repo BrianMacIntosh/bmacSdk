@@ -148,7 +148,7 @@ export namespace bmacSdk
 	/**
 	 * Main update loop.
 	 */
-	function _animate()
+	export function _animate()
 	{
 		_deltaSec = (Date.now() - _lastFrame) / 1000;
 		_lastFrame = Date.now();

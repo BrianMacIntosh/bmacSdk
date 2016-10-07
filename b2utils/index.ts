@@ -50,9 +50,10 @@ export namespace b2Utils
 	 * @param {number} y2 Second y coordinate in world units.
 	 * @returns {Box2D.b2Shape}
 	 */
-	export function createEdgeShape(x1: number, y1: number, x2: number, y2: number): Box2D.b2EdgeShape
+	export function createEdgeShape(x1: number, y1: number, x2: number, y2: number): Box2D.b2PolygonShape
 	{
-		var shape = new Box2D.b2EdgeShape(
+		var shape = new Box2D.b2PolygonShape();
+		shape.SetAsEdge(
 			new Box2D.b2Vec2(x1/B2_SCALE, y1/B2_SCALE),
 			new Box2D.b2Vec2(x2/B2_SCALE, y2/B2_SCALE));
 		return shape;

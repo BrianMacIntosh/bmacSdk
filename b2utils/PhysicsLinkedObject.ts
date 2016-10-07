@@ -90,8 +90,7 @@ export class PhysicsLinkedObject
 		{
 			b2Utils.tempVector2.x = this.transform.position.x / b2Utils.B2_SCALE;
 			b2Utils.tempVector2.y = this.transform.position.y / b2Utils.B2_SCALE;
-			var rotationMatrix = Box2D.b2Mat22.FromAngle(this.transform.rotation.z);
-			this.body.SetTransform(new Box2D.b2Transform(b2Utils.tempVector2, rotationMatrix));
+			this.body.SetPositionAndAngle(b2Utils.tempVector2, this.transform.rotation.z);
 		}
 	}
 
