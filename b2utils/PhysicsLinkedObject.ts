@@ -30,7 +30,7 @@ export class PhysicsLinkedObject
 	/**
 	 * Destroys this object.
 	 */
-	public destroy()
+	public destroy(): void
 	{
 		if (this.transform && this.transform.parent)
 		{
@@ -50,7 +50,7 @@ export class PhysicsLinkedObject
 	/**
 	 * Destroys the body associated with this object.
 	 */
-	public destroyBody()
+	public destroyBody(): void
 	{
 		if (this.body)
 		{
@@ -62,7 +62,7 @@ export class PhysicsLinkedObject
 	/**
 	 * Updates this object once per frame.
 	 */
-	public update(deltaSec: number)
+	public update(deltaSec: number): void
 	{
 		this.syncTransformToBody();
 	}
@@ -70,7 +70,7 @@ export class PhysicsLinkedObject
 	/**
 	 * Moves the THREE transform to match the body position.
 	 */
-	public syncTransformToBody()
+	public syncTransformToBody(): void
 	{
 		if (this.body)
 		{
@@ -84,7 +84,7 @@ export class PhysicsLinkedObject
 	/**
 	 * Moves the body position to match the THREE transform.
 	 */
-	public syncBodyToTransform()
+	public syncBodyToTransform(): void
 	{
 		if (this.body)
 		{
@@ -114,7 +114,7 @@ export class PhysicsLinkedObject
 	 * Reduces the object's velocity to be no greater than the specified speed.
 	 * @param {Number} maxSpeed
 	 */
-	public limitSpeed(maxSpeed: number)
+	public limitSpeed(maxSpeed: number): void
 	{
 		var postVelocity = this.body.GetLinearVelocity();
 		var postVelocityLength = postVelocity.Length();
@@ -132,7 +132,7 @@ export class PhysicsLinkedObject
 	 * @param {Box2D.b2Contact} contact
 	 * @param {Box2D.b2Fixture} otherFixture
 	 */
-	public onBeginContact(contact: Box2D.b2Contact, otherFixture: Box2D.b2Fixture)
+	public onBeginContact(contact: Box2D.b2Contact, otherFixture: Box2D.b2Fixture): void
 	{
 
 	}
@@ -143,7 +143,7 @@ export class PhysicsLinkedObject
 	 * @param {Box2D.b2Contact} contact
 	 * @param {Box2D.b2Fixture} otherFixture
 	 */
-	public onEndContact(contact: Box2D.b2Contact, otherFixture: Box2D.b2Fixture)
+	public onEndContact(contact: Box2D.b2Contact, otherFixture: Box2D.b2Fixture): void
 	{
 
 	}
@@ -156,7 +156,7 @@ export class PhysicsLinkedObject
 	 * @param {Box2D.b2Manifold} oldManifold
 	 * @param {Box2D.b2Fixture} otherFixture
 	 */
-	public onPreSolve(contact: Box2D.b2Contact, oldManifold: Box2D.b2Manifold, otherFixture: Box2D.b2Fixture)
+	public onPreSolve(contact: Box2D.b2Contact, oldManifold: Box2D.b2Manifold, otherFixture: Box2D.b2Fixture): void
 	{
 
 	}
@@ -168,7 +168,7 @@ export class PhysicsLinkedObject
 	 * @param {Box2D.b2Impulse} impulse
 	 * @param {Box2D.b2Fixture} otherFixture
 	 */
-	public onPostSolve(contact: Box2D.b2Contact, impulse: Box2D.b2ContactImpulse, otherFixture: Box2D.b2Fixture)
+	public onPostSolve(contact: Box2D.b2Contact, impulse: Box2D.b2ContactImpulse, otherFixture: Box2D.b2Fixture): void
 	{
 
 	}

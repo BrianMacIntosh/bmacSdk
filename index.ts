@@ -5,8 +5,8 @@ export { CircularQueue } from "./circularqueue";
 export { DataViewStream } from "./dataviewstream";
 export { bmacSdk, Engine, EngineObject } from "./engine";
 export { Input, Keyboard, Mouse, Gamepad } from "./input";
-export { THREE } from "./node_modules/three";
 export { Box2D } from "./thirdparty/box2d";
 export { ThreeUtils, Atlas, ThreeJsDebugDraw } from "./threeutils";
 
+require("three");
 require("./polyfill");

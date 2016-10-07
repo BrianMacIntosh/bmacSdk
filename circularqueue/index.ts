@@ -27,7 +27,7 @@ export class CircularQueue
 	/**
 	 * Push a new element at 'tail'
 	 */
-	public push(obj: any)
+	public push(obj: any): void
 	{
 		var wasValid = this.valid();
 
@@ -45,7 +45,7 @@ export class CircularQueue
 	/**
 	 * Remove all elements in range [head, index]
 	 */
-	public truncateTo(index: number)
+	public truncateTo(index: number): void
 	{
 		for (var i = this.head; ; i = this.wrapIndex(i + 1))
 		{

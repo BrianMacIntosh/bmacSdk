@@ -49,7 +49,7 @@ export class DataViewStream
 	/**
 	 * Trim the buffer and return it.
 	 */
-	public getSendBuffer()
+	public getSendBuffer(): ArrayBuffer
 	{
 		this._tryWriteBitBuffer();
 		if (this.pointer < this.buffer.byteLength)
@@ -59,13 +59,13 @@ export class DataViewStream
 		return this.buffer;
 	}
 
-	public isEmpty()
+	public isEmpty(): boolean
 	{
 		//HACK: not true for reads
 		return this.pointer == 0;
 	}
 
-	public resize(newSize)
+	public resize(newSize: number): void
 	{
 		var newBuffer = new ArrayBuffer(newSize);
 		var byteView = new Uint8Array(this.buffer);
@@ -77,7 +77,7 @@ export class DataViewStream
 	}
 
 
-	public getBit()
+	public getBit(): boolean
 	{
 		if (this.bitBufferPointer < 0)
 		{
@@ -99,7 +99,7 @@ export class DataViewStream
 	/**
 	 * Call before a read operation.
 	 */
-	public _startRead()
+	public _startRead(): void
 	{
 		// clear the last bit buffer, if any
 		if (this.bitBufferPointer >= 0)
@@ -109,7 +109,7 @@ export class DataViewStream
 		}
 	}
 
-	public getInt8()
+	public getInt8(): number
 	{
 		this._startRead();
 		var data = this.dataView.getInt8(this.pointer);
@@ -117,7 +117,7 @@ export class DataViewStream
 		return data;
 	}
 
-	public getUint8()
+	public getUint8(): number
 	{
 		this._startRead();
 		var data = this.dataView.getUint8(this.pointer);
@@ -125,7 +125,7 @@ export class DataViewStream
 		return data;
 	}
 
-	public getInt16()
+	public getInt16(): number
 	{
 		this._startRead();
 		var data = this.dataView.getInt16(this.pointer);
@@ -133,7 +133,7 @@ export class DataViewStream
 		return data;
 	}
 
-	public getUint16()
+	public getUint16(): number
 	{
 		this._startRead();
 		var data = this.dataView.getUint16(this.pointer);
@@ -141,7 +141,7 @@ export class DataViewStream
 		return data;
 	}
 
-	public getInt32()
+	public getInt32(): number
 	{
 		this._startRead();
 		var data = this.dataView.getInt32(this.pointer);
@@ -149,7 +149,7 @@ export class DataViewStream
 		return data;
 	}
 
-	public getUint32()
+	public getUint32(): number
 	{
 		this._startRead();
 		var data = this.dataView.getUint32(this.pointer);
@@ -157,7 +157,7 @@ export class DataViewStream
 		return data;
 	}
 
-	public getFloat32()
+	public getFloat32(): number
 	{
 		this._startRead();
 		var data = this.dataView.getFloat32(this.pointer);
@@ -165,7 +165,7 @@ export class DataViewStream
 		return data;
 	}
 
-	public getFloat64()
+	public getFloat64(): number
 	{
 		this._startRead();
 		var data = this.dataView.getFloat64(this.pointer);
@@ -173,7 +173,7 @@ export class DataViewStream
 		return data;
 	}
 
-	public getString()
+	public getString(): string
 	{
 		var length = this.getUint32();
 		var byteArray = new Uint8Array(length);
@@ -185,7 +185,7 @@ export class DataViewStream
 	}
 
 
-	public setBit(value)
+	public setBit(value: boolean): void
 	{
 		if (this.bitBufferPointer < 0)
 		{
@@ -208,7 +208,7 @@ export class DataViewStream
 	 * Call before a write operation.
 	 * @param {Number} size The size of the data you will write.
 	 */
-	public _startWrite(size)
+	public _startWrite(size: number): void
 	{
 		this._tryWriteBitBuffer();
 
@@ -219,7 +219,7 @@ export class DataViewStream
 		}
 	}
 
-	public _tryWriteBitBuffer()
+	public _tryWriteBitBuffer(): void
 	{
 		if (this.bitBufferPointer >= 0)
 		{
@@ -229,63 +229,63 @@ export class DataViewStream
 		}
 	}
 
-	public setInt8(value)
+	public setInt8(value: number): void
 	{
 		this._startWrite(1);
 		this.dataView.setInt8(this.pointer, value);
 		this.pointer += 1;
 	}
 
-	public setUint8(value)
+	public setUint8(value: number): void
 	{
 		this._startWrite(1);
 		this.dataView.setUint8(this.pointer, value);
 		this.pointer += 1;
 	}
 
-	public setInt16(value)
+	public setInt16(value: number): void
 	{
 		this._startWrite(2);
 		this.dataView.setInt16(this.pointer, value);
 		this.pointer += 2;
 	}
 
-	public setUint16(value)
+	public setUint16(value: number): void
 	{
 		this._startWrite(2);
 		this.dataView.setUint16(this.pointer, value);
 		this.pointer += 2;
 	}
 
-	public setInt32(value)
+	public setInt32(value: number): void
 	{
 		this._startWrite(4);
 		this.dataView.setInt32(this.pointer, value);
 		this.pointer += 4;
 	}
 
-	public setUint32(value)
+	public setUint32(value: number): void
 	{
 		this._startWrite(4);
 		this.dataView.setUint32(this.pointer, value);
 		this.pointer += 4;
 	}
 
-	public setFloat32(value)
+	public setFloat32(value: number): void
 	{
 		this._startWrite(4);
 		this.dataView.setFloat32(this.pointer, value);
 		this.pointer += 4;
 	}
 
-	public setFloat64(value)
+	public setFloat64(value: number): void
 	{
 		this._startWrite(8);
 		this.dataView.setFloat64(this.pointer, value);
 		this.pointer += 8;
 	}
 
-	public setString(value)
+	public setString(value: string): void
 	{
 		this.setUint32(value.length);
 		var byteArray = this.stringEncoder.encode(value);

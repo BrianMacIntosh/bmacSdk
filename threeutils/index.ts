@@ -355,9 +355,13 @@ export module ThreeUtils
 		}
 		if (!mesh.geometry.dynamic)
 		{
-			console.error("Geometry is not dynamic.");return;
+			console.error("Geometry is not dynamic.");
+			return mesh;
 		}
-		if (flipX == mesh.geometry.atlas_flipx && flipY == mesh.geometry.atlas_flipy) return;
+		if (flipX == mesh.geometry.atlas_flipx && flipY == mesh.geometry.atlas_flipy)
+		{
+			return mesh;
+		}
 		mesh.geometry.atlas_flipx=flipX;
 		mesh.geometry.atlas_flipy=flipY;
 		_setAtlasUVs(mesh.geometry, mesh.atlas, mesh.atlas_key);
@@ -373,13 +377,17 @@ export module ThreeUtils
 	{
 		if (!mesh.geometry)
 		{
-			return;
+			return mesh;
 		}
 		if (!mesh.geometry.dynamic)
 		{
-			console.error("Geometry is not dynamic.");return;
+			console.error("Geometry is not dynamic.");
+			return mesh;
 		}
-		if (key === mesh.atlas_key) return;
+		if (key === mesh.atlas_key) 
+		{
+			return mesh;
+		}
 		mesh.atlas_key = key;
 		setAtlasGeometry(mesh.geometry, mesh.atlas, mesh.atlas_key);
 		return mesh;

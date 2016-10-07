@@ -72,7 +72,7 @@ var bmacSdk;
                 _attachDom();
             }
             else {
-                window.onload = document.onload = function () { _attachDom(); };
+                window.onload = document.onload = function (ev) { _attachDom(); };
             }
             window.addEventListener("blur", function () {
                 bmacSdk.isFocused = false;

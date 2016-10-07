@@ -77,7 +77,7 @@ export namespace b2Utils
 	 * @param {number} radius The radius of the circle in world units.
 	 * @returns {Box2D.b2Shape}
 	 */
-	export function createCircleShape(radius: number)
+	export function createCircleShape(radius: number) : Box2D.b2CircleShape
 	{
 		var shape = new Box2D.b2CircleShape();
 		shape.SetRadius(radius/B2_SCALE);
@@ -92,7 +92,7 @@ export namespace b2Utils
 	 * @param {number} restitution
 	 * @returns {Box2D.b2FixtureDef}
 	 */
-	export function createFixtureDef(shape: Box2D.b2Shape, density: number, friction: number, restitution: number)
+	export function createFixtureDef(shape: Box2D.b2Shape, density: number, friction: number, restitution: number): Box2D.b2FixtureDef
 	{
 		var def = new Box2D.b2FixtureDef();
 		def.shape = shape;
@@ -111,7 +111,8 @@ export namespace b2Utils
 	 * @param {Box2D.b2BodyDef} bodyDef (Optional) definition to use for the body
 	 * @returns {Box2D.b2Body}
 	 */
-	export function createStaticBody(world, x, y, fixtureDef, bodyDef)
+	export function createStaticBody(world: Box2D.b2World, x: number, y: number,
+		fixtureDef?: Box2D.b2FixtureDef, bodyDef?: Box2D.b2BodyDef): Box2D.b2Body
 	{
 		if (!bodyDef) bodyDef = staticBodyDef;
 		tempVector2.x = x / B2_SCALE;
@@ -134,7 +135,8 @@ export namespace b2Utils
 	 * @param {Box2D.b2BodyDef} bodyDef (Optional) definition to use for the body
 	 * @returns {Box2D.b2Body}
 	 */
-	export function createDynamicBody(world, x, y, fixtureDef, bodyDef)
+	export function createDynamicBody(world: Box2D.b2World, x: number, y: number,
+		fixtureDef?: Box2D.b2FixtureDef, bodyDef?: Box2D.b2BodyDef): Box2D.b2Body
 	{
 		if (!bodyDef) bodyDef = dynamicBodyDef;
 		tempVector2.x = x / B2_SCALE;
@@ -150,7 +152,7 @@ export namespace b2Utils
 	
 	export class ContactListener extends Box2D.b2ContactListener
 	{
-		public BeginContact(contact: Box2D.b2Contact)
+		public BeginContact(contact: Box2D.b2Contact): void
 		{
 			for (var i = 0; i < b2Utils.AllObjects.length; i++)
 			{
@@ -162,7 +164,7 @@ export namespace b2Utils
 			}
 		}
 		
-		public EndContact(contact: Box2D.b2Contact)
+		public EndContact(contact: Box2D.b2Contact): void
 		{
 			for (var i = 0; i < b2Utils.AllObjects.length; i++)
 			{
@@ -174,7 +176,7 @@ export namespace b2Utils
 			}
 		}
 
-		public PreSolve(contact: Box2D.b2Contact, oldManifold: Box2D.b2Manifold)
+		public PreSolve(contact: Box2D.b2Contact, oldManifold: Box2D.b2Manifold): void
 		{
 			for (var i = 0; i < b2Utils.AllObjects.length; i++)
 			{
@@ -186,7 +188,7 @@ export namespace b2Utils
 			}
 		}
 
-		public PostSolve(contact: Box2D.b2Contact, impulse: Box2D.b2ContactImpulse)
+		public PostSolve(contact: Box2D.b2Contact, impulse: Box2D.b2ContactImpulse): void
 		{
 			for (var i = 0; i < b2Utils.AllObjects.length; i++)
 			{
@@ -203,7 +205,7 @@ export namespace b2Utils
 	 * Returns the contact filter for the game.
 	 * @returns {Box2D.b2ContactFilter}
 	 */
-	export function getContactFilter(shouldCollide)
+	export function getContactFilter(shouldCollide): Box2D.b2ContactFilter
 	{
 		if (!contactFilter)
 		{
@@ -231,7 +233,7 @@ export namespace b2Utils
 	 * @param {PhysicsLinkedObject} linkedObject
 	 * @returns {Box2D.b2Fixture}
 	 */
-	export function getOtherObject(contact, linkedObject)
+	export function getOtherObject(contact: Box2D.b2Contact, linkedObject: PhysicsLinkedObject): Box2D.b2Fixture
 	{
 		if (contact.GetFixtureA().GetBody() == linkedObject.body)
 		{

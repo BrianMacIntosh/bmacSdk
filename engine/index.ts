@@ -88,7 +88,7 @@ export namespace bmacSdk
 			}
 			else
 			{
-				window.onload = document.onload = function() { _attachDom(); };
+				window.onload = document.onload = function(ev: Event) { _attachDom(); };
 			}
 
 			window.addEventListener("blur", function(){
