@@ -156,6 +156,12 @@ interface Array<T>
 	 * Returns true if the array contains the specified object.
 	 */
 	contains(object: T): boolean;
+
+	/**
+	 * Adds the element in the first empty space in the array. Returns the index used.
+	 * @param {number} min The minimum index to use.
+	 */
+	addInFirstSpace(object: T, min: number): number
 }
 
 Array.prototype.remove = Array.prototype.remove || function remove(object): boolean
@@ -181,4 +187,20 @@ Array.prototype.contains = Array.prototype.contains || function contains(object)
 		}
 	}
 	return false;
+};
+
+Array.prototype.addInFirstSpace = function addInFirstSpace(object, min: number): number
+{
+	for (var c = min; c < this.length; c++)
+	{
+		if (this[c] === undefined || this[c] === null)
+		{
+			this[c] = object;
+			return c;
+		}
+	}
+
+	var index = Math.max(min, this.length);
+	this[index] = object;
+	return index;
 };
