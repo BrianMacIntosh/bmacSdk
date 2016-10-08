@@ -5709,6 +5709,7 @@ Box2D.postDefs = [];
       b2World.m_continuousPhysics = true;
       this.m_allowSleep = doSleep;
       this.m_gravity = gravity;
+      this.m_flags = b2World.e_clearForces;
       this.m_inv_dt0 = 0.0;
       this.m_contactManager.m_world = this;
       var bd = new b2BodyDef();
@@ -5971,6 +5972,9 @@ Box2D.postDefs = [];
       }
       if (step.dt > 0.0) {
          this.m_inv_dt0 = step.inv_dt;
+      }
+      if (this.m_flags & b2World.e_clearForces) {
+            this.ClearForces();
       }
       this.m_flags &= ~b2World.e_locked;
    }
@@ -6545,6 +6549,7 @@ Box2D.postDefs = [];
       Box2D.b2World.s_jointColor = new b2Color(0.5, 0.8, 0.8);
       Box2D.b2World.e_newFixture = 0x0001;
       Box2D.b2World.e_locked = 0x0002;
+      Box2D.b2World.e_clearForces = 0x0004;
    });
 })();
 (function () {
