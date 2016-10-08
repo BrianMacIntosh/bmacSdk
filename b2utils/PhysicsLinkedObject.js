@@ -12,7 +12,7 @@ var PhysicsLinkedObject = (function () {
         _1.b2Utils.AllObjects.push(this);
         if (body) {
             this.body = body;
-            this.body.ownerObject = this;
+            this.body.SetUserData(this);
         }
     }
     /**

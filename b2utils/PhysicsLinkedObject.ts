@@ -23,7 +23,7 @@ export class PhysicsLinkedObject
 		if (body)
 		{
 			this.body = body;
-			this.body.ownerObject = this;
+			this.body.SetUserData(this);
 		}
 	}
 
