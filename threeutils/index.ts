@@ -31,7 +31,7 @@ export module ThreeUtils
 	 * Creates a THREE.Mesh with a unique material.
 	 * @param {THREE.Texture} texture Texture for the mesh.
 	 * @param {THREE.Geometry} geometry Geometry for the mesh.
-	 * @returns {THREE.Object3D}
+	 * @returns {THREE.Mesh}
 	 */
 	export function makeSpriteMesh(texture: THREE.Texture, geometry: THREE.Geometry): THREE.Mesh
 	{
@@ -222,8 +222,8 @@ export module ThreeUtils
 	 * @param {boolean} dynamic Set if you want to be able to flip the sprite or dynamically switch its texture.
 	 */
 	export function makeAtlasMesh(atlas: Atlas, key: string,
-		dynamicGeometry: boolean,
-		dynamicMaterial: boolean): THREE.Object3D
+		dynamicGeometry?: boolean,
+		dynamicMaterial?: boolean): THREE.Mesh
 	{
 		if (atlas.sprites[key] === undefined)
 		{

@@ -24,4 +24,4 @@ exports.ThreeUtils = threeutils_1.ThreeUtils;
 exports.Atlas = threeutils_1.Atlas;
 exports.ThreeJsDebugDraw = threeutils_1.ThreeJsDebugDraw;
 require("three");
-require("./polyfill");
+require("./polyfills");

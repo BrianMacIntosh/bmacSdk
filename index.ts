@@ -9,4 +9,4 @@ export { Box2D } from "./thirdparty/box2d";
 export { ThreeUtils, Atlas, ThreeJsDebugDraw } from "./threeutils";
 
 require("three");
-require("./polyfill");
+require("./polyfills");
