@@ -1,23 +1,16 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var THREE = require("three");
 var b2utils_1 = require("../b2utils");
-var box2d_1 = require("../thirdparty/box2d");
 /**
  * An object that manages drawing debug shapes for bodies in a Box2D world.
  * @namespace
  */
-var ThreeJsDebugDraw = (function (_super) {
-    __extends(ThreeJsDebugDraw, _super);
+var ThreeJsDebugDraw = (function () {
     function ThreeJsDebugDraw() {
-        _super.apply(this, arguments);
         // nested array, indexed by vert count
         this.meshPools = {};
         this.poolIndices = {};
+        this.drawFlags = 0;
         this.transform = new THREE.Object3D();
     }
     ThreeJsDebugDraw.prototype.getGeometry = function (color, vertCount) {
@@ -42,7 +35,7 @@ var ThreeJsDebugDraw = (function (_super) {
         else {
             mesh = pool[index];
             var material = pool[index].material;
-            material.color.setRGB(color.r, color.g, color.b);
+            material.color.setHex(color.color);
             geometry = pool[index].geometry;
         }
         mesh.visible = true;
@@ -65,6 +58,28 @@ var ThreeJsDebugDraw = (function (_super) {
         }
     };
     ;
+    ThreeJsDebugDraw.prototype.SetFlags = function (flags) {
+        if (flags === undefined)
+            flags = 0;
+        this.drawFlags = flags;
+    };
+    ;
+    ThreeJsDebugDraw.prototype.GetFlags = function () {
+        return this.drawFlags;
+    };
+    ;
+    ThreeJsDebugDraw.prototype.AppendFlags = function (flags) {
+        if (flags === undefined)
+            flags = 0;
+        this.drawFlags |= flags;
+    };
+    ;
+    ThreeJsDebugDraw.prototype.ClearFlags = function (flags) {
+        if (flags === undefined)
+            flags = 0;
+        this.drawFlags &= ~flags;
+    };
+    ;
     ThreeJsDebugDraw.prototype.DrawSegment = function (vert1, vert2, color) {
         var geometry = this.getGeometry(color, 2);
         var x1 = vert1.x * b2utils_1.b2Utils.B2_SCALE;
@@ -85,8 +100,8 @@ var ThreeJsDebugDraw = (function (_super) {
             geometry.vertices[i].set(x, y, 0);
         }
         // close by drawing the first vert again
-        var x = vertices[i].x * b2utils_1.b2Utils.B2_SCALE;
-        var y = vertices[i].y * b2utils_1.b2Utils.B2_SCALE;
+        var x = vertices[0].x * b2utils_1.b2Utils.B2_SCALE;
+        var y = vertices[0].y * b2utils_1.b2Utils.B2_SCALE;
         geometry.vertices[i].set(x, y, 0);
         geometry.verticesNeedUpdate = true;
         geometry.computeBoundingSphere();
@@ -126,5 +141,5 @@ var ThreeJsDebugDraw = (function (_super) {
     };
     ;
     return ThreeJsDebugDraw;
-}(box2d_1.Box2D.b2DebugDraw));
+}());
 exports.ThreeJsDebugDraw = ThreeJsDebugDraw;

@@ -8,11 +8,13 @@ import { Box2D } from "../thirdparty/box2d";
  * An object that manages drawing debug shapes for bodies in a Box2D world.
  * @namespace
  */
-export class ThreeJsDebugDraw extends Box2D.b2DebugDraw
+export class ThreeJsDebugDraw
 {
 	// nested array, indexed by vert count
 	private meshPools: { [s: string]: THREE.Object3D[] } = {};
 	private poolIndices: { [s: string]: number } = {};
+
+	private drawFlags: number = 0;
 
 	public transform: THREE.Object3D = new THREE.Object3D();
 
@@ -49,7 +51,7 @@ export class ThreeJsDebugDraw extends Box2D.b2DebugDraw
 			mesh = pool[index];
 
 			var material = pool[index].material;
-			material.color.setRGB(color.r, color.g, color.b);
+			material.color.setHex(color.color);
 
 			geometry = pool[index].geometry;
 		}
@@ -59,7 +61,7 @@ export class ThreeJsDebugDraw extends Box2D.b2DebugDraw
 		return geometry;
 	};
 
-	startDrawing(): void
+	public startDrawing(): void
 	{
 		// reset mesh counters
 		for (var i in this.meshPools)
@@ -68,7 +70,7 @@ export class ThreeJsDebugDraw extends Box2D.b2DebugDraw
 		}
 	};
 
-	finishDrawing(): void
+	public finishDrawing(): void
 	{
 		// hide excess meshPools
 		for (var i in this.meshPools)
@@ -80,7 +82,30 @@ export class ThreeJsDebugDraw extends Box2D.b2DebugDraw
 		}
 	};
 
-	DrawSegment(vert1: Box2D.b2Vec2, vert2: Box2D.b2Vec2, color: Box2D.b2Color)
+	public SetFlags(flags: number): void
+	{
+		if (flags === undefined) flags = 0;
+		this.drawFlags = flags;
+	};
+
+	public GetFlags(): number
+	{
+		return this.drawFlags;
+	};
+
+	public AppendFlags(flags: number): void
+	{
+		if (flags === undefined) flags = 0;
+		this.drawFlags |= flags;
+	};
+
+	public ClearFlags(flags: number): void
+	{
+		if (flags === undefined) flags = 0;
+		this.drawFlags &= ~flags;
+	};
+
+	public DrawSegment(vert1: Box2D.b2Vec2, vert2: Box2D.b2Vec2, color: Box2D.b2Color)
 	{
 		var geometry = this.getGeometry(color, 2);
 
@@ -96,7 +121,7 @@ export class ThreeJsDebugDraw extends Box2D.b2DebugDraw
 		geometry.computeBoundingSphere();
 	};
 
-	DrawPolygon(vertices: Box2D.b2Vec2[], vertexCount: number, color: Box2D.b2Color)
+	public DrawPolygon(vertices: Box2D.b2Vec2[], vertexCount: number, color: Box2D.b2Color)
 	{
 		var geometry = this.getGeometry(color, vertexCount + 1);
 
@@ -108,21 +133,21 @@ export class ThreeJsDebugDraw extends Box2D.b2DebugDraw
 		}
 
 		// close by drawing the first vert again
-		var x = vertices[i].x * b2Utils.B2_SCALE;
-		var y = vertices[i].y * b2Utils.B2_SCALE;
+		var x = vertices[0].x * b2Utils.B2_SCALE;
+		var y = vertices[0].y * b2Utils.B2_SCALE;
 		geometry.vertices[i].set(x, y, 0);
 
 		geometry.verticesNeedUpdate = true;
 		geometry.computeBoundingSphere();
 	};
 
-	DrawSolidPolygon(vertices: Box2D.b2Vec2[], vertexCount: number, color: Box2D.b2Color)
+	public DrawSolidPolygon(vertices: Box2D.b2Vec2[], vertexCount: number, color: Box2D.b2Color)
 	{
 		//TODO:
 		this.DrawPolygon(vertices, vertexCount, color);
 	};
 
-	DrawCircle(center: Box2D.b2Vec2, radius: number, color: Box2D.b2Color)
+	public DrawCircle(center: Box2D.b2Vec2, radius: number, color: Box2D.b2Color)
 	{
 		var circleRes = 16;
 		var geometry = this.getGeometry(color, circleRes + 1);
@@ -147,13 +172,13 @@ export class ThreeJsDebugDraw extends Box2D.b2DebugDraw
 		geometry.computeBoundingSphere();
 	};
 
-	DrawSolidCircle(center, radius, axis, color)
+	public DrawSolidCircle(center, radius, axis, color)
 	{
 		//TODO:
 		this.DrawCircle(center, radius, color);
 	};
 
-	DrawTransform(transform)
+	public DrawTransform(transform)
 	{
 		//TODO:
 	};

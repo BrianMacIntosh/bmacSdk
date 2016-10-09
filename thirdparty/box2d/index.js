@@ -5988,7 +5988,7 @@ Box2D.postDefs = [];
       if (this.m_debugDraw == null) {
          return;
       }
-      this.m_debugDraw.m_sprite.graphics.clear();
+      //BMac: removed: this.m_debugDraw.m_sprite.graphics.clear();
       var flags = this.m_debugDraw.GetFlags();
       var i = 0;
       var b;
@@ -10714,7 +10714,7 @@ Box2D.postDefs = [];
       this.m_sprite = {
          graphics: {
             clear: function () {
-               //BMac removed: __this.m_ctx.clearRect(0, 0, __this.m_ctx.canvas.width, __this.m_ctx.canvas.height)
+               __this.m_ctx.clearRect(0, 0, __this.m_ctx.canvas.width, __this.m_ctx.canvas.height)
             }
          }
       };
