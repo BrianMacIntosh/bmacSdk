@@ -59,6 +59,8 @@ var bmacSdk;
     function createEngine(canvasDivName) {
         var engine = new engine_1.Engine(canvasDivName);
         engines.push(engine);
+        if (bmacSdk.domAttached)
+            engine._attachDom();
         return engine;
     }
     bmacSdk.createEngine = createEngine;

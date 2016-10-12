@@ -70,6 +70,7 @@ export namespace bmacSdk
 	{
 		var engine = new Engine(canvasDivName);
 		engines.push(engine);
+		if (domAttached) engine._attachDom();
 		return engine;
 	}
 
