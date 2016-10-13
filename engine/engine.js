@@ -73,7 +73,7 @@ var Engine = (function () {
             this.canvasDiv = document.getElementById(this.canvasDivName);
             this.renderer = new THREE.WebGLRenderer();
             this.canvasDiv.appendChild(this.renderer.domElement);
-            this.canvasDiv.oncontextmenu = function () { return false; };
+            this.canvasDiv.addEventListener("contextmenu", function (e) { e.preventDefault(); return false; });
             this.renderer.setClearColor(0x000000, 1);
         }
         //TODO: 2D depth management

@@ -103,7 +103,7 @@ export class Engine
 			this.canvasDiv = document.getElementById(this.canvasDivName) as HTMLCanvasElement;
 			this.renderer = new THREE.WebGLRenderer();
 			this.canvasDiv.appendChild(this.renderer.domElement);
-			this.canvasDiv.oncontextmenu = function() { return false; };
+			this.canvasDiv.addEventListener("contextmenu", function(e) { e.preventDefault();return false; });
 			this.renderer.setClearColor(0x000000, 1);
 		}
 		
