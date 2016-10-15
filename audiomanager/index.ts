@@ -16,13 +16,13 @@ export namespace AudioManager
 	 * Set the position of the audio listener.
 	 * @param {THREE.Vector3} position
 	 */
-	export function setListener(position: THREE.Vector3): void
+	/*export function setListener(position: THREE.Vector3): void
 	{
 		listener = position;
-	};
+	};*/
 
 	//TODO: call this every frame
-	export function _updateVolume(clip: HTMLAudioElement): void
+	/*export function _updateVolume(clip: HTMLAudioElement): void
 	{
 		//Do ranges
 		if (clip.position && listener)
@@ -42,7 +42,7 @@ export namespace AudioManager
 		{
 			clip.volume = 1;
 		}
-	};
+	};*/
 
 	//TODO: test me
 	export function preloadSound(url: string|string[]): void
@@ -60,7 +60,7 @@ export namespace AudioManager
 			var clip = new Audio(url);
 			clip.play();
 			clip.pause();
-			clip.relativeSrc = url;
+			(clip as any).relativeSrc = url;
 			_addToPool(clip);
 		}
 	};
@@ -76,7 +76,7 @@ export namespace AudioManager
 		// server-side fail silent
 		if (typeof Audio === "undefined") return null;
 		
-		if (url === undefined) return null;
+		if (urlParam === undefined) return null;
 		if (!enabled) return null;
 		
 		var url: string;
@@ -104,7 +104,7 @@ export namespace AudioManager
 		{
 			//Make a new clip
 			clip = new Audio(url);
-			clip.relativeSrc = url;
+			(clip as any).relativeSrc = url; //HACK:
 			clip.volume = vol || 1.0;
 			clip.addEventListener("ended", function() { _addToPool(clip); });
 		}
@@ -129,7 +129,7 @@ export namespace AudioManager
 	 */
 	function _addToPool(clip: HTMLAudioElement): void
 	{
-		var url = clip.relativeSrc;
+		var url = (clip as any).relativeSrc; //HACK:
 		if (!pool[url])
 		{
 			pool[url] = [];

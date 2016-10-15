@@ -14,17 +14,19 @@ var AudioManager;
      * Set the position of the audio listener.
      * @param {THREE.Vector3} position
      */
-    function setListener(position) {
+    /*export function setListener(position: THREE.Vector3): void
+    {
         listener = position;
-    }
-    AudioManager.setListener = setListener;
-    ;
+    };*/
     //TODO: call this every frame
-    function _updateVolume(clip) {
+    /*export function _updateVolume(clip: HTMLAudioElement): void
+    {
         //Do ranges
-        if (clip.position && listener) {
+        if (clip.position && listener)
+        {
             var dist = clip.position.subtracted(listener).lengthSq();
-            if (dist < audibleRange * audibleRange) {
+            if (dist < audibleRange * audibleRange)
+            {
                 if (dist < dropoffRange * dropoffRange)
                     clip.volume = 1;
                 else
@@ -33,12 +35,11 @@ var AudioManager;
             else
                 clip.volume = 0;
         }
-        else {
+        else
+        {
             clip.volume = 1;
         }
-    }
-    AudioManager._updateVolume = _updateVolume;
-    ;
+    };*/
     //TODO: test me
     function preloadSound(url) {
         // server-side fail silent
@@ -68,7 +69,7 @@ var AudioManager;
         // server-side fail silent
         if (typeof Audio === "undefined")
             return null;
-        if (url === undefined)
+        if (urlParam === undefined)
             return null;
         if (!AudioManager.enabled)
             return null;
@@ -92,7 +93,7 @@ var AudioManager;
         else {
             //Make a new clip
             clip = new Audio(url);
-            clip.relativeSrc = url;
+            clip.relativeSrc = url; //HACK:
             clip.volume = vol || 1.0;
             clip.addEventListener("ended", function () { _addToPool(clip); });
         }
@@ -117,7 +118,7 @@ var AudioManager;
      * @param {Audio} clip
      */
     function _addToPool(clip) {
-        var url = clip.relativeSrc;
+        var url = clip.relativeSrc; //HACK:
         if (!pool[url]) {
             pool[url] = [];
         }
