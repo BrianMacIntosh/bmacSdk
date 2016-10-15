@@ -44,24 +44,32 @@ export namespace AudioManager
 		}
 	};*/
 
-	//TODO: test me
+	/**
+	 * Preload the specified clip(s) so there won't be a delay on play.
+	 */
 	export function preloadSound(url: string|string[]): void
 	{
 		// server-side fail silent
 		if (typeof Audio === "undefined") return;
 		
-		if (url instanceof Array)
+		if (!url)
+		{
+			//console.error("Tried to preload an empty string.");
+		}
+		else if (url instanceof Array)
 		{
 			for (var c = 0; c < url.length; c++)
+			{
 				preloadSound(url[c]);
+			}
 		}
 		else
 		{
-			var clip = new Audio(url);
-			clip.play();
-			clip.pause();
-			(clip as any).relativeSrc = url;
-			_addToPool(clip);
+			if (!pool[url])
+			{
+				var clip = _allocateAudio(url);
+				_addToPool(clip);
+			}
 		}
 	};
 
@@ -103,10 +111,8 @@ export namespace AudioManager
 		else
 		{
 			//Make a new clip
-			clip = new Audio(url);
-			(clip as any).relativeSrc = url; //HACK:
+			clip = _allocateAudio(url);
 			clip.volume = vol || 1.0;
-			clip.addEventListener("ended", function() { _addToPool(clip); });
 		}
 		clip.play();
 		return clip;
@@ -122,6 +128,14 @@ export namespace AudioManager
  		clip.currentTime = 0;
  		_addToPool(clip);
 	};
+
+	function _allocateAudio(url: string): HTMLAudioElement
+	{
+		var audio = new Audio(url);
+		(audio as any).relativeSrc = url; //HACK:
+		audio.addEventListener("ended", function() { _addToPool(audio); });
+		return audio;
+	}
 
 	/**
 	 * Returns the specified clip to the pool.
