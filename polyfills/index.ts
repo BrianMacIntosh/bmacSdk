@@ -35,6 +35,16 @@ interface Math
 	 * Returns true if the angle n (radians) is between the angles a and b (radians).
 	 */
 	isAngleBetween(n: number, a: number, b: number): boolean
+
+	/**
+	 * Returns the delta from angle a to angle b.
+	 */
+	angleDifference(a: number, b: number): number;
+
+	/**
+	 * Returns the unsigned module of the specified number in the specified base.
+	 */
+	unsignedMod(a: number, base: number): number
 }
 
 Math.sign = Math.sign || function(val: number): number
@@ -93,6 +103,16 @@ Math.isAngleBetween = function(n: number, a: number, b: number): boolean
 	if (a < b)
 		return a <= n && n <= b;
 	return a <= n || n <= b;
+}
+
+Math.angleDifference = function(a: number, b: number): number
+{
+	return Math.unsignedMod(b - a + Math.PI, Math.PI * 2) - Math.PI;
+}
+
+Math.unsignedMod = function(n: number, base: number): number
+{
+	return n - Math.floor(n/base) * base;
 }
 
 interface String

@@ -43,6 +43,12 @@ Math.isAngleBetween = function (n, a, b) {
         return a <= n && n <= b;
     return a <= n || n <= b;
 };
+Math.angleDifference = function (a, b) {
+    return Math.unsignedMod(b - a + Math.PI, Math.PI * 2) - Math.PI;
+};
+Math.unsignedMod = function (n, base) {
+    return n - Math.floor(n / base) * base;
+};
 String.prototype.trim = String.prototype.trim || function trim() {
     return this.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
 };
