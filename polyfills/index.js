@@ -1,3 +1,4 @@
+require("./tweening");
 Math.sign = Math.sign || function (val) {
     if (val < 0)
         return -1;

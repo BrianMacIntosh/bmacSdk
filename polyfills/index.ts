@@ -1,4 +1,6 @@
 
+require("./tweening");
+
 interface Math
 {
 	/**
