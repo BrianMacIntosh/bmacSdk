@@ -362,10 +362,10 @@ var ThreeUtils;
      * @param {number} radius The radius of the circle.
      */
     function lineCircleIntersection(a, b, center, radius) {
-        var attackVector = new THREE.Vector2().set(b.x - a.x, b.y - a.y);
-        var meToTargetVector = new THREE.Vector2().set(center.x - a.x, center.y - a.y);
-        attackVector = attackVector.clone().normalize().multiplyScalar(meToTargetVector.dot(attackVector));
-        attackVector = attackVector.sub(center).add(a);
+        var attackVector = new THREE.Vector2().subVectors(b, a).normalize();
+        var meToTargetVector = new THREE.Vector2().subVectors(center, a);
+        var dot = meToTargetVector.dot(attackVector);
+        attackVector.multiplyScalar(dot).add(a).sub(center);
         return attackVector.lengthSq() <= radius * radius;
     }
     ThreeUtils.lineCircleIntersection = lineCircleIntersection;
@@ -378,15 +378,16 @@ var ThreeUtils;
      * @param {number} radius The radius of the circle.
      */
     function lineSegmentCircleIntersection(a, b, center, radius) {
-        var attackVector = new THREE.Vector2().set(b.x - a.x, b.y - a.y);
+        var attackVector = new THREE.Vector2().subVectors(b, a);
         var segmentLengthSq = attackVector.lengthSq();
-        var meToTargetVector = new THREE.Vector2().set(center.x - a.x, center.y - a.y);
-        attackVector = attackVector.clone().normalize().multiplyScalar(meToTargetVector.dot(attackVector));
-        var d = meToTargetVector.dot(attackVector);
+        attackVector.normalize();
+        var meToTargetVector = new THREE.Vector2().subVectors(center, a);
+        var dot = meToTargetVector.dot(attackVector);
+        attackVector.multiplyScalar(dot).add(a).sub(center);
         // circle is behind the segment
-        if (d < 0)
+        if (dot < 0)
             return false;
-        attackVector.normalize().multiplyScalar(d);
+        attackVector.normalize().multiplyScalar(dot);
         // check that the segment range is correct
         var projectionLengthSq = attackVector.lengthSq();
         if (projectionLengthSq > segmentLengthSq) {
