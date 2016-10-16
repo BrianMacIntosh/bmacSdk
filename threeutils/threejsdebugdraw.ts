@@ -11,7 +11,7 @@ import { Box2D } from "../thirdparty/box2d";
 export class ThreeJsDebugDraw
 {
 	// nested array, indexed by vert count
-	private meshPools: { [s: string]: THREE.Object3D[] } = {};
+	private meshPools: { [s: string]: (THREE.Mesh|THREE.Line)[] } = {};
 	private poolIndices: { [s: string]: number } = {};
 
 	private drawFlags: number = 0;
@@ -28,7 +28,7 @@ export class ThreeJsDebugDraw
 
 		var pool = this.meshPools[vertCount];
 
-		var mesh: THREE.Object3D;
+		var mesh: THREE.Mesh|THREE.Line;
 		var geometry: THREE.Geometry;
 
 		var index = this.poolIndices[vertCount]++;
@@ -51,9 +51,9 @@ export class ThreeJsDebugDraw
 			mesh = pool[index];
 
 			var material = pool[index].material;
-			material.color.setHex(color.color);
+			(material as THREE.LineBasicMaterial).color.setHex(color.color);
 
-			geometry = pool[index].geometry;
+			geometry = pool[index].geometry as THREE.Geometry;
 		}
 
 		mesh.visible = true;
