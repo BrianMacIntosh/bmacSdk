@@ -1,11 +1,12 @@
 "use strict";
 require("../polyfills");
-require("../thirdparty/noise");
 var input_1 = require("../input");
 var engine_1 = require("./engine");
 var engine_2 = require("./engine");
 exports.EngineObject = engine_2.EngineObject;
 exports.Engine = engine_2.Engine;
+var noise_1 = require("../thirdparty/noise");
+exports.noise = noise_1.noise;
 /**
  * @namespace
  */
