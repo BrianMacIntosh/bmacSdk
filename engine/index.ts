@@ -6,6 +6,7 @@ import { Input } from "../input";
 import { Engine } from "./engine";
 
 export { EngineObject, Engine } from "./engine";
+export { noise } from "../thirdparty/noise";
 
 /**
  * @namespace

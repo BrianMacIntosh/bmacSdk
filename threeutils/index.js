@@ -6,6 +6,8 @@ var Atlas_2 = require("./Atlas");
 exports.Atlas = Atlas_2.Atlas;
 var threejsdebugdraw_1 = require("./threejsdebugdraw");
 exports.ThreeJsDebugDraw = threejsdebugdraw_1.ThreeJsDebugDraw;
+var shaker_1 = require('./shaker');
+exports.Shaker = shaker_1.Shaker;
 var ThreeUtils;
 (function (ThreeUtils) {
     ThreeUtils.c_planeCorrection = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI, 0, 0));

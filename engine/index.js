@@ -1,5 +1,6 @@
 "use strict";
 require("../polyfills");
+require("../thirdparty/noise");
 var input_1 = require("../input");
 var engine_1 = require("./engine");
 var engine_2 = require("./engine");

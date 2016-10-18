@@ -6,6 +6,7 @@ import { Atlas } from "./Atlas";
 export { Atlas } from "./Atlas";
 export { ThreeJsDebugDraw } from "./threejsdebugdraw";
 export { THREE };
+export { Shaker } from './shaker';
 
 export module ThreeUtils
 {

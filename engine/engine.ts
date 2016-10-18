@@ -3,6 +3,7 @@ import THREE = require("three")
 
 import { bmacSdk } from "./";
 import { Mouse } from "../input";
+import { Shaker } from "../threeutils";
 
 //TODO: engine should set up Box2D world and listeners for you
 
@@ -37,6 +38,11 @@ export class Engine
 	public scene: THREE.Scene = new THREE.Scene();
 	public mainCamera: THREE.OrthographicCamera;
 
+	/**
+	 * Screenshake parent for the main camera.
+	 */
+	public cameraShaker: Shaker;
+
 	private cameraZoom: number = 1;
 
 	private renderer: THREE.WebGLRenderer;
@@ -52,7 +58,10 @@ export class Engine
 		this.canvasDivName = canvasDivName;
 
 		this.mainCamera = new THREE.OrthographicCamera(0, 0, 0, 0, 1, 100);
+		this.cameraShaker = new Shaker();
+		this.scene.add(this.cameraShaker.transform);
 		this.mainCamera.position.set(0,0,0);
+		this.cameraShaker.transform.add(this.mainCamera);
 	};
 
 	/**
@@ -160,6 +169,8 @@ export class Engine
 				this.objects[c].update(bmacSdk.getDeltaSec());
 			}
 		}
+
+		this.cameraShaker.update(bmacSdk.getDeltaSec());
 		
 		// render
 		if (this.renderer)

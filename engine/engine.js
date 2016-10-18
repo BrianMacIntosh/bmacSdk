@@ -2,6 +2,7 @@
 var THREE = require("three");
 var _1 = require("./");
 var input_1 = require("../input");
+var threeutils_1 = require("../threeutils");
 //TODO: engine should set up Box2D world and listeners for you
 var EngineObject = (function () {
     function EngineObject() {
@@ -28,7 +29,10 @@ var Engine = (function () {
         this.cameraZoom = 1;
         this.canvasDivName = canvasDivName;
         this.mainCamera = new THREE.OrthographicCamera(0, 0, 0, 0, 1, 100);
+        this.cameraShaker = new threeutils_1.Shaker();
+        this.scene.add(this.cameraShaker.transform);
         this.mainCamera.position.set(0, 0, 0);
+        this.cameraShaker.transform.add(this.mainCamera);
     }
     ;
     /**
@@ -116,6 +120,7 @@ var Engine = (function () {
                 this.objects[c].update(_1.bmacSdk.getDeltaSec());
             }
         }
+        this.cameraShaker.update(_1.bmacSdk.getDeltaSec());
         // render
         if (this.renderer) {
             this.renderer.render(this.scene, this.mainCamera);
