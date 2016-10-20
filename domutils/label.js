@@ -32,8 +32,8 @@ var Label = (function () {
     };
     Label.prototype.setPositionHelper = function (position) {
         var unprojected = position.clone().add(this.tieOffset).project(this.camera);
-        unprojected.x = this.parent.offsetLeft + (unprojected.x / 2 + 0.5) * this.parent.offsetWidth;
-        unprojected.y = this.parent.offsetTop + (-unprojected.y / 2 + 0.5) * this.parent.offsetHeight;
+        unprojected.x = (unprojected.x / 2 + 0.5) * this.parent.offsetWidth;
+        unprojected.y = (-unprojected.y / 2 + 0.5) * this.parent.offsetHeight;
         // align
         switch (this.alignx) {
             case 0: break;
