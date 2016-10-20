@@ -4,6 +4,7 @@ import THREE = require("three")
 import { bmacSdk } from "./";
 import { Mouse } from "../input";
 import { Shaker } from "../threeutils";
+import { DomUtils } from "../domutils";
 
 //TODO: engine should set up Box2D world and listeners for you
 
@@ -114,6 +115,8 @@ export class Engine
 			this.canvasDiv.appendChild(this.renderer.domElement);
 			this.canvasDiv.addEventListener("contextmenu", function(e) { e.preventDefault();return false; });
 			this.renderer.setClearColor(0x000000, 1);
+
+			DomUtils.init(this.canvasDiv, this.mainCamera, this.renderer);
 		}
 		
 		//TODO: 2D depth management
@@ -160,6 +163,8 @@ export class Engine
 		this.mousePosWorld.set(
 			this.mousePosRel.x + this.mainCamera.position.x,
 			this.mousePosRel.y + this.mainCamera.position.y);
+
+		DomUtils.update(bmacSdk.getDeltaSec());
 		
 		// update objects
 		for (var c = 0; c < this.objects.length; c++)

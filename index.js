@@ -23,5 +23,8 @@ var threeutils_1 = require("./threeutils");
 exports.ThreeUtils = threeutils_1.ThreeUtils;
 exports.Atlas = threeutils_1.Atlas;
 exports.ThreeJsDebugDraw = threeutils_1.ThreeJsDebugDraw;
+var domutils_1 = require("./domutils");
+exports.DomUtils = domutils_1.DomUtils;
+exports.Label = domutils_1.Label;
 require("three");
 require("./polyfills");

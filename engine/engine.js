@@ -3,6 +3,7 @@ var THREE = require("three");
 var _1 = require("./");
 var input_1 = require("../input");
 var threeutils_1 = require("../threeutils");
+var domutils_1 = require("../domutils");
 //TODO: engine should set up Box2D world and listeners for you
 var EngineObject = (function () {
     function EngineObject() {
@@ -79,6 +80,7 @@ var Engine = (function () {
             this.canvasDiv.appendChild(this.renderer.domElement);
             this.canvasDiv.addEventListener("contextmenu", function (e) { e.preventDefault(); return false; });
             this.renderer.setClearColor(0x000000, 1);
+            domutils_1.DomUtils.init(this.canvasDiv, this.mainCamera, this.renderer);
         }
         //TODO: 2D depth management
         this._handleWindowResize();
@@ -114,6 +116,7 @@ var Engine = (function () {
         if (!this.mousePosWorld)
             this.mousePosWorld = new THREE.Vector2();
         this.mousePosWorld.set(this.mousePosRel.x + this.mainCamera.position.x, this.mousePosRel.y + this.mainCamera.position.y);
+        domutils_1.DomUtils.update(_1.bmacSdk.getDeltaSec());
         // update objects
         for (var c = 0; c < this.objects.length; c++) {
             if (this.objects[c].update) {
