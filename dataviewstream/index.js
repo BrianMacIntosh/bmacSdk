@@ -123,6 +123,8 @@ var DataViewStream = (function () {
     };
     DataViewStream.prototype.getString = function () {
         var length = this.getUint32();
+        if (length == 0)
+            return "";
         var byteArray = new Uint8Array(length);
         for (var i = 0; i < length; i++) {
             byteArray[i] = this.getUint8();

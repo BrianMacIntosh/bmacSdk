@@ -176,6 +176,8 @@ export class DataViewStream
 	public getString(): string
 	{
 		var length = this.getUint32();
+		if (length == 0) return "";
+		
 		var byteArray = new Uint8Array(length);
 		for (var i = 0; i < length; i++)
 		{
