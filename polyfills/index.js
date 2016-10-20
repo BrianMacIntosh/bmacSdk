@@ -18,6 +18,15 @@ String.prototype.djb2Hash = String.prototype.djb2Hash || function djb2Hash() {
     }
     return hash;
 };
+String.prototype.endsWith = String.prototype.endsWith || function (searchString, position) {
+    var subjectString = this.toString();
+    if (typeof position !== 'number' || !isFinite(position) || Math.floor(position) !== position || position > subjectString.length) {
+        position = subjectString.length;
+    }
+    position -= searchString.length;
+    var lastIndex = subjectString.lastIndexOf(searchString, position);
+    return lastIndex !== -1 && lastIndex === position;
+};
 Array.prototype.remove = Array.prototype.remove || function remove(object) {
     for (var c = 0; c < this.length; c++) {
         if (this[c] === object) {

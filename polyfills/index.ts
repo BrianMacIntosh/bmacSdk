@@ -23,6 +23,11 @@ interface String
 	 * Returns the djb2 32-bit signed integer hash of the string.
 	 */
 	djb2Hash(): number;
+
+	/**
+	 * Returns true if the string ends with the specified string.
+	 */
+	endsWith(searchString: string, position?: number): boolean;
 }
 
 String.prototype.trim = String.prototype.trim || function trim(): string
@@ -51,6 +56,18 @@ String.prototype.djb2Hash = String.prototype.djb2Hash || function djb2Hash(): nu
 	}
 	return hash;
 }
+
+String.prototype.endsWith = String.prototype.endsWith || function(searchString: string, position?: number): boolean
+{
+	var subjectString = this.toString();
+	if (typeof position !== 'number' || !isFinite(position) || Math.floor(position) !== position || position > subjectString.length)
+	{
+		position = subjectString.length;
+	}
+	position -= searchString.length;
+	var lastIndex = subjectString.lastIndexOf(searchString, position);
+	return lastIndex !== -1 && lastIndex === position;
+};
 
 interface Array<T>
 {
