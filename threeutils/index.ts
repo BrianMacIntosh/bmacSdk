@@ -267,8 +267,6 @@ export module ThreeUtils
 		{
 			geometry = makeSpriteGeo(atlas.sprites[key][2], atlas.sprites[key][3]);
 			setAtlasUVs(geometry, atlas, key);
-			geometry.atlas_flipx=false;
-			geometry.atlas_flipy=false;
 		}
 		else
 		{
@@ -293,8 +291,10 @@ export module ThreeUtils
 		}
 
 		var mesh = new THREE.Mesh(geometry, material);
-		mesh.atlas = atlas;
-		mesh.atlas_key = key;
+		mesh.userData = {
+			atlas: atlas,
+			atlasKey: key
+		}
 		return mesh;
 	};
 
@@ -450,13 +450,18 @@ export module ThreeUtils
 		{
 			return mesh;
 		}
-		if (flipX == mesh.geometry.atlas_flipx && flipY == mesh.geometry.atlas_flipy)
+		if (flipX == mesh.userData.atlasFlipX && flipY == mesh.userData.atlasFlipY)
 		{
 			return mesh;
 		}
-		mesh.geometry.atlas_flipx=flipX;
-		mesh.geometry.atlas_flipy=flipY;
-		setAtlasUVs(mesh.geometry, mesh.atlas, mesh.atlas_key, flipX, flipY);
+		if (!mesh.userData.atlas)
+		{
+			console.error("mesh is not atlased.");
+			return mesh;
+		}
+		mesh.userData.atlasFlipX = flipX;
+		mesh.userData.atlasFlipY = flipY;
+		setAtlasUVs(mesh.geometry, mesh.userData.atlas, mesh.userData.atlasKey, flipX, flipY);
 		return mesh;
 	};
 
@@ -469,12 +474,23 @@ export module ThreeUtils
 		{
 			return mesh;
 		}
-		if (key === mesh.atlas_key) 
+		if (!(mesh.geometry instanceof THREE.BufferGeometry))
+		{
+			console.error("mesh.geometry is not a BufferGeometry");
+			return mesh;
+		}
+		if (!mesh.userData.atlas)
+		{
+			console.error("mesh is not atlased.");
+			return mesh;
+		}
+		if (key === mesh.userData.atlasKey) 
 		{
 			return mesh;
 		}
-		mesh.atlas_key = key;
-		setAtlasGeometry(mesh.geometry, mesh.atlas, mesh.atlas_key, mesh.atlas_flipx, mesh.atlas_flipy);
+		mesh.userData.atlasKey = key;
+		setAtlasGeometry(mesh.geometry, mesh.userData.atlas, mesh.userData.atlasKey,
+			mesh.userData.atlasFlipX, mesh.userData.atlasFlipY);
 		return mesh;
 	};
 
