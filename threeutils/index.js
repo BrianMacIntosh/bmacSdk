@@ -19,6 +19,10 @@ var ThreeUtils;
      */
     ThreeUtils.serverMode = false;
     var textureCache = {};
+    /**
+     * Map of callbacks waiting on each texture to load.
+     */
+    var textureCallbacks = {};
     var atlasCache = {};
     /**
      * Creates a THREE.Mesh with a unique material.
@@ -80,20 +84,44 @@ var ThreeUtils;
     /**
      * Loads the specified texture. Caches repeated calls.
      * @param {string} url The URL of the texture.
+     * @param {(texture: THREE.Texture) => void} callback Function to call when the image is completely loaded.
      */
-    function loadTexture(url) {
+    function loadTexture(url, callback) {
         if (ThreeUtils.serverMode) {
             return undefined;
         }
-        if (textureCache[url]) {
-            return textureCache[url];
+        var tex = textureCache[url];
+        if (!tex) {
+            tex = textureCache[url] = ThreeUtils.textureLoader.load(url, imageLoadedCallback);
+            tex.relativeUrl = url;
         }
-        else {
-            textureCache[url] = ThreeUtils.textureLoader.load(url);
-            return textureCache[url];
+        if (callback) {
+            if (tex.image && tex.image.complete) {
+                callback(tex);
+            }
+            else {
+                if (!textureCallbacks[url])
+                    textureCallbacks[url] = [];
+                textureCallbacks[url].push(callback);
+            }
         }
+        return tex;
     }
     ThreeUtils.loadTexture = loadTexture;
+    ;
+    /**
+     * @param {any} image HTML image being loaded.
+     */
+    function imageLoadedCallback(texture) {
+        var src = texture.relativeUrl;
+        var callbacks = textureCallbacks[src];
+        if (callbacks) {
+            for (var i = 0; i < callbacks.length; i++) {
+                callbacks[i](texture);
+            }
+        }
+        textureCallbacks[src] = undefined;
+    }
     ;
     /**
      * Sets the texture as okay to be non-power-of-two.
