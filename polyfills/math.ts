@@ -45,11 +45,18 @@ interface Math
 	 * Returns the unsigned module of the specified number in the specified base.
 	 */
 	unsignedMod(a: number, base: number): number
+
+	/**
+	 * Returns true if the two numbers are equal within 64-bit floating point precision.
+	 */
+	approximatelyEqual(a: number, b: number): boolean;
 }
 
 Math.sign = Math.sign || function(val: number): number
 {
-	if (val < 0)
+	if (isNaN(val-0))
+		return NaN;
+	else if (val < 0)
 		return -1;
 	else if (val > 0)
 		return 1;
@@ -107,10 +114,17 @@ Math.isAngleBetween = function(n: number, a: number, b: number): boolean
 
 Math.angleDifference = function(a: number, b: number): number
 {
-	return Math.unsignedMod(b - a + Math.PI, Math.PI * 2) - Math.PI;
+	return Math.unsignedMod(a - b + Math.PI * 3, Math.PI * 2) - Math.PI;
 }
 
 Math.unsignedMod = function(n: number, base: number): number
 {
+	n = Math.abs(n);
+	base = Math.abs(base);
 	return n - Math.floor(n/base) * base;
+}
+
+Math.approximatelyEqual = function(a: number, b: number): boolean
+{
+	return Math.abs(a - b) < 0.0000000000000003; //~2^-52 (2x10^-16)
 }

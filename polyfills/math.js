@@ -1,5 +1,7 @@
 Math.sign = Math.sign || function (val) {
-    if (val < 0)
+    if (isNaN(val - 0))
+        return NaN;
+    else if (val < 0)
         return -1;
     else if (val > 0)
         return 1;
@@ -44,8 +46,13 @@ Math.isAngleBetween = function (n, a, b) {
     return a <= n || n <= b;
 };
 Math.angleDifference = function (a, b) {
-    return Math.unsignedMod(b - a + Math.PI, Math.PI * 2) - Math.PI;
+    return Math.unsignedMod(a - b + Math.PI * 3, Math.PI * 2) - Math.PI;
 };
 Math.unsignedMod = function (n, base) {
+    n = Math.abs(n);
+    base = Math.abs(base);
     return n - Math.floor(n / base) * base;
+};
+Math.approximatelyEqual = function (a, b) {
+    return Math.abs(a - b) < 0.0000000000000003; //~2^-52 (2x10^-16)
 };

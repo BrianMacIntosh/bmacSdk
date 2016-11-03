@@ -15,5 +15,8 @@
 	"dependencies": {
 		"three": "latest",
 		"text-encoding": "latest"
+	},
+	"scripts": {
+		"test": "mocha"
 	}
 }
