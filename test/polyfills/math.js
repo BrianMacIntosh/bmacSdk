@@ -105,23 +105,23 @@ describe('Math', function() {
 
 	describe('#isAngleBetween()', function() {
 		it('should work in normal cases', function() {
-			assert.approximatelyEqual(Math.isAngleBetween(0.1, 0.5, 6.0), false);
-			assert.approximatelyEqual(Math.isAngleBetween(3.0, 0.5, 6.0), true);
+			assert.equal(Math.isAngleBetween(0.1, 0.5, 6.0), false);
+			assert.equal(Math.isAngleBetween(3.0, 0.5, 6.0), true);
 		});
 		it('should work across the origin', function() {
-			assert.approximatelyEqual(Math.isAngleBetween(0.1, 6.0, 0.5), true);
-			assert.approximatelyEqual(Math.isAngleBetween(3.0, 6.0, 0.5), false);
+			assert.equal(Math.isAngleBetween(0.1, 6.0, 0.5), true);
+			assert.equal(Math.isAngleBetween(3.0, 6.0, 0.5), false);
 		});
 		it('should wrap the test angle', function() {
-			assert.approximatelyEqual(Math.isAngleBetween(3.0+Math.PI*2, 0.5, 6.0), true);
-			assert.approximatelyEqual(Math.isAngleBetween(0.1+Math.PI*2, 0.5, 6.0), false);
+			assert.equal(Math.isAngleBetween(3.0+Math.PI*2, 0.5, 6.0), true);
+			assert.equal(Math.isAngleBetween(0.1+Math.PI*2, 0.5, 6.0), false);
 		});
 		it('should wrap the bounds angles', function() {
-			assert.approximatelyEqual(Math.isAngleBetween(3.0, 0.5+Math.PI*2, 6.0), true);
-			assert.approximatelyEqual(Math.isAngleBetween(0.1, 0.5+Math.PI*2, 6.0), false);
+			assert.equal(Math.isAngleBetween(3.0, 0.5+Math.PI*2, 6.0), true);
+			assert.equal(Math.isAngleBetween(0.1, 0.5+Math.PI*2, 6.0), false);
 
-			assert.approximatelyEqual(Math.isAngleBetween(3.0, 0.5, 6.0+Math.PI*2), true);
-			assert.approximatelyEqual(Math.isAngleBetween(0.1, 0.5, 6.0+Math.PI*2), false);
+			assert.equal(Math.isAngleBetween(3.0, 0.5, 6.0+Math.PI*2), true);
+			assert.equal(Math.isAngleBetween(0.1, 0.5, 6.0+Math.PI*2), false);
 		});
 	});
 
