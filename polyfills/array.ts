@@ -16,6 +16,11 @@ interface Array<T>
 	 * @param {number} min The minimum index to use.
 	 */
 	addInFirstSpace(object: T, min: number): number
+
+	/**
+	 * Adds all elements in the specified array to this one.
+	 */
+	addRange(other: any[]): void;
 }
 
 Array.prototype.remove = Array.prototype.remove || function remove(object): boolean
@@ -58,3 +63,11 @@ Array.prototype.addInFirstSpace = function addInFirstSpace(object, min: number):
 	this[index] = object;
 	return index;
 };
+
+Array.prototype.addRange = function addRange(other: any[]): void
+{
+	for (var i = 0; i < other.length; i++)
+	{
+		this.push(other[i]);
+	}
+}

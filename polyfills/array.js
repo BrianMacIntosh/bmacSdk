@@ -26,3 +26,8 @@ Array.prototype.addInFirstSpace = function addInFirstSpace(object, min) {
     this[index] = object;
     return index;
 };
+Array.prototype.addRange = function addRange(other) {
+    for (var i = 0; i < other.length; i++) {
+        this.push(other[i]);
+    }
+};
