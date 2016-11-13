@@ -66,6 +66,14 @@ export module ThreeUtils
 	};
 
 	/**
+	 * Returns the angle from 'from' to 'to'.
+	 */
+	export function toFromAngle(from: THREE.Vector2, to: THREE.Vector2): number
+	{
+		return Math.atan2(to.y - from.y, to.x - from.x);
+	};
+
+	/**
 	 * Calculates the distance between two THREE.Object3D or THREE.Vector3.
 	 */
 	export function distance(thing1: THREE.Object3D, thing2: THREE.Object3D): number

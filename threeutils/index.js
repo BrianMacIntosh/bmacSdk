@@ -56,6 +56,14 @@ var ThreeUtils;
     ThreeUtils.makeSpriteGeo = makeSpriteGeo;
     ;
     /**
+     * Returns the angle from 'from' to 'to'.
+     */
+    function toFromAngle(from, to) {
+        return Math.atan2(to.y - from.y, to.x - from.x);
+    }
+    ThreeUtils.toFromAngle = toFromAngle;
+    ;
+    /**
      * Calculates the distance between two THREE.Object3D or THREE.Vector3.
      */
     function distance(thing1, thing2) {
