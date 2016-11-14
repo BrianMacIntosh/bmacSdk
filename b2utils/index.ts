@@ -154,50 +154,42 @@ export namespace b2Utils
 	{
 		public BeginContact(contact: Box2D.b2Contact): void
 		{
-			for (var i = 0; i < b2Utils.AllObjects.length; i++)
-			{
-				var otherFixture = b2Utils.getOtherObject(contact, b2Utils.AllObjects[i]);
-				if (otherFixture)
-				{
-					b2Utils.AllObjects[i].onBeginContact(contact, otherFixture);
-				}
-			}
+			var fixtureA = contact.GetFixtureA();
+			var fixtureB = contact.GetFixtureB();
+			var objectA = fixtureA.GetBody().GetUserData();
+			var objectB = fixtureB.GetBody().GetUserData();
+			if (objectA) objectA.onBeginContact(contact, fixtureB);
+			if (objectB) objectB.onBeginContact(contact, fixtureA);
 		}
-		
+
 		public EndContact(contact: Box2D.b2Contact): void
 		{
-			for (var i = 0; i < b2Utils.AllObjects.length; i++)
-			{
-				var otherFixture = b2Utils.getOtherObject(contact, b2Utils.AllObjects[i]);
-				if (otherFixture)
-				{
-					b2Utils.AllObjects[i].onEndContact(contact, otherFixture);
-				}
-			}
+			var fixtureA = contact.GetFixtureA();
+			var fixtureB = contact.GetFixtureB();
+			var objectA = fixtureA.GetBody().GetUserData();
+			var objectB = fixtureB.GetBody().GetUserData();
+			if (objectA) objectA.onEndContact(contact, fixtureB);
+			if (objectB) objectB.onEndContact(contact, fixtureA);
 		}
 
 		public PreSolve(contact: Box2D.b2Contact, oldManifold: Box2D.b2Manifold): void
 		{
-			for (var i = 0; i < b2Utils.AllObjects.length; i++)
-			{
-				var otherFixture = b2Utils.getOtherObject(contact, b2Utils.AllObjects[i]);
-				if (otherFixture)
-				{
-					b2Utils.AllObjects[i].onPreSolve(contact, oldManifold, otherFixture);
-				}
-			}
+			var fixtureA = contact.GetFixtureA();
+			var fixtureB = contact.GetFixtureB();
+			var objectA = fixtureA.GetBody().GetUserData();
+			var objectB = fixtureB.GetBody().GetUserData();
+			if (objectA) objectA.onPreSolve(contact, oldManifold, fixtureB);
+			if (objectB) objectB.onPreSolve(contact, oldManifold, fixtureA);
 		}
 
 		public PostSolve(contact: Box2D.b2Contact, impulse: Box2D.b2ContactImpulse): void
 		{
-			for (var i = 0; i < b2Utils.AllObjects.length; i++)
-			{
-				var otherFixture = b2Utils.getOtherObject(contact, b2Utils.AllObjects[i]);
-				if (otherFixture)
-				{
-					b2Utils.AllObjects[i].onPostSolve(contact, impulse, otherFixture);
-				}
-			}
+			var fixtureA = contact.GetFixtureA();
+			var fixtureB = contact.GetFixtureB();
+			var objectA = fixtureA.GetBody().GetUserData();
+			var objectB = fixtureB.GetBody().GetUserData();
+			if (objectA) objectA.onPostSolve(contact, impulse, fixtureB);
+			if (objectB) objectB.onPostSolve(contact, impulse, fixtureA);
 		}
 	}
 

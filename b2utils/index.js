@@ -138,36 +138,44 @@ var b2Utils;
             _super.apply(this, arguments);
         }
         ContactListener.prototype.BeginContact = function (contact) {
-            for (var i = 0; i < b2Utils.AllObjects.length; i++) {
-                var otherFixture = b2Utils.getOtherObject(contact, b2Utils.AllObjects[i]);
-                if (otherFixture) {
-                    b2Utils.AllObjects[i].onBeginContact(contact, otherFixture);
-                }
-            }
+            var fixtureA = contact.GetFixtureA();
+            var fixtureB = contact.GetFixtureB();
+            var objectA = fixtureA.GetBody().GetUserData();
+            var objectB = fixtureB.GetBody().GetUserData();
+            if (objectA)
+                objectA.onBeginContact(contact, fixtureB);
+            if (objectB)
+                objectB.onBeginContact(contact, fixtureA);
         };
         ContactListener.prototype.EndContact = function (contact) {
-            for (var i = 0; i < b2Utils.AllObjects.length; i++) {
-                var otherFixture = b2Utils.getOtherObject(contact, b2Utils.AllObjects[i]);
-                if (otherFixture) {
-                    b2Utils.AllObjects[i].onEndContact(contact, otherFixture);
-                }
-            }
+            var fixtureA = contact.GetFixtureA();
+            var fixtureB = contact.GetFixtureB();
+            var objectA = fixtureA.GetBody().GetUserData();
+            var objectB = fixtureB.GetBody().GetUserData();
+            if (objectA)
+                objectA.onEndContact(contact, fixtureB);
+            if (objectB)
+                objectB.onEndContact(contact, fixtureA);
         };
         ContactListener.prototype.PreSolve = function (contact, oldManifold) {
-            for (var i = 0; i < b2Utils.AllObjects.length; i++) {
-                var otherFixture = b2Utils.getOtherObject(contact, b2Utils.AllObjects[i]);
-                if (otherFixture) {
-                    b2Utils.AllObjects[i].onPreSolve(contact, oldManifold, otherFixture);
-                }
-            }
+            var fixtureA = contact.GetFixtureA();
+            var fixtureB = contact.GetFixtureB();
+            var objectA = fixtureA.GetBody().GetUserData();
+            var objectB = fixtureB.GetBody().GetUserData();
+            if (objectA)
+                objectA.onPreSolve(contact, oldManifold, fixtureB);
+            if (objectB)
+                objectB.onPreSolve(contact, oldManifold, fixtureA);
         };
         ContactListener.prototype.PostSolve = function (contact, impulse) {
-            for (var i = 0; i < b2Utils.AllObjects.length; i++) {
-                var otherFixture = b2Utils.getOtherObject(contact, b2Utils.AllObjects[i]);
-                if (otherFixture) {
-                    b2Utils.AllObjects[i].onPostSolve(contact, impulse, otherFixture);
-                }
-            }
+            var fixtureA = contact.GetFixtureA();
+            var fixtureB = contact.GetFixtureB();
+            var objectA = fixtureA.GetBody().GetUserData();
+            var objectB = fixtureB.GetBody().GetUserData();
+            if (objectA)
+                objectA.onPostSolve(contact, impulse, fixtureB);
+            if (objectB)
+                objectB.onPostSolve(contact, impulse, fixtureA);
         };
         return ContactListener;
     }(box2d_1.Box2D.b2ContactListener));
