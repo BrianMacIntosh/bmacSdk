@@ -56,7 +56,7 @@ export namespace AudioManager
 		{
 			//console.error("Tried to preload an empty string.");
 		}
-		else if (url instanceof Array)
+		else if (Array.isArray(url))
 		{
 			for (var c = 0; c < url.length; c++)
 			{
@@ -88,7 +88,7 @@ export namespace AudioManager
 		if (!enabled) return null;
 		
 		var url: string;
-		if (urlParam instanceof Array)
+		if (Array.isArray(urlParam))
 		{
 			url = urlParam[Math.floor(Math.random() * urlParam.length)];
 		}

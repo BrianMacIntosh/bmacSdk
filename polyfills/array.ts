@@ -71,3 +71,8 @@ Array.prototype.addRange = function addRange(other: any[]): void
 		this.push(other[i]);
 	}
 }
+
+Array.isArray = Array.isArray || function isArray(arg: any): arg is Array<any>
+{
+	return arg instanceof Array;
+}
