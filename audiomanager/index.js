@@ -49,7 +49,7 @@ var AudioManager;
             return;
         if (!url) {
         }
-        else if (url instanceof Array) {
+        else if (Array.isArray(url)) {
             for (var c = 0; c < url.length; c++) {
                 preloadSound(url[c]);
             }
@@ -78,7 +78,7 @@ var AudioManager;
         if (!AudioManager.enabled)
             return null;
         var url;
-        if (urlParam instanceof Array) {
+        if (Array.isArray(urlParam)) {
             url = urlParam[Math.floor(Math.random() * urlParam.length)];
         }
         else {
