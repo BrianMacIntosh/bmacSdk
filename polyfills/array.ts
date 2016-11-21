@@ -66,7 +66,8 @@ Array.prototype.addInFirstSpace = function addInFirstSpace(object, min: number):
 
 Array.prototype.addRange = function addRange(other: any[]): void
 {
-	for (var i = 0; i < other.length; i++)
+	var len = other.length;
+	for (var i = 0; i < len; i++)
 	{
 		this.push(other[i]);
 	}
