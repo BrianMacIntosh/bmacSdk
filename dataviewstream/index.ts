@@ -1,5 +1,5 @@
 
-import Encoding = require("text-encoding");
+var goog = require("../thirdparty/crypt");
 
 export class DataViewStream
 {
@@ -8,9 +8,6 @@ export class DataViewStream
 	pointer: number;
 	bitBuffer: number;
 	bitBufferPointer: number;
-	
-	stringEncoder: Encoding.TextEncoder;
-	stringDecoder: Encoding.TextDecoder;
 
 	constructor(sizeOrBuffer)
 	{
@@ -40,9 +37,6 @@ export class DataViewStream
 
 		this.bitBuffer = 0;
 		this.bitBufferPointer = -1;
-
-		this.stringEncoder = new Encoding.TextEncoder("utf-8");
-		this.stringDecoder = new Encoding.TextDecoder("utf-8");
 	}
 
 
@@ -183,7 +177,7 @@ export class DataViewStream
 		{
 			byteArray[i] = this.getUint8();
 		}
-		return this.stringDecoder.decode(byteArray);
+		return goog.crypt.utf8ByteArrayToString(byteArray);
 	}
 
 
@@ -290,7 +284,7 @@ export class DataViewStream
 	public setString(value: string): void
 	{
 		this.setUint32(value.length);
-		var byteArray = this.stringEncoder.encode(value);
+		var byteArray = goog.crypt.stringToUtf8ByteArray(value);
 		for (var i = 0; i < byteArray.length; i++)
 		{
 			this.setUint8(byteArray[i]);

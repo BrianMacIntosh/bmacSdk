@@ -1,5 +1,5 @@
 "use strict";
-var Encoding = require("text-encoding");
+var goog = require("../thirdparty/crypt");
 var DataViewStream = (function () {
     function DataViewStream(sizeOrBuffer) {
         //TODO: profile DataView against TypedArrays
@@ -23,8 +23,6 @@ var DataViewStream = (function () {
         this.pointer = 0;
         this.bitBuffer = 0;
         this.bitBufferPointer = -1;
-        this.stringEncoder = new Encoding.TextEncoder("utf-8");
-        this.stringDecoder = new Encoding.TextDecoder("utf-8");
     }
     /**
      * Trim the buffer and return it.
@@ -129,7 +127,7 @@ var DataViewStream = (function () {
         for (var i = 0; i < length; i++) {
             byteArray[i] = this.getUint8();
         }
-        return this.stringDecoder.decode(byteArray);
+        return goog.crypt.utf8ByteArrayToString(byteArray);
     };
     DataViewStream.prototype.setBit = function (value) {
         if (this.bitBufferPointer < 0) {
@@ -204,7 +202,7 @@ var DataViewStream = (function () {
     };
     DataViewStream.prototype.setString = function (value) {
         this.setUint32(value.length);
-        var byteArray = this.stringEncoder.encode(value);
+        var byteArray = goog.crypt.stringToUtf8ByteArray(value);
         for (var i = 0; i < byteArray.length; i++) {
             this.setUint8(byteArray[i]);
         }

@@ -13,8 +13,7 @@
 		"url": "https://github.com/BrianMacIntosh/bmacSdk.git"
 	},
 	"dependencies": {
-		"three": "latest",
-		"text-encoding": "latest"
+		"three": "latest"
 	},
 	"scripts": {
 		"test": "mocha"
