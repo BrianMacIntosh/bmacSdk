@@ -13,6 +13,36 @@ export namespace AudioManager
 	var pool: { [s: string]: HTMLAudioElement[] } = {};
 
 	/**
+	 * The currently-playing music, if any.
+	 */
+	var currentMusic: HTMLAudioElement;
+
+	/**
+	 * The music currently being transitioned to, if any.
+	 */
+	var nextMusic: HTMLAudioElement;
+
+	/**
+	 * The volume the music is currently being lerped from.
+	 */
+	var musicLerpStartVolume: number;
+
+	/**
+	 * The volume the music is currently being lerped to.
+	 */
+	var musicLerpTargetVolume: number;
+
+	/**
+	 * The music transition timer.
+	 */
+	var musicLerpTimer: number;
+
+	/**
+	 * The duration of the current music transition.
+	 */
+	var musicLerpDuration: number;
+
+	/**
 	 * Set the position of the audio listener.
 	 * @param {THREE.Vector3} position
 	 */
@@ -21,8 +51,39 @@ export namespace AudioManager
 		listener = position;
 	};*/
 
+	export function _update(deltaSec: number): void
+	{
+		if (musicLerpDuration !== undefined)
+		{
+			musicLerpTimer += deltaSec;
+			var lerpProgress = musicLerpTimer / musicLerpDuration;
+			if (lerpProgress >= 1)
+			{
+				lerpProgress = 1;
+				stop(currentMusic);
+				if (nextMusic)
+				{
+					nextMusic.volume = 0;
+					nextMusic.play();
+					startMusicLerp(0.3, 1);
+					currentMusic = nextMusic;
+					nextMusic = undefined;
+				}
+				else
+				{
+					currentMusic = undefined;
+				}
+				musicLerpDuration = undefined;
+			}
+			if (currentMusic)
+			{
+				currentMusic.volume = (musicLerpTargetVolume - musicLerpStartVolume) * lerpProgress + musicLerpStartVolume;
+			}
+		}
+	}
+
 	//TODO: call this every frame
-	/*export function _updateVolume(clip: HTMLAudioElement): void
+	/*function _updateVolume(clip: HTMLAudioElement): void
 	{
 		//Do ranges
 		if (clip.position && listener)
@@ -97,6 +158,35 @@ export namespace AudioManager
 			url = urlParam;
 		}
 		
+		var clip = _getAudioClip(url);
+		clip.volume = vol || 1.0;
+		clip.play();
+		return clip;
+	};
+
+	/**
+	 * Fades out the current music, and fades in the specified one.
+	 */
+	export function playMusic(url: string): HTMLAudioElement
+	{
+		if (currentMusic && (currentMusic as any).relativeSrc == url) return currentMusic;
+
+		nextMusic = _getAudioClip(url);
+		nextMusic.loop = true;
+		startMusicLerp(0.5, 0);
+		return nextMusic;
+	};
+
+	export function startMusicLerp(durationSec: number, targetVolume: number): void
+	{
+		musicLerpStartVolume = currentMusic ? currentMusic.volume : 0;
+		musicLerpTargetVolume = targetVolume;
+		musicLerpTimer = 0;
+		musicLerpDuration = durationSec;
+	}
+
+	function _getAudioClip(url: string): HTMLAudioElement
+	{
 		var clip: HTMLAudioElement;
 		if (pool[url] && pool[url].length > 0)
 		{
@@ -104,7 +194,6 @@ export namespace AudioManager
 			var last = pool[url].length-1;
 			clip = pool[url][last];
 			clip.currentTime = 0;
-			clip.volume = vol || 1.0;
 			clip.playbackRate = 1.0;
 			pool[url].length = last;
 		}
@@ -112,9 +201,9 @@ export namespace AudioManager
 		{
 			//Make a new clip
 			clip = _allocateAudio(url);
-			clip.volume = vol || 1.0;
 		}
-		clip.play();
+		clip.volume = 1;
+		clip.loop = false;
 		return clip;
 	};
 
@@ -124,6 +213,7 @@ export namespace AudioManager
  	 */
  	export function stop(clip: HTMLAudioElement): void
  	{
+		if (!clip) return;
  		clip.pause();
  		clip.currentTime = 0;
  		_addToPool(clip);

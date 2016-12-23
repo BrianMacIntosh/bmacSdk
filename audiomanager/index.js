@@ -11,6 +11,30 @@ var AudioManager;
      */
     var pool = {};
     /**
+     * The currently-playing music, if any.
+     */
+    var currentMusic;
+    /**
+     * The music currently being transitioned to, if any.
+     */
+    var nextMusic;
+    /**
+     * The volume the music is currently being lerped from.
+     */
+    var musicLerpStartVolume;
+    /**
+     * The volume the music is currently being lerped to.
+     */
+    var musicLerpTargetVolume;
+    /**
+     * The music transition timer.
+     */
+    var musicLerpTimer;
+    /**
+     * The duration of the current music transition.
+     */
+    var musicLerpDuration;
+    /**
      * Set the position of the audio listener.
      * @param {THREE.Vector3} position
      */
@@ -18,8 +42,33 @@ var AudioManager;
     {
         listener = position;
     };*/
+    function _update(deltaSec) {
+        if (musicLerpDuration !== undefined) {
+            musicLerpTimer += deltaSec;
+            var lerpProgress = musicLerpTimer / musicLerpDuration;
+            if (lerpProgress >= 1) {
+                lerpProgress = 1;
+                stop(currentMusic);
+                if (nextMusic) {
+                    nextMusic.volume = 0;
+                    nextMusic.play();
+                    startMusicLerp(0.3, 1);
+                    currentMusic = nextMusic;
+                    nextMusic = undefined;
+                }
+                else {
+                    currentMusic = undefined;
+                }
+                musicLerpDuration = undefined;
+            }
+            if (currentMusic) {
+                currentMusic.volume = (musicLerpTargetVolume - musicLerpStartVolume) * lerpProgress + musicLerpStartVolume;
+            }
+        }
+    }
+    AudioManager._update = _update;
     //TODO: call this every frame
-    /*export function _updateVolume(clip: HTMLAudioElement): void
+    /*function _updateVolume(clip: HTMLAudioElement): void
     {
         //Do ranges
         if (clip.position && listener)
@@ -84,31 +133,59 @@ var AudioManager;
         else {
             url = urlParam;
         }
-        var clip;
-        if (pool[url] && pool[url].length > 0) {
-            //Use a pooled clip
-            var last = pool[url].length - 1;
-            clip = pool[url][last];
-            clip.currentTime = 0;
-            clip.volume = vol || 1.0;
-            clip.playbackRate = 1.0;
-            pool[url].length = last;
-        }
-        else {
-            //Make a new clip
-            clip = _allocateAudio(url);
-            clip.volume = vol || 1.0;
-        }
+        var clip = _getAudioClip(url);
+        clip.volume = vol || 1.0;
         clip.play();
         return clip;
     }
     AudioManager.playSound = playSound;
     ;
     /**
+     * Fades out the current music, and fades in the specified one.
+     */
+    function playMusic(url) {
+        if (currentMusic && currentMusic.relativeSrc == url)
+            return currentMusic;
+        nextMusic = _getAudioClip(url);
+        nextMusic.loop = true;
+        startMusicLerp(0.5, 0);
+        return nextMusic;
+    }
+    AudioManager.playMusic = playMusic;
+    ;
+    function startMusicLerp(durationSec, targetVolume) {
+        musicLerpStartVolume = currentMusic ? currentMusic.volume : 0;
+        musicLerpTargetVolume = targetVolume;
+        musicLerpTimer = 0;
+        musicLerpDuration = durationSec;
+    }
+    AudioManager.startMusicLerp = startMusicLerp;
+    function _getAudioClip(url) {
+        var clip;
+        if (pool[url] && pool[url].length > 0) {
+            //Use a pooled clip
+            var last = pool[url].length - 1;
+            clip = pool[url][last];
+            clip.currentTime = 0;
+            clip.playbackRate = 1.0;
+            pool[url].length = last;
+        }
+        else {
+            //Make a new clip
+            clip = _allocateAudio(url);
+        }
+        clip.volume = 1;
+        clip.loop = false;
+        return clip;
+    }
+    ;
+    /**
      * Stops and pools the specified clip.
      * @param {Audio} clip
      */
     function stop(clip) {
+        if (!clip)
+            return;
         clip.pause();
         clip.currentTime = 0;
         _addToPool(clip);

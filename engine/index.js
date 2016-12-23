@@ -2,6 +2,7 @@
 require("../polyfills");
 var input_1 = require("../input");
 var engine_1 = require("./engine");
+var audiomanager_1 = require("../audiomanager");
 var engine_2 = require("./engine");
 exports.EngineObject = engine_2.EngineObject;
 exports.Engine = engine_2.Engine;
@@ -140,6 +141,7 @@ var bmacSdk;
         if (CFG_PAUSE_WHEN_UNFOCUSED && !bmacSdk.isFocused) {
             return;
         }
+        audiomanager_1.AudioManager._update(_deltaSec);
         input_1.Input._update();
         for (var c = 0; c < engines.length; c++) {
             engines[c]._animate();

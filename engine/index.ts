@@ -4,6 +4,7 @@ require("../polyfills");
 
 import { Input } from "../input";
 import { Engine } from "./engine";
+import { AudioManager } from "../audiomanager";
 
 export { EngineObject, Engine } from "./engine";
 export { noise } from "../thirdparty/noise";
@@ -172,6 +173,7 @@ export namespace bmacSdk
 			return;
 		}
 		
+		AudioManager._update(_deltaSec);
 		Input._update();
 		
 		for (var c = 0; c < engines.length; c++)
