@@ -1,6 +1,7 @@
 "use strict";
 var THREE = require("three");
 var _1 = require("./");
+var box2d_1 = require("../thirdparty/box2d");
 /**
  * Base class for an object that has three.js visuals and a Box2D body.
  * Visual elements should be parented to 'this.transform'. The position of
@@ -9,10 +10,12 @@ var _1 = require("./");
 var PhysicsLinkedObject = (function () {
     function PhysicsLinkedObject(body) {
         this.transform = new THREE.Object3D();
+        //this.transform.matrixAutoUpdate = false;
         _1.b2Utils.AllObjects.push(this);
         if (body) {
             this.body = body;
             this.body.SetUserData(this);
+            this.syncTransformToBody(true);
         }
     }
     /**
@@ -42,13 +45,14 @@ var PhysicsLinkedObject = (function () {
      * Updates this object once per frame.
      */
     PhysicsLinkedObject.prototype.update = function (deltaSec) {
-        this.syncTransformToBody();
+        this.syncTransformToBody(false);
     };
     /**
      * Moves the THREE transform to match the body position.
      */
-    PhysicsLinkedObject.prototype.syncTransformToBody = function () {
-        if (this.body) {
+    PhysicsLinkedObject.prototype.syncTransformToBody = function (force) {
+        if (this.body
+            && (force || (this.body.IsAwake() && this.body.GetType() != box2d_1.Box2D.b2Body.b2_staticBody))) {
             var physicsPos = this.body.GetPosition();
             this.transform.position.set(physicsPos.x * _1.b2Utils.B2_SCALE, physicsPos.y * _1.b2Utils.B2_SCALE, this.transform.position.z);
             this.transform.rotation.z = this.body.GetAngle();
@@ -63,6 +67,13 @@ var PhysicsLinkedObject = (function () {
             _1.b2Utils.tempVector2.y = this.transform.position.y / _1.b2Utils.B2_SCALE;
             this.body.SetPositionAndAngle(_1.b2Utils.tempVector2, this.transform.rotation.z);
         }
+    };
+    /**
+     * Moves the body to the specified position.
+     */
+    PhysicsLinkedObject.prototype.setPosition = function (position) {
+        this.body.SetPosition(position);
+        this.syncTransformToBody(true);
     };
     /**
      * Applies the specified impulse to the center of the body, but does not allow it to

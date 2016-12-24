@@ -17,6 +17,7 @@ export class PhysicsLinkedObject
 	constructor(body: Box2D.b2Body)
 	{
 		this.transform = new THREE.Object3D();
+		//this.transform.matrixAutoUpdate = false;
 
 		b2Utils.AllObjects.push(this);
 		
@@ -24,6 +25,7 @@ export class PhysicsLinkedObject
 		{
 			this.body = body;
 			this.body.SetUserData(this);
+			this.syncTransformToBody(true);
 		}
 	}
 
@@ -64,20 +66,22 @@ export class PhysicsLinkedObject
 	 */
 	public update(deltaSec: number): void
 	{
-		this.syncTransformToBody();
+		this.syncTransformToBody(false);
 	}
 
 	/**
 	 * Moves the THREE transform to match the body position.
 	 */
-	public syncTransformToBody(): void
+	public syncTransformToBody(force): void
 	{
-		if (this.body)
+		if (this.body
+			&& (force || (this.body.IsAwake() && this.body.GetType() != Box2D.b2Body.b2_staticBody)))
 		{
 			var physicsPos = this.body.GetPosition();
 			this.transform.position.set(
 				physicsPos.x * b2Utils.B2_SCALE, physicsPos.y * b2Utils.B2_SCALE, this.transform.position.z);
 			this.transform.rotation.z = this.body.GetAngle();
+			//this.transform.updateMatrix();
 		}
 	}
 
@@ -92,6 +96,15 @@ export class PhysicsLinkedObject
 			b2Utils.tempVector2.y = this.transform.position.y / b2Utils.B2_SCALE;
 			this.body.SetPositionAndAngle(b2Utils.tempVector2, this.transform.rotation.z);
 		}
+	}
+
+	/**
+	 * Moves the body to the specified position.
+	 */
+	public setPosition(position: Box2D.b2Vec2): void
+	{
+		this.body.SetPosition(position);
+		this.syncTransformToBody(true);
 	}
 
 	/**
