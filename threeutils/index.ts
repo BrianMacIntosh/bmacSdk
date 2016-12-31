@@ -478,9 +478,11 @@ export module ThreeUtils
 		var vertAttribute = geometry.getAttribute("position") as THREE.BufferAttribute;
 		var array = vertAttribute.array as Float32Array;
 		array[0] = -w; array[1] = -h; array[2] = 0;
-		array[3] = w; array[4] = -h; array[5] = 0;
-		array[6] = -w; array[7] = h; array[8] = 0;
-		array[9] = w; array[10] = h; array[11] = 0;
+		array[3] = -w; array[4] = h; array[5] = 0;
+		array[6] = w; array[7] = -h; array[8] = 0;
+		array[9] = -w; array[10] = h; array[11] = 0;
+		array[12] = w; array[13] = h; array[14] = 0;
+		array[15] = w; array[16] = -h; array[17] = 0;
 		vertAttribute.needsUpdate = true;
 		return geometry;
 	};
