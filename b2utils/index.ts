@@ -39,6 +39,9 @@ export namespace b2Utils
 	export var dynamicBodyDef = new Box2D.b2BodyDef();
 	dynamicBodyDef.type = Box2D.b2Body.b2_dynamicBody;
 
+	export var kinematicBodyDef = new Box2D.b2BodyDef();
+	kinematicBodyDef.type = Box2D.b2Body.b2_kinematicBody;
+
 	var contactFilter: Box2D.b2ContactFilter;
 	var contactListener: Box2D.b2ContactListener;
 
@@ -115,15 +118,7 @@ export namespace b2Utils
 		fixtureDef?: Box2D.b2FixtureDef, bodyDef?: Box2D.b2BodyDef): Box2D.b2Body
 	{
 		if (!bodyDef) bodyDef = staticBodyDef;
-		tempVector2.x = x / B2_SCALE;
-		tempVector2.y = y / B2_SCALE;
-		bodyDef.position = tempVector2;
-		var body = world.CreateBody(bodyDef);
-		if (fixtureDef)
-		{
-			body.CreateFixture(fixtureDef);
-		}
-		return body;
+		return createBody(world, x, y, fixtureDef, bodyDef);
 	}
 
 	/**
@@ -139,6 +134,28 @@ export namespace b2Utils
 		fixtureDef?: Box2D.b2FixtureDef, bodyDef?: Box2D.b2BodyDef): Box2D.b2Body
 	{
 		if (!bodyDef) bodyDef = dynamicBodyDef;
+		return createBody(world, x, y, fixtureDef, bodyDef);
+	}
+
+	/**
+	 * Creates a kinematic body.
+	 * @param {Box2D.b2World} world
+	 * @param {number} x The starting x position of the body in world coordinates.
+	 * @param {number} y The starting y position of the body in world coordinates.
+	 * @param {Box2D.b2FixtureDef} fixtureDef (Optional) A fixture to add to the body.
+	 * @param {Box2D.b2BodyDef} bodyDef (Optional) definition to use for the body
+	 * @returns {Box2D.b2Body}
+	 */
+	export function createKinematicBody(world: Box2D.b2World, x: number, y: number,
+		fixtureDef?: Box2D.b2FixtureDef, bodyDef?: Box2D.b2BodyDef): Box2D.b2Body
+	{
+		if (!bodyDef) bodyDef = kinematicBodyDef;
+		return createBody(world, x, y, fixtureDef, bodyDef);
+	}
+
+	function createBody(world: Box2D.b2World, x: number, y: number,
+		fixtureDef?: Box2D.b2FixtureDef, bodyDef?: Box2D.b2BodyDef): Box2D.b2Body
+	{
 		tempVector2.x = x / B2_SCALE;
 		tempVector2.y = y / B2_SCALE;
 		bodyDef.position = tempVector2;

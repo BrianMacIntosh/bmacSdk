@@ -32,6 +32,8 @@ var b2Utils;
     b2Utils.staticBodyDef = new box2d_1.Box2D.b2BodyDef();
     b2Utils.dynamicBodyDef = new box2d_1.Box2D.b2BodyDef();
     b2Utils.dynamicBodyDef.type = box2d_1.Box2D.b2Body.b2_dynamicBody;
+    b2Utils.kinematicBodyDef = new box2d_1.Box2D.b2BodyDef();
+    b2Utils.kinematicBodyDef.type = box2d_1.Box2D.b2Body.b2_kinematicBody;
     var contactFilter;
     var contactListener;
     /**
@@ -100,14 +102,7 @@ var b2Utils;
     function createStaticBody(world, x, y, fixtureDef, bodyDef) {
         if (!bodyDef)
             bodyDef = b2Utils.staticBodyDef;
-        b2Utils.tempVector2.x = x / b2Utils.B2_SCALE;
-        b2Utils.tempVector2.y = y / b2Utils.B2_SCALE;
-        bodyDef.position = b2Utils.tempVector2;
-        var body = world.CreateBody(bodyDef);
-        if (fixtureDef) {
-            body.CreateFixture(fixtureDef);
-        }
-        return body;
+        return createBody(world, x, y, fixtureDef, bodyDef);
     }
     b2Utils.createStaticBody = createStaticBody;
     /**
@@ -122,6 +117,25 @@ var b2Utils;
     function createDynamicBody(world, x, y, fixtureDef, bodyDef) {
         if (!bodyDef)
             bodyDef = b2Utils.dynamicBodyDef;
+        return createBody(world, x, y, fixtureDef, bodyDef);
+    }
+    b2Utils.createDynamicBody = createDynamicBody;
+    /**
+     * Creates a kinematic body.
+     * @param {Box2D.b2World} world
+     * @param {number} x The starting x position of the body in world coordinates.
+     * @param {number} y The starting y position of the body in world coordinates.
+     * @param {Box2D.b2FixtureDef} fixtureDef (Optional) A fixture to add to the body.
+     * @param {Box2D.b2BodyDef} bodyDef (Optional) definition to use for the body
+     * @returns {Box2D.b2Body}
+     */
+    function createKinematicBody(world, x, y, fixtureDef, bodyDef) {
+        if (!bodyDef)
+            bodyDef = b2Utils.kinematicBodyDef;
+        return createBody(world, x, y, fixtureDef, bodyDef);
+    }
+    b2Utils.createKinematicBody = createKinematicBody;
+    function createBody(world, x, y, fixtureDef, bodyDef) {
         b2Utils.tempVector2.x = x / b2Utils.B2_SCALE;
         b2Utils.tempVector2.y = y / b2Utils.B2_SCALE;
         bodyDef.position = b2Utils.tempVector2;
@@ -131,7 +145,6 @@ var b2Utils;
         }
         return body;
     }
-    b2Utils.createDynamicBody = createDynamicBody;
     var ContactListener = (function (_super) {
         __extends(ContactListener, _super);
         function ContactListener() {
