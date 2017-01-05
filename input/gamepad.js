@@ -8,6 +8,7 @@ var Gamepad;
     Gamepad.isHeadless = false;
     var STICK_THRESHOLD = 0.5;
     Gamepad.DEAD_ZONE = 0.3;
+    var Button;
     (function (Button) {
         Button[Button["A"] = 0] = "A";
         Button[Button["B"] = 1] = "B";
@@ -26,15 +27,14 @@ var Gamepad;
         Button[Button["DPadLeft"] = 14] = "DPadLeft";
         Button[Button["DPadRight"] = 15] = "DPadRight";
         Button[Button["Home"] = 16] = "Home";
-    })(Gamepad.Button || (Gamepad.Button = {}));
-    var Button = Gamepad.Button;
+    })(Button = Gamepad.Button || (Gamepad.Button = {}));
+    var Axis;
     (function (Axis) {
         Axis[Axis["LeftStickX"] = 0] = "LeftStickX";
         Axis[Axis["LeftStickY"] = 1] = "LeftStickY";
         Axis[Axis["RightStickX"] = 2] = "RightStickX";
         Axis[Axis["RightStickY"] = 3] = "RightStickY";
-    })(Gamepad.Axis || (Gamepad.Axis = {}));
-    var Axis = Gamepad.Axis;
+    })(Axis = Gamepad.Axis || (Gamepad.Axis = {}));
     var gamepads;
     var oldGamepads;
     function _init() {

@@ -18,13 +18,13 @@ var Mouse;
     var mouseReleasedBuffer = {};
     var wheelDelta = 0;
     var wheelDeltaBuffer = 0;
+    var Button;
     (function (Button) {
         Button[Button["Left"] = 1] = "Left";
         Button[Button["Middle"] = 2] = "Middle";
         Button[Button["Right"] = 3] = "Right";
         Button[Button["Other"] = 4] = "Other";
-    })(Mouse.Button || (Mouse.Button = {}));
-    var Button = Mouse.Button;
+    })(Button = Mouse.Button || (Mouse.Button = {}));
     /**
      * Called by the SDK to start listening to the mouse.
      */

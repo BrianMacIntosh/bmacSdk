@@ -148,7 +148,7 @@ var b2Utils;
     var ContactListener = (function (_super) {
         __extends(ContactListener, _super);
         function ContactListener() {
-            _super.apply(this, arguments);
+            return _super.apply(this, arguments) || this;
         }
         ContactListener.prototype.BeginContact = function (contact) {
             var fixtureA = contact.GetFixtureA();
@@ -207,8 +207,9 @@ var b2Utils;
     var ContactFilter = (function (_super) {
         __extends(ContactFilter, _super);
         function ContactFilter(shouldCollide) {
-            _super.call(this);
-            this.shouldCollide = shouldCollide;
+            var _this = _super.call(this) || this;
+            _this.shouldCollide = shouldCollide;
+            return _this;
         }
         ContactFilter.prototype.ShouldCollide = function (fixtureA, fixtureB) {
             return this.shouldCollide(fixtureA, fixtureB);

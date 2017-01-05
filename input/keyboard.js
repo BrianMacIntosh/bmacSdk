@@ -13,6 +13,7 @@ var Keyboard;
     var keysReleased = {};
     var keysPressedBuffer = {};
     var keysReleasedBuffer = {};
+    var Key;
     (function (Key) {
         Key[Key["Left"] = 37] = "Left";
         Key[Key["Up"] = 38] = "Up";
@@ -27,8 +28,7 @@ var Keyboard;
         Key[Key["Shift"] = 16] = "Shift";
         Key[Key["Ctrl"] = 17] = "Ctrl";
         Key[Key["Alt"] = 18] = "Alt";
-    })(Keyboard.Key || (Keyboard.Key = {}));
-    var Key = Keyboard.Key;
+    })(Key = Keyboard.Key || (Keyboard.Key = {}));
     /**
      * Called by the SDK to initialize keyboard listening.
      */

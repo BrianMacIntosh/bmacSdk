@@ -6,7 +6,7 @@ var Atlas_2 = require("./Atlas");
 exports.Atlas = Atlas_2.Atlas;
 var threejsdebugdraw_1 = require("./threejsdebugdraw");
 exports.ThreeJsDebugDraw = threejsdebugdraw_1.ThreeJsDebugDraw;
-var shaker_1 = require('./shaker');
+var shaker_1 = require("./shaker");
 exports.Shaker = shaker_1.Shaker;
 var ThreeUtils;
 (function (ThreeUtils) {
@@ -279,7 +279,8 @@ var ThreeUtils;
         }
         if (!atlas.material) {
             atlas.material = new THREE.MeshBasicMaterial({
-                map: atlas.texture, transparent: true });
+                map: atlas.texture, transparent: true
+            });
         }
         var geometry;
         if (dynamicGeometry) {
