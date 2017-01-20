@@ -19,6 +19,16 @@ export namespace bmacSdk
 	 * @type {boolean}
 	 */
 	var CFG_PAUSE_WHEN_UNFOCUSED: boolean = false;
+
+	/**
+	 * If set, the game with update as often as possible.
+	 */
+	export var uncappedFramerate: boolean = false;
+
+	/**
+	 * If set, the game will use a fixed update rate for the engine (in seconds).
+	 */
+	export var fixedUpdateInterval: number = undefined;
 	
 	/**
 	 * Used to ignore large frame delta after focusin
@@ -133,6 +143,7 @@ export namespace bmacSdk
 		Input._init();
 		
 		_lastFrame = Date.now();
+
 		_animate();
 	};
 
@@ -153,11 +164,18 @@ export namespace bmacSdk
 	 */
 	export function _animate()
 	{
-		_deltaSec = (Date.now() - _lastFrame) / 1000;
+		if (fixedUpdateInterval !== undefined)
+		{
+			_deltaSec = fixedUpdateInterval;
+		}
+		else
+		{
+			_deltaSec = (Date.now() - _lastFrame) / 1000;
+		}
 		_lastFrame = Date.now();
 		
 		// node server doesn't have this method and needs to call this manually each frame
-		if (!isHeadless)
+		if (!isHeadless && !uncappedFramerate)
 		{
 			requestAnimationFrame(_animate);
 		}
@@ -179,6 +197,11 @@ export namespace bmacSdk
 		for (var c = 0; c < engines.length; c++)
 		{
 			engines[c]._animate();
+		}
+
+		if (uncappedFramerate)
+		{
+			setTimeout(_animate, 1);
 		}
 	};
 };
