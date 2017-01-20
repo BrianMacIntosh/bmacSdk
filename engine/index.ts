@@ -21,9 +21,9 @@ export namespace bmacSdk
 	var CFG_PAUSE_WHEN_UNFOCUSED: boolean = false;
 
 	/**
-	 * If set, the game with update as often as possible.
+	 * If set, the game will update each frame until the specified time has passed (ms).
 	 */
-	export var uncappedFramerate: boolean = false;
+	export var fastSimulate: number = undefined;
 
 	/**
 	 * If set, the game will use a fixed update rate for the engine (in seconds).
@@ -164,44 +164,44 @@ export namespace bmacSdk
 	 */
 	export function _animate()
 	{
-		if (fixedUpdateInterval !== undefined)
+		var simStart = Date.now();
+
+		do
 		{
-			_deltaSec = fixedUpdateInterval;
-		}
-		else
-		{
-			_deltaSec = (Date.now() - _lastFrame) / 1000;
-		}
-		_lastFrame = Date.now();
-		
+			if (fixedUpdateInterval !== undefined)
+			{
+				_deltaSec = fixedUpdateInterval;
+			}
+			else
+			{
+				_deltaSec = (Date.now() - _lastFrame) / 1000;
+			}
+			_lastFrame = Date.now();
+			
+			if (_eatFrame)
+			{
+				_eatFrame = false;
+				break;
+			}
+			
+			if (CFG_PAUSE_WHEN_UNFOCUSED && !bmacSdk.isFocused)
+			{
+				break;
+			}
+			
+			AudioManager._update(_deltaSec);
+			Input._update();
+			
+			for (var c = 0; c < engines.length; c++)
+			{
+				engines[c]._animate();
+			}
+		} while (fastSimulate !== undefined && (Date.now() - simStart) < fastSimulate);
+
 		// node server doesn't have this method and needs to call this manually each frame
-		if (!isHeadless && !uncappedFramerate)
+		if (!isHeadless)
 		{
 			requestAnimationFrame(_animate);
-		}
-		
-		if (_eatFrame)
-		{
-			_eatFrame = false;
-			return;
-		}
-		
-		if (CFG_PAUSE_WHEN_UNFOCUSED && !bmacSdk.isFocused)
-		{
-			return;
-		}
-		
-		AudioManager._update(_deltaSec);
-		Input._update();
-		
-		for (var c = 0; c < engines.length; c++)
-		{
-			engines[c]._animate();
-		}
-
-		if (uncappedFramerate)
-		{
-			setTimeout(_animate, 1);
 		}
 	};
 };
