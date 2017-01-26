@@ -112,9 +112,9 @@ var Engine = (function () {
     };
     Engine.prototype._animate = function () {
         // calculate mouse pos
-        this.mousePosRel = input_1.Mouse.getPosition(this.canvasDiv);
+        this.mousePosRel = input_1.Mouse.getPosition(this.canvasDiv, this.mousePosRel);
         if (!this.mousePosWorld)
-            this.mousePosWorld = new THREE.Vector2();
+            this.mousePosWorld = threeutils_1.ThreeUtils.newVector2();
         this.mousePosWorld.set(this.mousePosRel.x + this.mainCamera.position.x, this.mousePosRel.y + this.mainCamera.position.y);
         domutils_1.DomUtils.update(_1.bmacSdk.getDeltaSec());
         // update objects

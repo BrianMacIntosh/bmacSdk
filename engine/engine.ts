@@ -3,7 +3,7 @@ import THREE = require("three")
 
 import { bmacSdk } from "./";
 import { Mouse } from "../input";
-import { Shaker } from "../threeutils";
+import { ThreeUtils, Shaker } from "../threeutils";
 import { DomUtils } from "../domutils";
 
 //TODO: engine should set up Box2D world and listeners for you
@@ -158,8 +158,8 @@ export class Engine
 	public _animate(): void
 	{
 		// calculate mouse pos
-		this.mousePosRel = Mouse.getPosition(this.canvasDiv);
-		if (!this.mousePosWorld) this.mousePosWorld = new THREE.Vector2();
+		this.mousePosRel = Mouse.getPosition(this.canvasDiv, this.mousePosRel);
+		if (!this.mousePosWorld) this.mousePosWorld = ThreeUtils.newVector2();
 		this.mousePosWorld.set(
 			this.mousePosRel.x + this.mainCamera.position.x,
 			this.mousePosRel.y + this.mainCamera.position.y);

@@ -18,6 +18,10 @@ export module ThreeUtils
 
 	export var tempVector3: THREE.Vector3 = new THREE.Vector3();
 
+	var vector2Pool: THREE.Vector2[] = [];
+
+	var vector3Pool: THREE.Vector3[] = [];
+
 	/**
 	 * If set, all mesh creation calls return dummy objects instead of real visual objects.
 	 */
@@ -31,6 +35,52 @@ export module ThreeUtils
 	var textureCallbacks: { [s: string]: ((texture: THREE.Texture) => void)[]} = {};
 
 	var atlasCache: { [s: string]: Atlas } = {};
+
+	/**
+	 * Returns an empty {THREE.Vector2}.
+	 */
+	export function newVector2(x?: number, y?: number): THREE.Vector2
+	{
+		if (vector2Pool.length > 0)
+		{
+			var vec = vector2Pool.pop();
+			if (x !== undefined) vec.set(x, y);
+			return vec;
+		}
+		else return new THREE.Vector2(x, y);
+	}
+
+	/**
+	 * Returns an empty {THREE.Vector3}.
+	 */
+	export function newVector3(x?: number, y?: number, z?: number): THREE.Vector3
+	{
+		if (vector3Pool.length > 0)
+		{
+			var vec = vector3Pool.pop();
+			if (x !== undefined) vec.set(x, y, z);
+			return vec;
+		}
+		else return new THREE.Vector3(x, y, z);
+	}
+
+	/**
+	 * Releases a {THREE.Vector2} to the pool.
+	 */
+	export function releaseVector2(vec: THREE.Vector2): void
+	{
+		vec.x = vec.y = 0;
+		vector2Pool.push(vec);
+	}
+
+	/**
+	 * Releases a {THREE.Vector3} to the pool.
+	 */
+	export function releaseVector3(vec: THREE.Vector3): void
+	{
+		vec.x = vec.y = vec.z = 0;
+		vector3Pool.push(vec);
+	}
 
 	/**
 	 * Creates a THREE.Mesh with a unique material.
@@ -389,14 +439,14 @@ export module ThreeUtils
 		if (flipY){var temp=t;t=b;b=temp;}
 		if (uvs[0] === undefined)
 		{
-			uvs[0] = [new THREE.Vector2(),new THREE.Vector2(),new THREE.Vector2()];
+			uvs[0] = [ThreeUtils.newVector2(),ThreeUtils.newVector2(),ThreeUtils.newVector2()];
 		}
 		uvs[0][0].set(l,b);
 		uvs[0][1].set(l,t);
 		uvs[0][2].set(r,b);
 		if (uvs[1] === undefined)
 		{
-			uvs[1] = [new THREE.Vector2(),new THREE.Vector2(),new THREE.Vector2()];
+			uvs[1] = [ThreeUtils.newVector2(),ThreeUtils.newVector2(),ThreeUtils.newVector2()];
 		}
 		uvs[1][0].set(l,t);
 		uvs[1][1].set(r,t);
@@ -547,12 +597,17 @@ export module ThreeUtils
 	 */
 	export function lineCircleIntersection(a: THREE.Vector2, b: THREE.Vector2, center: THREE.Vector2, radius: number): boolean
 	{
-		var attackVector = new THREE.Vector2().subVectors(b, a).normalize();
-		var meToTargetVector = new THREE.Vector2().subVectors(center, a);
+		var attackVector = ThreeUtils.newVector2().subVectors(b, a).normalize();
+		var meToTargetVector = ThreeUtils.newVector2().subVectors(center, a);
 		var dot = meToTargetVector.dot(attackVector);
 		attackVector.multiplyScalar(dot).add(a).sub(center);
 
-		return attackVector.lengthSq() <= radius * radius;
+		var result = attackVector.lengthSq() <= radius * radius;
+
+		ThreeUtils.releaseVector2(attackVector);
+		ThreeUtils.releaseVector2(meToTargetVector);
+
+		return result;
 	};
 
 	/**
@@ -562,11 +617,12 @@ export module ThreeUtils
 	 */
 	export function lineSegmentCircleIntersection(a: THREE.Vector2, b: THREE.Vector2, center: THREE.Vector2, radius: number): boolean
 	{
-		var attackVector = new THREE.Vector2().subVectors(b, a);
+		var attackVector = ThreeUtils.newVector2().subVectors(b, a);
 		var segmentLengthSq = attackVector.lengthSq();
 		attackVector.normalize();
-		var meToTargetVector = new THREE.Vector2().subVectors(center, a);
+		var meToTargetVector = ThreeUtils.newVector2().subVectors(center, a);
 		var dot = meToTargetVector.dot(attackVector);
+		ThreeUtils.releaseVector2(meToTargetVector);
 		attackVector.multiplyScalar(dot).add(a).sub(center);
 		
 		// circle is behind the segment
@@ -575,14 +631,15 @@ export module ThreeUtils
 		attackVector.normalize().multiplyScalar(dot);
 		
 		// check that the segment range is correct
+		var result = false;
 		var projectionLengthSq = attackVector.lengthSq();
-		if (projectionLengthSq > segmentLengthSq)
+		if (projectionLengthSq <= segmentLengthSq)
 		{
-			return false;
+			// check that the line is within the circle
+			attackVector = attackVector.sub(center).add(a);
+			result = attackVector.lengthSq() <= radius * radius;
 		}
-		
-		// check that the line is within the circle
-		attackVector = attackVector.sub(center).add(a);
-		return attackVector.lengthSq() <= radius * radius;
+		ThreeUtils.releaseVector2(attackVector);
+		return result;
 	};
 }

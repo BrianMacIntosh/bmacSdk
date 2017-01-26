@@ -1,5 +1,5 @@
 "use strict";
-var THREE = require("three");
+var threeutils_1 = require("../threeutils");
 var Mouse;
 (function (Mouse) {
     /**
@@ -122,11 +122,16 @@ var Mouse;
     /**
      * Returns the current position of the mouse relative to the specified HTML element.
      * @param {Element} relativeTo
+     * @param {THREE.Vector2} buffer Object to fill (optional)
      * @returns {Object}
      */
-    function getPosition(relativeTo) {
-        if (!relativeTo)
-            return new THREE.Vector2(Mouse.mousePos.x, Mouse.mousePos.y);
+    function getPosition(relativeTo, buffer) {
+        if (!buffer)
+            buffer = threeutils_1.ThreeUtils.newVector2();
+        if (!relativeTo) {
+            buffer.set(Mouse.mousePos.x, Mouse.mousePos.y);
+            return buffer;
+        }
         //Find global position of element
         var elemX = relativeTo.offsetLeft;
         var elemY = relativeTo.offsetTop;
@@ -136,7 +141,8 @@ var Mouse;
             elemY += relativeTo.offsetTop;
         }
         //Calculate relative position of mouse
-        return new THREE.Vector2(Mouse.mousePos.x - elemX, Mouse.mousePos.y - elemY);
+        buffer.set(Mouse.mousePos.x - elemX, Mouse.mousePos.y - elemY);
+        return buffer;
     }
     Mouse.getPosition = getPosition;
     ;

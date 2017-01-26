@@ -1,5 +1,6 @@
 
 import THREE = require("three")
+import { ThreeUtils } from "../threeutils";
 
 export namespace Mouse
 {
@@ -149,11 +150,18 @@ export namespace Mouse
 	/**
 	 * Returns the current position of the mouse relative to the specified HTML element.
 	 * @param {Element} relativeTo
+	 * @param {THREE.Vector2} buffer Object to fill (optional)
 	 * @returns {Object}
 	 */
-	export function getPosition(relativeTo: HTMLElement): THREE.Vector2
+	export function getPosition(relativeTo: HTMLElement, buffer?: THREE.Vector2): THREE.Vector2
 	{
-		if (!relativeTo) return new THREE.Vector2(mousePos.x, mousePos.y);
+		if (!buffer) buffer = ThreeUtils.newVector2();
+
+		if (!relativeTo)
+		{
+			buffer.set(mousePos.x, mousePos.y);
+			return buffer;
+		}
 		
 		//Find global position of element
 		var elemX = relativeTo.offsetLeft;
@@ -166,7 +174,8 @@ export namespace Mouse
 		}
 		
 		//Calculate relative position of mouse
-		return new THREE.Vector2(mousePos.x - elemX, mousePos.y - elemY);
+		buffer.set(mousePos.x - elemX, mousePos.y - elemY);
+		return buffer;
 	};
 
 	/**
