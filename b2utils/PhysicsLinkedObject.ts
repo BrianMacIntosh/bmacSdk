@@ -30,14 +30,27 @@ export class PhysicsLinkedObject
 	}
 
 	/**
-	 * Destroys this object.
+	 * Undestroys a soft-destroyed object (for pooling).
 	 */
-	public destroy(): void
+	public undestroy(): void
+	{
+		b2Utils.AllObjects.push(this);
+		if (this.body)
+		{
+			this.body.SetActive(true);
+		}
+	}
+
+	/**
+	 * Destroys this object.
+	 * @param {boolean} soft If set, does not actually destroy memory (for pooling).
+	 */
+	public destroy(soft : boolean): void
 	{
 		if (this.transform && this.transform.parent)
 		{
 			this.transform.parent.remove(this.transform);
-			delete this.transform;
+			if (!soft) delete this.transform;
 		}
 
 		var index = b2Utils.AllObjects.indexOf(this);
@@ -46,7 +59,8 @@ export class PhysicsLinkedObject
 			b2Utils.AllObjects.splice(index, 1);
 		}
 
-		this.destroyBody();
+		if (soft) this.body.SetActive(false);
+		else this.destroyBody();
 	}
 
 	/**
