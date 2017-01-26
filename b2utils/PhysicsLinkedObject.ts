@@ -71,6 +71,7 @@ export class PhysicsLinkedObject
 		if (this.body)
 		{
 			this.body.GetWorld().DestroyBody(this.body);
+			this.body.SetUserData(undefined);
 			this.body = undefined;
 		}
 	}

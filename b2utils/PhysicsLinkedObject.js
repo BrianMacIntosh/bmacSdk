@@ -52,6 +52,7 @@ var PhysicsLinkedObject = (function () {
     PhysicsLinkedObject.prototype.destroyBody = function () {
         if (this.body) {
             this.body.GetWorld().DestroyBody(this.body);
+            this.body.SetUserData(undefined);
             this.body = undefined;
         }
     };
