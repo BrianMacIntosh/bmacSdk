@@ -148,7 +148,7 @@ var b2Utils;
     var ContactListener = (function (_super) {
         __extends(ContactListener, _super);
         function ContactListener() {
-            return _super.apply(this, arguments) || this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         ContactListener.prototype.BeginContact = function (contact) {
             var fixtureA = contact.GetFixtureA();

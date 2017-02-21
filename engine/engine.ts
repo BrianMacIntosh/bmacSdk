@@ -5,6 +5,7 @@ import { bmacSdk } from "./";
 import { Mouse } from "../input";
 import { ThreeUtils, Shaker } from "../threeutils";
 import { DomUtils } from "../domutils";
+import { THREEX } from "../thirdparty/threex.rendererstats";
 
 //TODO: engine should set up Box2D world and listeners for you
 
@@ -32,6 +33,8 @@ export class EngineObject
  */
 export class Engine
 {
+	private debugRenderer: boolean = true;
+
 	private objects: EngineObject[] = [];
 	private canvasDivName: string;
 	private canvasDiv: HTMLCanvasElement;
@@ -53,6 +56,8 @@ export class Engine
 
 	public mousePosRel: THREE.Vector2;
 	public mousePosWorld: THREE.Vector2;
+
+	private rendererStats: any;
 
 	constructor(canvasDivName: string)
 	{
@@ -116,6 +121,16 @@ export class Engine
 			this.canvasDiv.addEventListener("contextmenu", function(e) { e.preventDefault();return false; });
 			this.renderer.setClearColor(0x000000, 1);
 
+			if (this.debugRenderer)
+			{
+				// init renderstats
+				this.rendererStats = THREEX.RendererStats();
+				this.rendererStats.domElement.style.position = 'absolute';
+				this.rendererStats.domElement.style.left = '0px';
+				this.rendererStats.domElement.style.bottom = '0px';
+				document.body.appendChild(this.rendererStats.domElement);
+			}
+
 			DomUtils.init(this.canvasDiv, this.mainCamera, this.renderer);
 		}
 		
@@ -163,8 +178,6 @@ export class Engine
 		this.mousePosWorld.set(
 			this.mousePosRel.x + this.mainCamera.position.x,
 			this.mousePosRel.y + this.mainCamera.position.y);
-
-		DomUtils.update(bmacSdk.getDeltaSec());
 		
 		// update objects
 		for (var c = 0; c < this.objects.length; c++)
@@ -176,11 +189,14 @@ export class Engine
 		}
 
 		this.cameraShaker.update(bmacSdk.getDeltaSec());
+
+		DomUtils.update(bmacSdk.getDeltaSec());
 		
 		// render
 		if (this.renderer)
 		{
 			this.renderer.render(this.scene, this.mainCamera);
+			if (this.rendererStats) this.rendererStats.update(this.renderer);
 		}
 	};
 };

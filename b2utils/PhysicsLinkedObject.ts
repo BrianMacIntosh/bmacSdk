@@ -118,7 +118,7 @@ export class PhysicsLinkedObject
 	 */
 	public setPosition(position: Box2D.b2Vec2): void
 	{
-		this.body.SetPosition(position);
+		if (this.body) this.body.SetPosition(position);
 		this.syncTransformToBody(true);
 	}
 

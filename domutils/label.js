@@ -1,4 +1,5 @@
 "use strict";
+var threeutils_1 = require("../threeutils");
 var Label = (function () {
     function Label(cssClass, parent, camera, renderer) {
         this.parent = parent;
@@ -14,7 +15,7 @@ var Label = (function () {
     Label.prototype.free = function () {
         this.tiedTo = undefined;
         this.set("", 1, 1);
-        this.element.style.visibility = "hidden";
+        this.hide();
     };
     /**
      * Ties the label's position to that of the specified object.
@@ -22,6 +23,18 @@ var Label = (function () {
     Label.prototype.tieTo = function (object, offset) {
         this.tiedTo = object;
         this.tieOffset = offset;
+    };
+    Label.prototype.show = function () {
+        if (!this.visibility) {
+            this.visibility = true;
+            this.element.style.visibility = "visible";
+        }
+    };
+    Label.prototype.hide = function () {
+        if (this.visibility) {
+            this.visibility = false;
+            this.element.style.visibility = "hidden";
+        }
     };
     /**
      * Manually set this label's position.
@@ -31,7 +44,7 @@ var Label = (function () {
         this.setPositionHelper(position);
     };
     Label.prototype.setPositionHelper = function (position) {
-        var unprojected = position.clone().add(this.tieOffset).project(this.camera);
+        var unprojected = threeutils_1.ThreeUtils.newVector3().addVectors(position, this.tieOffset).project(this.camera);
         unprojected.x = (unprojected.x / 2 + 0.5) * this.parent.offsetWidth;
         unprojected.y = (-unprojected.y / 2 + 0.5) * this.parent.offsetHeight;
         // align
@@ -55,6 +68,7 @@ var Label = (function () {
         }
         this.element.style.left = Math.round(unprojected.x) + "px";
         this.element.style.top = Math.round(unprojected.y) + "px";
+        threeutils_1.ThreeUtils.releaseVector3(unprojected);
     };
     /**
      * @param {number} align 0:left, 1:center, 2:right
@@ -63,7 +77,7 @@ var Label = (function () {
         this.alignx = alignx;
         this.aligny = aligny;
         this.element.innerHTML = text;
-        this.element.style.visibility = "visible";
+        this.show();
     };
     Label.prototype.update = function (deltaSec) {
         if (this.tiedTo) {

@@ -87,7 +87,8 @@ var PhysicsLinkedObject = (function () {
      * Moves the body to the specified position.
      */
     PhysicsLinkedObject.prototype.setPosition = function (position) {
-        this.body.SetPosition(position);
+        if (this.body)
+            this.body.SetPosition(position);
         this.syncTransformToBody(true);
     };
     /**

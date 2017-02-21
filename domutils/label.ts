@@ -1,5 +1,6 @@
 
 import { DomUtils } from "./";
+import { ThreeUtils } from "../threeutils";
 
 export class Label
 {
@@ -13,6 +14,8 @@ export class Label
 	 */
 	alignx: number;
 	aligny: number;
+
+	visibility: boolean;
 
 	constructor(cssClass: string,
 		private parent: HTMLElement,
@@ -31,7 +34,7 @@ export class Label
 	{
 		this.tiedTo = undefined;
 		this.set("", 1, 1);
-		this.element.style.visibility = "hidden";
+		this.hide();
 	}
 
 	/**
@@ -41,6 +44,24 @@ export class Label
 	{
 		this.tiedTo = object;
 		this.tieOffset = offset;
+	}
+
+	public show()
+	{
+		if (!this.visibility)
+		{
+			this.visibility = true;
+			this.element.style.visibility = "visible";
+		}
+	}
+
+	public hide()
+	{
+		if (this.visibility)
+		{
+			this.visibility = false;
+			this.element.style.visibility = "hidden";
+		}
 	}
 
 	/**
@@ -54,7 +75,7 @@ export class Label
 
 	private setPositionHelper(position: THREE.Vector3): void
 	{
-		var unprojected = position.clone().add(this.tieOffset).project(this.camera);
+		var unprojected = ThreeUtils.newVector3().addVectors(position, this.tieOffset).project(this.camera);
 		unprojected.x = (unprojected.x / 2 + 0.5) * this.parent.offsetWidth;
 		unprojected.y = (-unprojected.y / 2 + 0.5) * this.parent.offsetHeight;
 
@@ -74,6 +95,8 @@ export class Label
 
 		this.element.style.left = Math.round(unprojected.x) + "px";
 		this.element.style.top = Math.round(unprojected.y) + "px";
+
+		ThreeUtils.releaseVector3(unprojected);
 	}
 
 	/**
@@ -84,7 +107,7 @@ export class Label
 		this.alignx = alignx;
 		this.aligny = aligny;
 		this.element.innerHTML = text;
-		this.element.style.visibility = "visible";
+		this.show();
 	}
 
 	public update(deltaSec: number): void

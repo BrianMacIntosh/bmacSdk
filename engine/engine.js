@@ -4,6 +4,7 @@ var _1 = require("./");
 var input_1 = require("../input");
 var threeutils_1 = require("../threeutils");
 var domutils_1 = require("../domutils");
+var threex_rendererstats_1 = require("../thirdparty/threex.rendererstats");
 //TODO: engine should set up Box2D world and listeners for you
 var EngineObject = (function () {
     function EngineObject() {
@@ -25,6 +26,7 @@ exports.EngineObject = EngineObject;
  */
 var Engine = (function () {
     function Engine(canvasDivName) {
+        this.debugRenderer = true;
         this.objects = [];
         this.scene = new THREE.Scene();
         this.cameraZoom = 1;
@@ -80,6 +82,14 @@ var Engine = (function () {
             this.canvasDiv.appendChild(this.renderer.domElement);
             this.canvasDiv.addEventListener("contextmenu", function (e) { e.preventDefault(); return false; });
             this.renderer.setClearColor(0x000000, 1);
+            if (this.debugRenderer) {
+                // init renderstats
+                this.rendererStats = threex_rendererstats_1.THREEX.RendererStats();
+                this.rendererStats.domElement.style.position = 'absolute';
+                this.rendererStats.domElement.style.left = '0px';
+                this.rendererStats.domElement.style.bottom = '0px';
+                document.body.appendChild(this.rendererStats.domElement);
+            }
             domutils_1.DomUtils.init(this.canvasDiv, this.mainCamera, this.renderer);
         }
         //TODO: 2D depth management
@@ -116,7 +126,6 @@ var Engine = (function () {
         if (!this.mousePosWorld)
             this.mousePosWorld = threeutils_1.ThreeUtils.newVector2();
         this.mousePosWorld.set(this.mousePosRel.x + this.mainCamera.position.x, this.mousePosRel.y + this.mainCamera.position.y);
-        domutils_1.DomUtils.update(_1.bmacSdk.getDeltaSec());
         // update objects
         for (var c = 0; c < this.objects.length; c++) {
             if (this.objects[c].update) {
@@ -124,9 +133,12 @@ var Engine = (function () {
             }
         }
         this.cameraShaker.update(_1.bmacSdk.getDeltaSec());
+        domutils_1.DomUtils.update(_1.bmacSdk.getDeltaSec());
         // render
         if (this.renderer) {
             this.renderer.render(this.scene, this.mainCamera);
+            if (this.rendererStats)
+                this.rendererStats.update(this.renderer);
         }
     };
     ;

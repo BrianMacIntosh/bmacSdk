@@ -169,6 +169,10 @@ export namespace AudioManager
 	 */
 	export function playMusic(url: string): HTMLAudioElement
 	{
+		// server-side fail silent
+		if (typeof Audio === "undefined") return null;
+		
+		if (!enabled) return null;
 		if (currentMusic && (currentMusic as any).relativeSrc == url) return currentMusic;
 
 		nextMusic = _getAudioClip(url);
@@ -221,6 +225,7 @@ export namespace AudioManager
 
 	function _allocateAudio(url: string): HTMLAudioElement
 	{
+		if (!Audio) return undefined;
 		var audio = new Audio(url);
 		(audio as any).relativeSrc = url; //HACK:
 		audio.addEventListener("ended", function() { _addToPool(audio); });

@@ -144,6 +144,11 @@ var AudioManager;
      * Fades out the current music, and fades in the specified one.
      */
     function playMusic(url) {
+        // server-side fail silent
+        if (typeof Audio === "undefined")
+            return null;
+        if (!AudioManager.enabled)
+            return null;
         if (currentMusic && currentMusic.relativeSrc == url)
             return currentMusic;
         nextMusic = _getAudioClip(url);
@@ -193,6 +198,8 @@ var AudioManager;
     AudioManager.stop = stop;
     ;
     function _allocateAudio(url) {
+        if (!Audio)
+            return undefined;
         var audio = new Audio(url);
         audio.relativeSrc = url; //HACK:
         audio.addEventListener("ended", function () { _addToPool(audio); });
