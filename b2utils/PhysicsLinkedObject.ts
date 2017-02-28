@@ -134,7 +134,16 @@ export class PhysicsLinkedObject
 		
 		var velocity = this.body.GetLinearVelocity();
 		var velocityLength = velocity.Length();
-		this.body.ApplyImpulse(impulse, this.body.GetPosition());
+		if (this.body.GetType() == Box2D.b2Body.b2_kinematicBody)
+		{
+			velocity.x += impulse.x;
+			velocity.y += impulse.y;
+			this.body.SetLinearVelocity(velocity);
+		}
+		else
+		{
+			this.body.ApplyImpulse(impulse, this.body.GetPosition());
+		}
 		this.limitSpeed(Math.max(maxSpeed, velocityLength));
 	}
 

@@ -102,7 +102,16 @@ var PhysicsLinkedObject = (function () {
             return;
         var velocity = this.body.GetLinearVelocity();
         var velocityLength = velocity.Length();
-        this.body.ApplyImpulse(impulse, this.body.GetPosition());
+        if (this.body.GetType() == box2d_1.Box2D.b2Body.b2_kinematicBody) {
+            if (this.isLocal)
+                debugger;
+            velocity.x += impulse.x;
+            velocity.y += impulse.y;
+            this.body.SetLinearVelocity(velocity);
+        }
+        else {
+            this.body.ApplyImpulse(impulse, this.body.GetPosition());
+        }
         this.limitSpeed(Math.max(maxSpeed, velocityLength));
     };
     /**
