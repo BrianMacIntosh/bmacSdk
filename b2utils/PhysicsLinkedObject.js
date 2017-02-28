@@ -103,8 +103,6 @@ var PhysicsLinkedObject = (function () {
         var velocity = this.body.GetLinearVelocity();
         var velocityLength = velocity.Length();
         if (this.body.GetType() == box2d_1.Box2D.b2Body.b2_kinematicBody) {
-            if (this.isLocal)
-                debugger;
             velocity.x += impulse.x;
             velocity.y += impulse.y;
             this.body.SetLinearVelocity(velocity);
