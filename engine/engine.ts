@@ -173,6 +173,7 @@ export class Engine
 	public _animate(): void
 	{
 		// calculate mouse pos
+		//TODO: use matrices instead
 		this.mousePosRel = Mouse.getPosition(this.canvasDiv, this.mousePosRel);
 		if (!this.mousePosWorld) this.mousePosWorld = ThreeUtils.newVector2();
 		this.mousePosWorld.set(

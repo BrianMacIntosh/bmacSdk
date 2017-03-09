@@ -122,6 +122,7 @@ var Engine = (function () {
     };
     Engine.prototype._animate = function () {
         // calculate mouse pos
+        //TODO: use matrices instead
         this.mousePosRel = input_1.Mouse.getPosition(this.canvasDiv, this.mousePosRel);
         if (!this.mousePosWorld)
             this.mousePosWorld = threeutils_1.ThreeUtils.newVector2();
