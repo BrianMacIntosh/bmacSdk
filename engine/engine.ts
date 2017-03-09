@@ -177,8 +177,8 @@ export class Engine
 		this.mousePosRel = Mouse.getPosition(this.canvasDiv, this.mousePosRel);
 		if (!this.mousePosWorld) this.mousePosWorld = ThreeUtils.newVector2();
 		this.mousePosWorld.set(
-			this.mousePosRel.x + this.mainCamera.position.x,
-			this.mousePosRel.y + this.mainCamera.position.y);
+			this.mousePosRel.x + this.mainCamera.position.x - this.screenWidth/2,
+			this.mousePosRel.y + this.mainCamera.position.y - this.screenHeight/2);
 		
 		// update objects
 		for (var c = 0; c < this.objects.length; c++)
