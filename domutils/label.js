@@ -14,6 +14,7 @@ var Label = (function () {
      */
     Label.prototype.free = function () {
         this.tiedTo = undefined;
+        this.setColor(undefined);
         this.set("", 0, 0);
         this.hide();
     };
@@ -61,6 +62,14 @@ var Label = (function () {
         this.aligny = aligny;
         this.element.innerHTML = text;
         this.show();
+    };
+    /**
+     *
+     * @param color Can be in any HTML/CSS form.
+     */
+    Label.prototype.setColor = function (color) {
+        this.color = color;
+        this.element.style.color = color;
     };
     Label.prototype.update = function (deltaSec) {
         if (this.tiedTo) {

@@ -16,6 +16,7 @@ export class Label
 	aligny: number;
 
 	visibility: boolean;
+	color: string;
 
 	tempProjectionVector: THREE.Vector3 = new THREE.Vector3();
 
@@ -35,6 +36,7 @@ export class Label
 	public free(): void
 	{
 		this.tiedTo = undefined;
+		this.setColor(undefined);
 		this.set("", 0, 0);
 		this.hide();
 	}
@@ -98,6 +100,16 @@ export class Label
 		this.aligny = aligny;
 		this.element.innerHTML = text;
 		this.show();
+	}
+
+	/**
+	 * 
+	 * @param color Can be in any HTML/CSS form.
+	 */
+	public setColor(color: string): void
+	{
+		this.color = color;
+		this.element.style.color = color;
 	}
 
 	public update(deltaSec: number): void
