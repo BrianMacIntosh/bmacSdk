@@ -10,12 +10,14 @@ export class Label
 	element: HTMLElement;
 
 	/**
-	 * 0:left, 1:center, 2:right
+	 * -0.5:left, 0:center, 0.5:right
 	 */
 	alignx: number;
 	aligny: number;
 
 	visibility: boolean;
+
+	tempProjectionVector: THREE.Vector3 = new THREE.Vector3();
 
 	constructor(cssClass: string,
 		private parent: HTMLElement,
@@ -33,7 +35,7 @@ export class Label
 	public free(): void
 	{
 		this.tiedTo = undefined;
-		this.set("", 1, 1);
+		this.set("", 0, 0);
 		this.hide();
 	}
 
@@ -75,32 +77,20 @@ export class Label
 
 	private setPositionHelper(position: THREE.Vector3): void
 	{
-		var unprojected = ThreeUtils.newVector3().addVectors(position, this.tieOffset).project(this.camera);
+		var unprojected = this.tempProjectionVector.addVectors(position, this.tieOffset).project(this.camera);
 		unprojected.x = (unprojected.x / 2 + 0.5) * this.parent.offsetWidth;
 		unprojected.y = (-unprojected.y / 2 + 0.5) * this.parent.offsetHeight;
 
 		// align
-		switch (this.alignx)
-		{
-			case 0: break;
-			case 1: unprojected.x -= this.element.offsetWidth/2; break;
-			case 2: unprojected.x -= this.element.offsetWidth; break;
-		}
-		switch (this.aligny)
-		{
-			case 0: break;
-			case 1: unprojected.y -= this.element.offsetHeight/2; break;
-			case 2: unprojected.y -= this.element.offsetHeight; break;
-		}
+		unprojected.x -= (this.alignx + 0.5) * this.element.offsetWidth;
+		unprojected.y -= (this.aligny + 0.5) * this.element.offsetHeight;
 
 		this.element.style.left = Math.round(unprojected.x) + "px";
 		this.element.style.top = Math.round(unprojected.y) + "px";
-
-		ThreeUtils.releaseVector3(unprojected);
 	}
 
 	/**
-	 * @param {number} align 0:left, 1:center, 2:right
+	 * @param {number} align -0.5:left, 0:center, 0.5:right
 	 */
 	public set(text: string, alignx: number, aligny: number): void
 	{

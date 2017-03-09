@@ -1,10 +1,10 @@
 "use strict";
-var threeutils_1 = require("../threeutils");
 var Label = (function () {
     function Label(cssClass, parent, camera, renderer) {
         this.parent = parent;
         this.camera = camera;
         this.renderer = renderer;
+        this.tempProjectionVector = new THREE.Vector3();
         this.element = document.createElement("div");
         this.element.className = cssClass;
         parent.appendChild(this.element);
@@ -14,7 +14,7 @@ var Label = (function () {
      */
     Label.prototype.free = function () {
         this.tiedTo = undefined;
-        this.set("", 1, 1);
+        this.set("", 0, 0);
         this.hide();
     };
     /**
@@ -44,34 +44,17 @@ var Label = (function () {
         this.setPositionHelper(position);
     };
     Label.prototype.setPositionHelper = function (position) {
-        var unprojected = threeutils_1.ThreeUtils.newVector3().addVectors(position, this.tieOffset).project(this.camera);
+        var unprojected = this.tempProjectionVector.addVectors(position, this.tieOffset).project(this.camera);
         unprojected.x = (unprojected.x / 2 + 0.5) * this.parent.offsetWidth;
         unprojected.y = (-unprojected.y / 2 + 0.5) * this.parent.offsetHeight;
         // align
-        switch (this.alignx) {
-            case 0: break;
-            case 1:
-                unprojected.x -= this.element.offsetWidth / 2;
-                break;
-            case 2:
-                unprojected.x -= this.element.offsetWidth;
-                break;
-        }
-        switch (this.aligny) {
-            case 0: break;
-            case 1:
-                unprojected.y -= this.element.offsetHeight / 2;
-                break;
-            case 2:
-                unprojected.y -= this.element.offsetHeight;
-                break;
-        }
+        unprojected.x -= (this.alignx + 0.5) * this.element.offsetWidth;
+        unprojected.y -= (this.aligny + 0.5) * this.element.offsetHeight;
         this.element.style.left = Math.round(unprojected.x) + "px";
         this.element.style.top = Math.round(unprojected.y) + "px";
-        threeutils_1.ThreeUtils.releaseVector3(unprojected);
     };
     /**
-     * @param {number} align 0:left, 1:center, 2:right
+     * @param {number} align -0.5:left, 0:center, 0.5:right
      */
     Label.prototype.set = function (text, alignx, aligny) {
         this.alignx = alignx;
