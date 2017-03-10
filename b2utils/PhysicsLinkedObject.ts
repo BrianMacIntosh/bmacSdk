@@ -6,18 +6,14 @@ import { Box2D } from "../thirdparty/box2d";
 
 /**
  * Base class for an object that has three.js visuals and a Box2D body.
- * Visual elements should be parented to 'this.transform'. The position of
- * 'this.transform' is automatically updated to match the body.
  */
-export class PhysicsLinkedObject
+export class PhysicsLinkedObject extends THREE.Object3D
 {
-	public transform: THREE.Object3D;
 	public body: Box2D.b2Body;
 
 	constructor(body: Box2D.b2Body)
 	{
-		this.transform = new THREE.Object3D();
-		//this.transform.matrixAutoUpdate = false;
+		super();
 
 		b2Utils.AllObjects.push(this);
 		
@@ -47,10 +43,9 @@ export class PhysicsLinkedObject
 	 */
 	public destroy(soft : boolean): void
 	{
-		if (this.transform && this.transform.parent)
+		if (this.parent)
 		{
-			this.transform.parent.remove(this.transform);
-			if (!soft) delete this.transform;
+			this.parent.remove(this);
 		}
 
 		var index = b2Utils.AllObjects.indexOf(this);
@@ -85,7 +80,7 @@ export class PhysicsLinkedObject
 	}
 
 	/**
-	 * Moves the THREE transform to match the body position.
+	 * Moves the object to match the body position.
 	 */
 	public syncTransformToBody(force): void
 	{
@@ -93,23 +88,23 @@ export class PhysicsLinkedObject
 			&& (force || (this.body.IsAwake() && this.body.GetType() != Box2D.b2Body.b2_staticBody)))
 		{
 			var physicsPos = this.body.GetPosition();
-			this.transform.position.set(
-				physicsPos.x * b2Utils.B2_SCALE, physicsPos.y * b2Utils.B2_SCALE, this.transform.position.z);
-			this.transform.rotation.z = this.body.GetAngle();
-			//this.transform.updateMatrix();
+			this.position.set(
+				physicsPos.x * b2Utils.B2_SCALE, physicsPos.y * b2Utils.B2_SCALE, this.position.z);
+			this.rotation.z = this.body.GetAngle();
+			//this.updateMatrix();
 		}
 	}
 
 	/**
-	 * Moves the body position to match the THREE transform.
+	 * Moves the body position to match the object.
 	 */
 	public syncBodyToTransform(): void
 	{
 		if (this.body)
 		{
-			b2Utils.tempVector2.x = this.transform.position.x / b2Utils.B2_SCALE;
-			b2Utils.tempVector2.y = this.transform.position.y / b2Utils.B2_SCALE;
-			this.body.SetPositionAndAngle(b2Utils.tempVector2, this.transform.rotation.z);
+			b2Utils.tempVector2.x = this.position.x / b2Utils.B2_SCALE;
+			b2Utils.tempVector2.y = this.position.y / b2Utils.B2_SCALE;
+			this.body.SetPositionAndAngle(b2Utils.tempVector2, this.rotation.z);
 		}
 	}
 

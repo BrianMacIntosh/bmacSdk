@@ -1,22 +1,26 @@
 "use strict";
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var THREE = require("three");
 var _1 = require("./");
 var box2d_1 = require("../thirdparty/box2d");
 /**
  * Base class for an object that has three.js visuals and a Box2D body.
- * Visual elements should be parented to 'this.transform'. The position of
- * 'this.transform' is automatically updated to match the body.
  */
-var PhysicsLinkedObject = (function () {
+var PhysicsLinkedObject = (function (_super) {
+    __extends(PhysicsLinkedObject, _super);
     function PhysicsLinkedObject(body) {
-        this.transform = new THREE.Object3D();
-        //this.transform.matrixAutoUpdate = false;
-        _1.b2Utils.AllObjects.push(this);
+        var _this = _super.call(this) || this;
+        _1.b2Utils.AllObjects.push(_this);
         if (body) {
-            this.body = body;
-            this.body.SetUserData(this);
-            this.syncTransformToBody(true);
+            _this.body = body;
+            _this.body.SetUserData(_this);
+            _this.syncTransformToBody(true);
         }
+        return _this;
     }
     /**
      * Undestroys a soft-destroyed object (for pooling).
@@ -32,10 +36,8 @@ var PhysicsLinkedObject = (function () {
      * @param {boolean} soft If set, does not actually destroy memory (for pooling).
      */
     PhysicsLinkedObject.prototype.destroy = function (soft) {
-        if (this.transform && this.transform.parent) {
-            this.transform.parent.remove(this.transform);
-            if (!soft)
-                delete this.transform;
+        if (this.parent) {
+            this.parent.remove(this);
         }
         var index = _1.b2Utils.AllObjects.indexOf(this);
         if (index >= 0) {
@@ -63,24 +65,24 @@ var PhysicsLinkedObject = (function () {
         this.syncTransformToBody(false);
     };
     /**
-     * Moves the THREE transform to match the body position.
+     * Moves the object to match the body position.
      */
     PhysicsLinkedObject.prototype.syncTransformToBody = function (force) {
         if (this.body
             && (force || (this.body.IsAwake() && this.body.GetType() != box2d_1.Box2D.b2Body.b2_staticBody))) {
             var physicsPos = this.body.GetPosition();
-            this.transform.position.set(physicsPos.x * _1.b2Utils.B2_SCALE, physicsPos.y * _1.b2Utils.B2_SCALE, this.transform.position.z);
-            this.transform.rotation.z = this.body.GetAngle();
+            this.position.set(physicsPos.x * _1.b2Utils.B2_SCALE, physicsPos.y * _1.b2Utils.B2_SCALE, this.position.z);
+            this.rotation.z = this.body.GetAngle();
         }
     };
     /**
-     * Moves the body position to match the THREE transform.
+     * Moves the body position to match the object.
      */
     PhysicsLinkedObject.prototype.syncBodyToTransform = function () {
         if (this.body) {
-            _1.b2Utils.tempVector2.x = this.transform.position.x / _1.b2Utils.B2_SCALE;
-            _1.b2Utils.tempVector2.y = this.transform.position.y / _1.b2Utils.B2_SCALE;
-            this.body.SetPositionAndAngle(_1.b2Utils.tempVector2, this.transform.rotation.z);
+            _1.b2Utils.tempVector2.x = this.position.x / _1.b2Utils.B2_SCALE;
+            _1.b2Utils.tempVector2.y = this.position.y / _1.b2Utils.B2_SCALE;
+            this.body.SetPositionAndAngle(_1.b2Utils.tempVector2, this.rotation.z);
         }
     };
     /**
@@ -161,6 +163,6 @@ var PhysicsLinkedObject = (function () {
     PhysicsLinkedObject.prototype.onPostSolve = function (contact, impulse, otherFixture) {
     };
     return PhysicsLinkedObject;
-}());
+}(THREE.Object3D));
 exports.PhysicsLinkedObject = PhysicsLinkedObject;
 ;
