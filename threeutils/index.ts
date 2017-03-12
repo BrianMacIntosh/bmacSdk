@@ -1,11 +1,10 @@
 
-import THREE = require("three");
+import "../typings";
 
 import { Atlas } from "./Atlas";
 
 export { Atlas } from "./Atlas";
 export { ThreeJsDebugDraw } from "./threejsdebugdraw";
-export { THREE };
 export { Shaker } from './shaker';
 
 export module ThreeUtils
@@ -154,7 +153,7 @@ export module ThreeUtils
 	 * @param {string} url The URL of the texture.
 	 * @param {(texture: THREE.Texture) => void} callback Function to call when the image is completely loaded.
 	 */
-	export function loadTexture(url: string, callback: (texture: THREE.Texture) => void): THREE.Texture
+	export function loadTexture(url: string, callback?: (texture: THREE.Texture) => void): THREE.Texture
 	{
 		if (serverMode)
 		{

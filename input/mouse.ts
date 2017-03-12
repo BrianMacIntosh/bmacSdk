@@ -1,5 +1,4 @@
 
-import THREE = require("three")
 import { ThreeUtils } from "../threeutils";
 
 export namespace Mouse

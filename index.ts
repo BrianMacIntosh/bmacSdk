@@ -8,6 +8,5 @@ export { Input, Keyboard, Mouse, Gamepad } from "./input";
 export { Box2D } from "./thirdparty/box2d";
 export { ThreeUtils, Atlas, ThreeJsDebugDraw } from "./threeutils";
 export { DomUtils, Label } from "./domutils";
-
-require("three");
-require("./polyfills");
+import "./typings";
+import "./polyfills";

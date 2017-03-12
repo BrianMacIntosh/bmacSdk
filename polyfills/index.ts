@@ -1,5 +1,5 @@
 
-require("./tweening");
-require("./math");
-require("./string");
-require("./array");
+import "./tweening";
+import "./math";
+import "./string";
+import "./array";

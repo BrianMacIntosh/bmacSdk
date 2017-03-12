@@ -1,6 +1,5 @@
 "use strict";
-var THREE = require("three");
-exports.THREE = THREE;
+require("../typings");
 var Atlas_1 = require("./Atlas");
 var Atlas_2 = require("./Atlas");
 exports.Atlas = Atlas_2.Atlas;

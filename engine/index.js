@@ -1,4 +1,5 @@
 "use strict";
+require("../typings");
 require("../polyfills");
 var input_1 = require("../input");
 var engine_1 = require("./engine");

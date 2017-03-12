@@ -1,5 +1,5 @@
 
-import THREE = require("three");
+import "../typings";
 
 /**
  * provide info on THREE.WebGLRenderer

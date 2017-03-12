@@ -1,3 +1,4 @@
+"use strict";
 require("./tweening");
 require("./math");
 require("./string");

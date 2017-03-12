@@ -1,5 +1,5 @@
 "use strict";
-var THREE = require("three");
+require("../typings");
 var b2utils_1 = require("../b2utils");
 /**
  * An object that manages drawing debug shapes for bodies in a Box2D world.

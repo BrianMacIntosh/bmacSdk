@@ -1,5 +1,6 @@
 
-import THREE = require("three")
+import "../typings";
+import "../polyfills";
 
 import { bmacSdk } from "./";
 import { Mouse } from "../input";

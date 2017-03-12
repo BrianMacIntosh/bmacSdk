@@ -1,5 +1,6 @@
 
-import THREE = require("three");
+import "../typings";
+
 import { noise } from "../thirdparty/noise";
 
 /**

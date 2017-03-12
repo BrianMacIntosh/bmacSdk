@@ -1,6 +1,6 @@
 
-import THREE = require("three")
-require("../polyfills");
+import "../typings";
+import "../polyfills";
 
 import { Input } from "../input";
 import { Engine } from "./engine";
