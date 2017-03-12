@@ -1,4 +1,7 @@
 
+import THREE = require("three")
+import "../typings";
+
 import { b2Utils } from "./";
 import { Box2D } from "../thirdparty/box2d";
 

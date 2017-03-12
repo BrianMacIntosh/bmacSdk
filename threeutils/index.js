@@ -1,4 +1,5 @@
 "use strict";
+var THREE = require("three");
 require("../typings");
 var Atlas_1 = require("./Atlas");
 var Atlas_2 = require("./Atlas");
@@ -25,6 +26,10 @@ var ThreeUtils;
      */
     var textureCallbacks = {};
     var atlasCache = {};
+    /**
+     * Raw JSON atlas data.
+     */
+    var allAtlasData;
     /**
      * Returns an empty {THREE.Vector2}.
      */
@@ -269,11 +274,21 @@ var ThreeUtils;
     }
     ;
     /**
+     * Call once to initialize all atlases.
+     * @param atlasData
+     */
+    function loadAtlases(atlasData) {
+        this.allAtlasData = atlasData;
+    }
+    ThreeUtils.loadAtlases = loadAtlases;
+    ;
+    /**
      * Loads the atlas represented by the specified key or returns a cached version.
      */
     function loadAtlas(key) {
-        var allData = require("../../../data/atlases.json");
-        var atlasData = allData[key];
+        if (!this.allAtlasData)
+            throw "Atlas data has not yet been loaded with 'loadAtlases'.";
+        var atlasData = this.allAtlasData[key];
         if (atlasData) {
             if (!atlasCache[atlasData.url]) {
                 atlasCache[atlasData.url] = new Atlas_1.Atlas(atlasData);

@@ -1,4 +1,5 @@
 
+import THREE = require("three")
 import "../typings";
 
 import { Atlas } from "./Atlas";
@@ -34,6 +35,11 @@ export module ThreeUtils
 	var textureCallbacks: { [s: string]: ((texture: THREE.Texture) => void)[]} = {};
 
 	var atlasCache: { [s: string]: Atlas } = {};
+
+	/**
+	 * Raw JSON atlas data.
+	 */
+	var allAtlasData : any;
 
 	/**
 	 * Returns an empty {THREE.Vector2}.
@@ -286,12 +292,22 @@ export module ThreeUtils
 	};
 
 	/**
+	 * Call once to initialize all atlases.
+	 * @param atlasData 
+	 */
+	export function loadAtlases(atlasData: any) : void
+	{
+		this.allAtlasData = atlasData;
+	};
+
+	/**
 	 * Loads the atlas represented by the specified key or returns a cached version.
 	 */
 	export function loadAtlas(key: string): Atlas
 	{
-		var allData = require("../../../data/atlases.json");
-		var atlasData = allData[key];
+		if (!this.allAtlasData) throw "Atlas data has not yet been loaded with 'loadAtlases'.";
+
+		var atlasData = this.allAtlasData[key];
 		if (atlasData)
 		{
 			if (!atlasCache[atlasData.url])

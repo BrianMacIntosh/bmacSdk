@@ -1,4 +1,5 @@
 "use strict";
+var THREE = require("three");
 require("../typings");
 require("../polyfills");
 var _1 = require("./");

@@ -3,8 +3,6 @@
  * @fileOverview Contains utility functions for interacting with Box2D. 
  */
 
-import "../typings";
-
 import { PhysicsLinkedObject } from "./PhysicsLinkedObject";
 import { Box2D } from "../thirdparty/box2d";
 

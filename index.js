@@ -26,5 +26,7 @@ exports.ThreeJsDebugDraw = threeutils_1.ThreeJsDebugDraw;
 var domutils_1 = require("./domutils");
 exports.DomUtils = domutils_1.DomUtils;
 exports.Label = domutils_1.Label;
+var THREE = require("three");
+exports.THREE = THREE;
 require("./typings");
 require("./polyfills");

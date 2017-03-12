@@ -1,4 +1,5 @@
 
+import THREE = require("three")
 import "../typings";
 
 import { b2Utils } from "../b2utils";

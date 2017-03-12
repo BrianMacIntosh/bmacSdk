@@ -1,4 +1,5 @@
 "use strict";
+var THREE = require("three");
 require("../typings");
 var noise_1 = require("../thirdparty/noise");
 /**

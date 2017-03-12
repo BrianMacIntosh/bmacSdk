@@ -1,4 +1,5 @@
 "use strict";
+var THREE = require("three");
 require("../typings");
 /**
  * provide info on THREE.WebGLRenderer
