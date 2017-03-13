@@ -1,4 +1,5 @@
 "use strict";
+exports.__esModule = true;
 var CircularQueue = (function () {
     function CircularQueue(length) {
         this.head = 0;

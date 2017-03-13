@@ -1,4 +1,5 @@
 "use strict";
+exports.__esModule = true;
 var goog = require("../thirdparty/crypt");
 var DataViewStream = (function () {
     function DataViewStream(sizeOrBuffer) {

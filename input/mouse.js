@@ -1,4 +1,5 @@
 "use strict";
+exports.__esModule = true;
 var threeutils_1 = require("../threeutils");
 var Mouse;
 (function (Mouse) {

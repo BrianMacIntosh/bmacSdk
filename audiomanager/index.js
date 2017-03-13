@@ -1,4 +1,5 @@
 "use strict";
+exports.__esModule = true;
 var AudioManager;
 (function (AudioManager) {
     /**
@@ -97,6 +98,7 @@ var AudioManager;
         if (typeof Audio === "undefined")
             return;
         if (!url) {
+            //console.error("Tried to preload an empty string.");
         }
         else if (Array.isArray(url)) {
             for (var c = 0; c < url.length; c++) {

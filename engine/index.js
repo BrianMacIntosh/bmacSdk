@@ -1,4 +1,5 @@
 "use strict";
+exports.__esModule = true;
 require("../typings");
 require("../polyfills");
 var input_1 = require("../input");

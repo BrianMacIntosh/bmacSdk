@@ -1,4 +1,5 @@
 "use strict";
+exports.__esModule = true;
 var THREE = require("three");
 require("../typings");
 var b2utils_1 = require("../b2utils");

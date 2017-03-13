@@ -1,4 +1,5 @@
 "use strict";
+exports.__esModule = true;
 var label_1 = require("./label");
 var label_2 = require("./label");
 exports.Label = label_2.Label;

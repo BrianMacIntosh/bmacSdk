@@ -1,4 +1,5 @@
 "use strict";
+exports.__esModule = true;
 var Label = (function () {
     function Label(cssClass, parent, camera, renderer) {
         this.parent = parent;

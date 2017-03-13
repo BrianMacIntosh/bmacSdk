@@ -1,4 +1,5 @@
 "use strict";
+exports.__esModule = true;
 var audiomanager_1 = require("./audiomanager");
 exports.AudioManager = audiomanager_1.AudioManager;
 var b2utils_1 = require("./b2utils");

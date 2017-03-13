@@ -1,4 +1,5 @@
 "use strict";
+exports.__esModule = true;
 var keyboard_1 = require("./keyboard");
 var mouse_1 = require("./mouse");
 var gamepad_1 = require("./gamepad");

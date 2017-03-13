@@ -1,4 +1,5 @@
 "use strict";
+exports.__esModule = true;
 var THREE = require("three");
 require("../typings");
 var Atlas_1 = require("./Atlas");

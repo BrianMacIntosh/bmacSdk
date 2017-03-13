@@ -14,6 +14,7 @@
 *
 */
 "use strict";
+exports.__esModule = true;
 //BMac: converted to TS
 var noise;
 (function (noise) {

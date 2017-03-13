@@ -1,4 +1,5 @@
 "use strict";
+exports.__esModule = true;
 var Keyboard;
 (function (Keyboard) {
     /**
