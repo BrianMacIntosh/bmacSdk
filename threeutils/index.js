@@ -62,16 +62,20 @@ var ThreeUtils;
      * Releases a {THREE.Vector2} to the pool.
      */
     function releaseVector2(vec) {
-        vec.x = vec.y = 0;
-        vector2Pool.push(vec);
+        if (vec) {
+            vec.x = vec.y = 0;
+            vector2Pool.push(vec);
+        }
     }
     ThreeUtils.releaseVector2 = releaseVector2;
     /**
      * Releases a {THREE.Vector3} to the pool.
      */
     function releaseVector3(vec) {
-        vec.x = vec.y = vec.z = 0;
-        vector3Pool.push(vec);
+        if (vec) {
+            vec.x = vec.y = vec.z = 0;
+            vector3Pool.push(vec);
+        }
     }
     ThreeUtils.releaseVector3 = releaseVector3;
     /**

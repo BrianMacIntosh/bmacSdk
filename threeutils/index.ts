@@ -74,8 +74,11 @@ export module ThreeUtils
 	 */
 	export function releaseVector2(vec: THREE.Vector2): void
 	{
-		vec.x = vec.y = 0;
-		vector2Pool.push(vec);
+		if (vec)
+		{
+			vec.x = vec.y = 0;
+			vector2Pool.push(vec);
+		}
 	}
 
 	/**
@@ -83,8 +86,11 @@ export module ThreeUtils
 	 */
 	export function releaseVector3(vec: THREE.Vector3): void
 	{
-		vec.x = vec.y = vec.z = 0;
-		vector3Pool.push(vec);
+		if (vec)
+		{
+			vec.x = vec.y = vec.z = 0;
+			vector3Pool.push(vec);
+		}
 	}
 
 	/**
