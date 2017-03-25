@@ -29,10 +29,12 @@ exports.EngineObject = EngineObject;
  */
 var Engine = (function () {
     function Engine(canvasDivName) {
-        this.debugRenderer = true;
+        this.debugRenderer = false;
         this.objects = [];
         this.scene = new THREE.Scene();
         this.cameraZoom = 1;
+        this.projectionMatrixInverse = new THREE.Matrix4();
+        this.postRenderCallbacks = [];
         this.canvasDivName = canvasDivName;
         this.mainCamera = new THREE.OrthographicCamera(0, 0, 0, 0, 1, 100);
         this.cameraShaker = new threeutils_1.Shaker();
@@ -68,6 +70,12 @@ var Engine = (function () {
         this.objects.remove(object);
     };
     ;
+    Engine.prototype.subscribePostRender = function (callback) {
+        this.postRenderCallbacks.push(callback);
+    };
+    Engine.prototype.unsubscribePostRender = function (callback) {
+        this.postRenderCallbacks.remove(callback);
+    };
     /**
      * Sets the zoom level of the main camera.
      */
@@ -125,11 +133,12 @@ var Engine = (function () {
     };
     Engine.prototype._animate = function () {
         // calculate mouse pos
-        //TODO: use matrices instead
         this.mousePosRel = input_1.Mouse.getPosition(this.canvasDiv, this.mousePosRel);
         if (!this.mousePosWorld)
-            this.mousePosWorld = threeutils_1.ThreeUtils.newVector2();
-        this.mousePosWorld.set(this.mousePosRel.x + this.mainCamera.position.x - this.screenWidth / 2, this.mousePosRel.y + this.mainCamera.position.y - this.screenHeight / 2);
+            this.mousePosWorld = threeutils_1.ThreeUtils.newVector3();
+        this.mousePosWorld.set(this.mousePosRel.x / (this.screenWidth / 2) - 1, 1 - this.mousePosRel.y / (this.screenHeight / 2), 0);
+        this.mousePosWorld.applyMatrix4(this.projectionMatrixInverse.getInverse(this.mainCamera.projectionMatrix));
+        this.mousePosWorld.applyMatrix4(this.mainCamera.matrixWorld);
         // update objects
         for (var c = 0; c < this.objects.length; c++) {
             if (this.objects[c].update) {
@@ -143,6 +152,13 @@ var Engine = (function () {
             this.renderer.render(this.scene, this.mainCamera);
             if (this.rendererStats)
                 this.rendererStats.update(this.renderer);
+        }
+        else if (this.scene.autoUpdate) {
+            this.scene.updateMatrixWorld(false); //TODO: force param?
+        }
+        for (var i = this.postRenderCallbacks.length - 1; i >= 0; i--) {
+            //NOTE: will not work right if callback removes an earlier one
+            this.postRenderCallbacks[i]();
         }
     };
     ;

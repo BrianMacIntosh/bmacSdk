@@ -29,13 +29,15 @@ export class EngineObject
 	update(deltaSec: number) { };
 };
 
+type ParameterlessCallback = () => any;
+
 /**
  * An Engine has a scene and a camera and manages game objects that are added to it.
  * @param {string} canvasDivName The name of the HTML element the canvas should be added to.
  */
 export class Engine
 {
-	private debugRenderer: boolean = true;
+	private debugRenderer: boolean = false;
 
 	private objects: EngineObject[] = [];
 	private canvasDivName: string;
@@ -57,9 +59,12 @@ export class Engine
 	public screenHeight: number;
 
 	public mousePosRel: THREE.Vector2;
-	public mousePosWorld: THREE.Vector2;
+	public mousePosWorld: THREE.Vector3;
+	public projectionMatrixInverse: THREE.Matrix4 = new THREE.Matrix4();
 
 	private rendererStats: any;
+
+	private postRenderCallbacks : ParameterlessCallback[] = [];
 
 	constructor(canvasDivName: string)
 	{
@@ -100,6 +105,16 @@ export class Engine
 			object.removed();
 		this.objects.remove(object);
 	};
+
+	public subscribePostRender(callback : ParameterlessCallback) : void
+	{
+		this.postRenderCallbacks.push(callback);
+	}
+
+	public unsubscribePostRender(callback : ParameterlessCallback) : void
+	{
+		this.postRenderCallbacks.remove(callback);
+	}
 
 	/**
 	 * Sets the zoom level of the main camera.
@@ -175,12 +190,14 @@ export class Engine
 	public _animate(): void
 	{
 		// calculate mouse pos
-		//TODO: use matrices instead
 		this.mousePosRel = Mouse.getPosition(this.canvasDiv, this.mousePosRel);
-		if (!this.mousePosWorld) this.mousePosWorld = ThreeUtils.newVector2();
+		if (!this.mousePosWorld) this.mousePosWorld = ThreeUtils.newVector3();
 		this.mousePosWorld.set(
-			this.mousePosRel.x + this.mainCamera.position.x - this.screenWidth/2,
-			this.mousePosRel.y + this.mainCamera.position.y - this.screenHeight/2);
+			this.mousePosRel.x/(this.screenWidth/2) - 1,
+			1 - this.mousePosRel.y/(this.screenHeight/2),
+			0);
+		this.mousePosWorld.applyMatrix4(this.projectionMatrixInverse.getInverse(this.mainCamera.projectionMatrix));
+		this.mousePosWorld.applyMatrix4(this.mainCamera.matrixWorld);
 		
 		// update objects
 		for (var c = 0; c < this.objects.length; c++)
@@ -200,6 +217,15 @@ export class Engine
 		{
 			this.renderer.render(this.scene, this.mainCamera);
 			if (this.rendererStats) this.rendererStats.update(this.renderer);
+		}
+		else if (this.scene.autoUpdate)
+		{
+			this.scene.updateMatrixWorld(false); //TODO: force param?
+		}
+		for (var i = this.postRenderCallbacks.length - 1; i >= 0; i--)
+		{
+			//NOTE: will not work right if callback removes an earlier one
+			this.postRenderCallbacks[i]();
 		}
 	};
 };

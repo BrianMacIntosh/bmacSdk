@@ -283,11 +283,18 @@ export class DataViewStream
 
 	public setString(value: string): void
 	{
-		this.setUint32(value.length);
-		var byteArray = goog.crypt.stringToUtf8ByteArray(value);
-		for (var i = 0; i < byteArray.length; i++)
+		if (!value)
 		{
-			this.setUint8(byteArray[i]);
+			this.setUint32(0);
+		}
+		else
+		{
+			this.setUint32(value.length);
+			var byteArray = goog.crypt.stringToUtf8ByteArray(value);
+			for (var i = 0; i < byteArray.length; i++)
+			{
+				this.setUint8(byteArray[i]);
+			}
 		}
 	}
 }

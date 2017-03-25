@@ -202,10 +202,15 @@ var DataViewStream = (function () {
         this.pointer += 8;
     };
     DataViewStream.prototype.setString = function (value) {
-        this.setUint32(value.length);
-        var byteArray = goog.crypt.stringToUtf8ByteArray(value);
-        for (var i = 0; i < byteArray.length; i++) {
-            this.setUint8(byteArray[i]);
+        if (!value) {
+            this.setUint32(0);
+        }
+        else {
+            this.setUint32(value.length);
+            var byteArray = goog.crypt.stringToUtf8ByteArray(value);
+            for (var i = 0; i < byteArray.length; i++) {
+                this.setUint8(byteArray[i]);
+            }
         }
     };
     return DataViewStream;
