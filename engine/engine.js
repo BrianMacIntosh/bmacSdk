@@ -19,6 +19,10 @@ var EngineObject = (function () {
     ;
     EngineObject.prototype.update = function (deltaSec) { };
     ;
+    EngineObject.prototype.preRender = function () { };
+    ;
+    EngineObject.prototype.postRender = function () { };
+    ;
     return EngineObject;
 }());
 exports.EngineObject = EngineObject;
@@ -28,14 +32,23 @@ exports.EngineObject = EngineObject;
  * @param {string} canvasDivName The name of the HTML element the canvas should be added to.
  */
 var Engine = (function () {
-    function Engine(canvasDivName) {
-        this.debugRenderer = false;
+    /**
+     *
+     * @param param The name of the element to create the canvas under, or an existing Engine to share with.
+     */
+    function Engine(param) {
+        this.debugRenderer = true;
         this.objects = [];
         this.scene = new THREE.Scene();
         this.cameraZoom = 1;
         this.projectionMatrixInverse = new THREE.Matrix4();
         this.postRenderCallbacks = [];
-        this.canvasDivName = canvasDivName;
+        if (param instanceof Engine) {
+            this.shareContextWith = param;
+        }
+        else {
+            this.canvasDivName = param;
+        }
         this.mainCamera = new THREE.OrthographicCamera(0, 0, 0, 0, 1, 100);
         this.cameraShaker = new threeutils_1.Shaker();
         this.scene.add(this.cameraShaker.transform);
@@ -87,9 +100,10 @@ var Engine = (function () {
      * Initializes the engine.
      */
     Engine.prototype._attachDom = function () {
-        if (!_1.bmacSdk.isHeadless) {
+        if (!_1.bmacSdk.isHeadless && this.canvasDivName) {
             this.canvasDiv = document.getElementById(this.canvasDivName);
             this.renderer = new THREE.WebGLRenderer();
+            this.renderer.autoClearColor = false;
             this.canvasDiv.appendChild(this.renderer.domElement);
             this.canvasDiv.addEventListener("contextmenu", function (e) { e.preventDefault(); return false; });
             this.renderer.setClearColor(0x000000, 1);
@@ -101,6 +115,7 @@ var Engine = (function () {
                 this.rendererStats.domElement.style.bottom = '0px';
                 document.body.appendChild(this.rendererStats.domElement);
             }
+            //HACK: labels won't work in shared contexts
             domutils_1.DomUtils.init(this.canvasDiv, this.mainCamera, this.renderer);
         }
         //TODO: 2D depth management
@@ -116,9 +131,12 @@ var Engine = (function () {
      * Resizes the renderer to match the size of the window.
      */
     Engine.prototype._handleWindowResize = function () {
-        if (this.canvasDiv) {
-            this.screenWidth = this.canvasDiv.offsetWidth;
-            this.screenHeight = this.canvasDiv.offsetHeight;
+        var master = this.getContextMaster();
+        if (master.canvasDiv) {
+            this.screenWidth = master.canvasDiv.offsetWidth;
+            this.screenHeight = master.canvasDiv.offsetHeight;
+        }
+        if (this.renderer) {
             this.renderer.setSize(this.screenWidth, this.screenHeight);
         }
         this._updateCameraSize();
@@ -131,9 +149,34 @@ var Engine = (function () {
         this.mainCamera.bottom = (this.screenHeight / 2) / this.cameraZoom;
         this.mainCamera.updateProjectionMatrix();
     };
+    Engine.prototype._callPreRender = function () {
+        for (var i = 0; i < this.objects.length; i++) {
+            if (this.objects[i].preRender) {
+                this.objects[i].preRender();
+            }
+        }
+    };
+    Engine.prototype._callPostRender = function () {
+        for (var i = 0; i < this.objects.length; i++) {
+            if (this.objects[i].postRender) {
+                this.objects[i].postRender();
+            }
+        }
+        for (var i = this.postRenderCallbacks.length - 1; i >= 0; i--) {
+            //NOTE: will not work right if callback removes an earlier one
+            this.postRenderCallbacks[i]();
+        }
+    };
+    Engine.prototype.getContextMaster = function () {
+        if (this.shareContextWith)
+            return this.shareContextWith.getContextMaster();
+        else
+            return this;
+    };
     Engine.prototype._animate = function () {
+        var master = this.getContextMaster();
         // calculate mouse pos
-        this.mousePosRel = input_1.Mouse.getPosition(this.canvasDiv, this.mousePosRel);
+        this.mousePosRel = input_1.Mouse.getPosition(master.canvasDiv, this.mousePosRel);
         if (!this.mousePosWorld)
             this.mousePosWorld = threeutils_1.ThreeUtils.newVector3();
         this.mousePosWorld.set(this.mousePosRel.x / (this.screenWidth / 2) - 1, 1 - this.mousePosRel.y / (this.screenHeight / 2), 0);
@@ -148,18 +191,20 @@ var Engine = (function () {
         this.cameraShaker.update(_1.bmacSdk.getDeltaSec());
         domutils_1.DomUtils.update(_1.bmacSdk.getDeltaSec());
         // render
-        if (this.renderer) {
-            this.renderer.render(this.scene, this.mainCamera);
-            if (this.rendererStats)
-                this.rendererStats.update(this.renderer);
+        this._callPreRender();
+        if (master.renderer) {
+            if (!this.shareContextWith)
+                master.renderer.clearColor();
+            master.renderer.render(this.scene, this.mainCamera);
+            //HACK: doesn't support sharing well
+            if (master == this && master.rendererStats) {
+                master.rendererStats.update(master.renderer);
+            }
         }
         else if (this.scene.autoUpdate) {
             this.scene.updateMatrixWorld(false); //TODO: force param?
         }
-        for (var i = this.postRenderCallbacks.length - 1; i >= 0; i--) {
-            //NOTE: will not work right if callback removes an earlier one
-            this.postRenderCallbacks[i]();
-        }
+        this._callPostRender();
     };
     ;
     return Engine;

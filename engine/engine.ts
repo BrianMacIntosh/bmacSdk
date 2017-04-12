@@ -27,6 +27,9 @@ export class EngineObject
 	added() { };
 	removed() { };
 	update(deltaSec: number) { };
+
+	preRender() { };
+	postRender() { };
 };
 
 type ParameterlessCallback = () => any;
@@ -37,11 +40,16 @@ type ParameterlessCallback = () => any;
  */
 export class Engine
 {
-	private debugRenderer: boolean = false;
+	private debugRenderer: boolean = true;
 
 	private objects: EngineObject[] = [];
 	private canvasDivName: string;
 	private canvasDiv: HTMLCanvasElement;
+
+	/**
+	 * If set, another engine that has the 'renderer' that this one should use.
+	 */
+	private shareContextWith : Engine;
 
 	public scene: THREE.Scene = new THREE.Scene();
 	public mainCamera: THREE.OrthographicCamera;
@@ -53,7 +61,7 @@ export class Engine
 
 	private cameraZoom: number = 1;
 
-	private renderer: THREE.WebGLRenderer;
+	public renderer: THREE.WebGLRenderer;
 
 	public screenWidth: number;
 	public screenHeight: number;
@@ -66,9 +74,20 @@ export class Engine
 
 	private postRenderCallbacks : ParameterlessCallback[] = [];
 
-	constructor(canvasDivName: string)
+	/**
+	 * 
+	 * @param param The name of the element to create the canvas under, or an existing Engine to share with.
+	 */
+	constructor(param: string|Engine)
 	{
-		this.canvasDivName = canvasDivName;
+		if (param instanceof Engine)
+		{
+			this.shareContextWith = param as Engine;
+		}
+		else
+		{
+			this.canvasDivName = param as string;
+		}
 
 		this.mainCamera = new THREE.OrthographicCamera(0, 0, 0, 0, 1, 100);
 		this.cameraShaker = new Shaker();
@@ -119,7 +138,7 @@ export class Engine
 	/**
 	 * Sets the zoom level of the main camera.
 	 */
-	public setCameraZoom(factor: number)
+	public setCameraZoom(factor: number) : void
 	{
 		this.cameraZoom = Math.clamp(factor, 0.1, 100);
 		this._updateCameraSize();
@@ -128,12 +147,13 @@ export class Engine
 	/**
 	 * Initializes the engine.
 	 */
-	public _attachDom(): void
+	public _attachDom() : void
 	{
-		if (!bmacSdk.isHeadless)
+		if (!bmacSdk.isHeadless && this.canvasDivName)
 		{
 			this.canvasDiv = document.getElementById(this.canvasDivName) as HTMLCanvasElement;
 			this.renderer = new THREE.WebGLRenderer();
+			this.renderer.autoClearColor = false;
 			this.canvasDiv.appendChild(this.renderer.domElement);
 			this.canvasDiv.addEventListener("contextmenu", function(e) { e.preventDefault();return false; });
 			this.renderer.setClearColor(0x000000, 1);
@@ -148,6 +168,7 @@ export class Engine
 				document.body.appendChild(this.rendererStats.domElement);
 			}
 
+			//HACK: labels won't work in shared contexts
 			DomUtils.init(this.canvasDiv, this.mainCamera, this.renderer);
 		}
 		
@@ -169,10 +190,14 @@ export class Engine
 	 */
 	public _handleWindowResize(): void
 	{
-		if (this.canvasDiv) // for node server support
+		var master = this.getContextMaster();
+		if (master.canvasDiv) // for headless support
 		{
-			this.screenWidth = this.canvasDiv.offsetWidth;
-			this.screenHeight = this.canvasDiv.offsetHeight;
+			this.screenWidth = master.canvasDiv.offsetWidth;
+			this.screenHeight = master.canvasDiv.offsetHeight;
+		}
+		if (this.renderer)
+		{
 			this.renderer.setSize(this.screenWidth, this.screenHeight);
 		}
 		this._updateCameraSize();
@@ -187,10 +212,45 @@ export class Engine
 		this.mainCamera.updateProjectionMatrix();
 	}
 
+	private _callPreRender()
+	{
+		for (var i = 0; i < this.objects.length; i++)
+		{
+			if (this.objects[i].preRender)
+			{
+				this.objects[i].preRender();
+			}
+		}
+	}
+
+	private _callPostRender()
+	{
+		for (var i = 0; i < this.objects.length; i++)
+		{
+			if (this.objects[i].postRender)
+			{
+				this.objects[i].postRender();
+			}
+		}
+		for (var i = this.postRenderCallbacks.length - 1; i >= 0; i--)
+		{
+			//NOTE: will not work right if callback removes an earlier one
+			this.postRenderCallbacks[i]();
+		}
+	}
+
+	private getContextMaster() : Engine
+	{
+		if (this.shareContextWith) return this.shareContextWith.getContextMaster();
+		else return this;
+	}
+
 	public _animate(): void
 	{
+		var master = this.getContextMaster();
+
 		// calculate mouse pos
-		this.mousePosRel = Mouse.getPosition(this.canvasDiv, this.mousePosRel);
+		this.mousePosRel = Mouse.getPosition(master.canvasDiv, this.mousePosRel);
 		if (!this.mousePosWorld) this.mousePosWorld = ThreeUtils.newVector3();
 		this.mousePosWorld.set(
 			this.mousePosRel.x/(this.screenWidth/2) - 1,
@@ -213,19 +273,22 @@ export class Engine
 		DomUtils.update(bmacSdk.getDeltaSec());
 		
 		// render
-		if (this.renderer)
+		this._callPreRender();
+		if (master.renderer)
 		{
-			this.renderer.render(this.scene, this.mainCamera);
-			if (this.rendererStats) this.rendererStats.update(this.renderer);
+			if (!this.shareContextWith) master.renderer.clearColor();
+			master.renderer.render(this.scene, this.mainCamera);
+
+			//HACK: doesn't support sharing well
+			if (master == this && master.rendererStats)
+			{
+				master.rendererStats.update(master.renderer);
+			}
 		}
 		else if (this.scene.autoUpdate)
 		{
 			this.scene.updateMatrixWorld(false); //TODO: force param?
 		}
-		for (var i = this.postRenderCallbacks.length - 1; i >= 0; i--)
-		{
-			//NOTE: will not work right if callback removes an earlier one
-			this.postRenderCallbacks[i]();
-		}
+		this._callPostRender();
 	};
 };

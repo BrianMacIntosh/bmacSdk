@@ -79,9 +79,9 @@ export namespace bmacSdk
 	 */
 	var engines: Engine[] = [];
 
-	export function createEngine(canvasDivName: string): Engine
+	export function createEngine(param: string|Engine): Engine
 	{
-		var engine = new Engine(canvasDivName);
+		var engine = new Engine(param);
 		engines.push(engine);
 		if (domAttached) engine._attachDom();
 		return engine;

@@ -69,8 +69,8 @@ var bmacSdk;
      * @type {Engine[]}
      */
     var engines = [];
-    function createEngine(canvasDivName) {
-        var engine = new engine_1.Engine(canvasDivName);
+    function createEngine(param) {
+        var engine = new engine_1.Engine(param);
         engines.push(engine);
         if (bmacSdk.domAttached)
             engine._attachDom();
