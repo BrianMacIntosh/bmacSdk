@@ -106,6 +106,8 @@ var ThreeUtils;
         baseGeometry.applyMatrix(ThreeUtils.c_planeCorrection);
         var geometry = new THREE.BufferGeometry();
         geometry = geometry.fromGeometry(baseGeometry);
+        geometry.computeBoundingBox();
+        geometry.computeBoundingSphere();
         return geometry;
     }
     ThreeUtils.makeSpriteGeo = makeSpriteGeo;
@@ -130,12 +132,12 @@ var ThreeUtils;
      * Calculates the squared distance between two THREE.Object3D or THREE.Vector3.
      */
     function distanceSq(thing1, thing2) {
-        if (thing1 instanceof THREE.Object3D)
+        if (thing1.position)
             var position1 = thing1.position;
         else
             var position1 = thing1;
-        if (thing2 instanceof THREE.Object3D)
-            var position2 = thing2.position;
+        if (thing2.position)
+            var position2 = thing1.position;
         else
             var position2 = thing2;
         var dx = position1.x - position2.x;
@@ -210,7 +212,7 @@ var ThreeUtils;
      * @param {boolean} flipY Flip the image vertically?
      */
     function setTilesheetGeometry(geometry, x, y, countX, countY, flipX, flipY) {
-        if (geometry instanceof THREE.BufferGeometry) {
+        if (geometry.isBufferGeometry) {
             return _setTilesheetBufferGeometry(geometry, x, y, countX, countY, flipX, flipY);
         }
         else {
@@ -357,7 +359,7 @@ var ThreeUtils;
         }
         var material;
         if (dynamicMaterial) {
-            if (dynamicMaterial instanceof THREE.Material) {
+            if (dynamicMaterial.isMaterial) {
                 material = dynamicMaterial;
             }
             else {
@@ -380,7 +382,7 @@ var ThreeUtils;
      * @param {number} uvChannel The index of the UV set to set.
      */
     function setAtlasUVs(geometry, atlas, key, flipX, flipY, channel) {
-        if (geometry instanceof THREE.BufferGeometry) {
+        if (geometry.isBufferGeometry) {
             return _setAtlasUVsBuffer(geometry, atlas, key, flipX, flipY, channel);
         }
         else {
@@ -550,7 +552,7 @@ var ThreeUtils;
         if (!mesh.geometry) {
             return mesh;
         }
-        if (!(mesh.geometry instanceof THREE.BufferGeometry)) {
+        if (!mesh.geometry.isBufferGeometry) {
             console.error("mesh.geometry is not a BufferGeometry");
             return mesh;
         }

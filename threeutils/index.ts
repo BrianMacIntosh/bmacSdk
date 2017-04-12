@@ -8,6 +8,11 @@ export { Atlas } from "./Atlas";
 export { ThreeJsDebugDraw } from "./threejsdebugdraw";
 export { Shaker } from './shaker';
 
+interface Position
+{
+	position : THREE.Vector3;
+}
+
 export module ThreeUtils
 {
 	export var c_planeCorrection: THREE.Matrix4 = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI, 0, 0));
@@ -123,6 +128,8 @@ export module ThreeUtils
 		baseGeometry.applyMatrix(ThreeUtils.c_planeCorrection);
 		var geometry = new THREE.BufferGeometry();
 		geometry = geometry.fromGeometry(baseGeometry);
+		geometry.computeBoundingBox();
+		geometry.computeBoundingSphere();
 		return geometry;
 	};
 
@@ -147,14 +154,14 @@ export module ThreeUtils
 	 */
 	export function distanceSq(thing1: THREE.Object3D|THREE.Vector3, thing2: THREE.Object3D|THREE.Vector3): number
 	{
-		if (thing1 instanceof THREE.Object3D)
-			var position1 = thing1.position;
+		if ((<THREE.Object3D>thing1).position)
+			var position1 = (<THREE.Object3D>thing1).position;
 		else
-			var position1 = thing1;
-		if (thing2 instanceof THREE.Object3D)
-			var position2 = thing2.position;
+			var position1 = <THREE.Vector3>thing1;
+		if ((<THREE.Object3D>thing2).position)
+			var position2 = (<THREE.Object3D>thing1).position;
 		else
-			var position2 = thing2;
+			var position2 = <THREE.Vector3>thing2;
 		var dx = position1.x-position2.x;
 		var dy = position1.y-position2.y;
 		return dx*dx+dy*dy;
@@ -241,13 +248,13 @@ export module ThreeUtils
 		countX: number, countY: number,
 		flipX: boolean, flipY: boolean): THREE.Geometry|THREE.BufferGeometry
 	{
-		if (geometry instanceof THREE.BufferGeometry)
+		if ((<THREE.BufferGeometry>geometry).isBufferGeometry)
 		{
-			return _setTilesheetBufferGeometry(geometry, x, y, countX, countY, flipX, flipY);
+			return _setTilesheetBufferGeometry(<THREE.BufferGeometry>geometry, x, y, countX, countY, flipX, flipY);
 		}
 		else
 		{
-			return _setTilesheetGeometry(geometry, x, y, countX, countY, flipX, flipY);
+			return _setTilesheetGeometry(<THREE.Geometry>geometry, x, y, countX, countY, flipX, flipY);
 		}
 	};
 
@@ -391,7 +398,7 @@ export module ThreeUtils
 		var material;
 		if (dynamicMaterial)
 		{
-			if (dynamicMaterial instanceof THREE.Material)
+			if ((dynamicMaterial as any).isMaterial)
 			{
 				material = dynamicMaterial;
 			}
@@ -422,13 +429,13 @@ export module ThreeUtils
 		flipX?: boolean, flipY?: boolean,
 		channel?: number): THREE.Geometry|THREE.BufferGeometry
 	{
-		if (geometry instanceof THREE.BufferGeometry)
+		if ((<THREE.BufferGeometry>geometry).isBufferGeometry)
 		{
-			return _setAtlasUVsBuffer(geometry, atlas, key, flipX, flipY, channel);
+			return _setAtlasUVsBuffer(<THREE.BufferGeometry>geometry, atlas, key, flipX, flipY, channel);
 		}
 		else
 		{
-			return _setAtlasUVs(geometry, atlas, key, flipX, flipY);
+			return _setAtlasUVs(<THREE.Geometry>geometry, atlas, key, flipX, flipY);
 		}
 	}
 
@@ -591,7 +598,7 @@ export module ThreeUtils
 		{
 			return mesh;
 		}
-		if (!(mesh.geometry instanceof THREE.BufferGeometry))
+		if (!(<THREE.BufferGeometry>mesh.geometry).isBufferGeometry)
 		{
 			console.error("mesh.geometry is not a BufferGeometry");
 			return mesh;
@@ -606,7 +613,7 @@ export module ThreeUtils
 			return mesh;
 		}
 		mesh.userData.atlasKey = key;
-		setAtlasGeometry(mesh.geometry, mesh.userData.atlas, mesh.userData.atlasKey,
+		setAtlasGeometry(<THREE.BufferGeometry>mesh.geometry, mesh.userData.atlas, mesh.userData.atlasKey,
 			mesh.userData.atlasFlipX, mesh.userData.atlasFlipY);
 		return mesh;
 	};
