@@ -13,113 +13,126 @@ export { noise } from "../thirdparty/noise";
 /**
  * @namespace
  */
-export namespace bmacSdk
+export class bmacSdk
 {
+	public static instance: bmacSdk;
+
 	/**
 	 * If set, the game will not update if the window doesn't have focus.
 	 * @type {boolean}
 	 */
-	var CFG_PAUSE_WHEN_UNFOCUSED: boolean = false;
+	private CFG_PAUSE_WHEN_UNFOCUSED: boolean = false;
 
 	/**
 	 * If set, the game will update each frame until the specified time has passed (ms).
 	 */
-	export var fastSimulate: number = undefined;
+	public fastSimulate: number = undefined;
 
 	/**
 	 * If set, the game will use a fixed update rate for the engine (in seconds).
 	 */
-	export var fixedUpdateInterval: number = undefined;
+	public fixedUpdateInterval: number = undefined;
 	
 	/**
 	 * Used to ignore large frame delta after focusin
 	 * @type {boolean}
 	 */
-	var _eatFrame: boolean = false;
+	private _eatFrame: boolean = false;
 
 	/**
 	 * Read-only. Set if window or document was not found.
 	 * @type {boolean}
 	 */
-	export var isHeadless: boolean = false;
+	public isHeadless: boolean = false;
 	
 	/**
 	 * Set to true if the window has focus.
 	 * @type {boolean}
 	 */
-	export var isFocused: boolean = true;
+	public isFocused: boolean = true;
 
-	export var domAttached: boolean = false;
+	public domAttached: boolean = false;
 
 	/**
 	 * Multiplier to apply to the delta time. Higher values make the game move faster.
 	 * @type {number}
 	 */
-	export var timeScale: number = 1;
+	public timeScale: number = 1;
 	
 	/**
 	 * Gets the elapsed time since the last frame (in seconds).
 	 * @type {number}
 	 */
-	export function getDeltaSec(): number
+	public getDeltaSec(): number
 	{
-		return _deltaSec * timeScale;
+		return this._deltaSec * this.timeScale;
 	};
-	var _deltaSec: number = 0;
+	private _deltaSec: number = 0;
 
 	/**
 	 * The time of the last frame.
 	 * @type {number}
 	 */
-	var _lastFrame: number = 0;
+	private _lastFrame: number = 0;
 	
 	/**
 	 * List of all active Engines.
 	 * @type {Engine[]}
 	 */
-	var engines: Engine[] = [];
+	private engines: Engine[] = [];
 
-	export function createEngine(param: string|Engine): Engine
+	public input: Input = new Input();
+
+	private boundAnimate: any = this._animate.bind(this);
+
+	constructor()
 	{
-		var engine = new Engine(param);
-		engines.push(engine);
-		if (domAttached) engine._attachDom();
+		bmacSdk.instance = this;
+	}
+
+	public createEngine(param: string|Engine): Engine
+	{
+		var engine = new Engine(this, param);
+		this.engines.push(engine);
+		if (this.domAttached) engine._attachDom();
 		return engine;
 	}
 
 	/**
 	 * Call this once to initialize the SDK.
 	 */
-	export function initialize()
+	public initialize()
 	{
-		isHeadless = typeof window == "undefined" || typeof document == "undefined";
+		this.isHeadless = typeof window == "undefined" || typeof document == "undefined";
 
-		if (!isHeadless)
+		if (!this.isHeadless)
 		{
+			var self = this;
+
 			if (document.readyState !== "loading")
 			{
-				_attachDom();
+				this._attachDom();
 			}
 			else
 			{
-				window.onload = document.onload = function(ev: Event) { _attachDom(); };
+				window.addEventListener("load", this._attachDom.bind(this));
 			}
 
 			window.addEventListener("blur", function(){
-				isFocused = false;
+				self.isFocused = false;
 			});
 
 			window.addEventListener("focus",function(){
-				isFocused = true;
-				_eatFrame = true;
+				self.isFocused = true;
+				self._eatFrame = true;
 			});
 			
 			window.addEventListener("resize", function(){
-				if (domAttached)
+				if (self.domAttached)
 				{
-					for (var c = 0; c < engines.length; c++)
+					for (var c = 0; c < self.engines.length; c++)
 					{
-						engines[c]._handleWindowResize();
+						self.engines[c]._handleWindowResize();
 					}
 				}
 			});
@@ -129,31 +142,31 @@ export namespace bmacSdk
 	/**
 	 * Call this from onload of the body element. Initializes all engines.
 	 */
-	export function _attachDom()
+	public _attachDom()
 	{
-		if (domAttached) return;
+		if (this.domAttached) return;
 
 		console.log("bmacSdk: DOM attached");
-		domAttached = true;
+		this.domAttached = true;
 		
-		for (var c = 0; c < engines.length; c++)
+		for (var c = 0; c < this.engines.length; c++)
 		{
-			engines[c]._attachDom();
+			this.engines[c]._attachDom();
 		}
 		
-		Input._init();
+		this.input._init();
 		
-		_lastFrame = Date.now();
+		this._lastFrame = Date.now();
 
-		_animate();
+		this._animate();
 	};
 
 	/**
 	 * Shut down the SDK.
 	 */
-	export function destroy()
+	public destroy()
 	{
-		Input._destroy();
+		this.input._destroy();
 
 		//TODO: destroy all engines
 
@@ -163,46 +176,46 @@ export namespace bmacSdk
 	/**
 	 * Main update loop.
 	 */
-	export function _animate()
+	public _animate()
 	{
 		var simStart = Date.now();
 
 		do
 		{
-			if (fixedUpdateInterval !== undefined)
+			if (this.fixedUpdateInterval !== undefined)
 			{
-				_deltaSec = fixedUpdateInterval;
+				this._deltaSec = this.fixedUpdateInterval;
 			}
 			else
 			{
-				_deltaSec = (Date.now() - _lastFrame) / 1000;
+				this._deltaSec = (Date.now() - this._lastFrame) / 1000;
 			}
-			_lastFrame = Date.now();
+			this._lastFrame = Date.now();
 			
-			if (_eatFrame)
+			if (this._eatFrame)
 			{
-				_eatFrame = false;
+				this._eatFrame = false;
 				break;
 			}
 			
-			if (CFG_PAUSE_WHEN_UNFOCUSED && !bmacSdk.isFocused)
+			if (this.CFG_PAUSE_WHEN_UNFOCUSED && !this.isFocused)
 			{
 				break;
 			}
 			
-			AudioManager._update(_deltaSec);
-			Input._update();
+			AudioManager._update(this._deltaSec);
+			this.input._update();
 			
-			for (var c = 0; c < engines.length; c++)
+			for (var c = 0; c < this.engines.length; c++)
 			{
-				engines[c]._animate();
+				this.engines[c]._animate(this.getDeltaSec());
 			}
-		} while (fastSimulate !== undefined && (Date.now() - simStart) < fastSimulate);
+		} while (this.fastSimulate !== undefined && (Date.now() - simStart) < this.fastSimulate);
 
 		// node server doesn't have this method and needs to call this manually each frame
-		if (!isHeadless)
+		if (!this.isHeadless)
 		{
-			requestAnimationFrame(_animate);
+			requestAnimationFrame(this.boundAnimate);
 		}
 	};
 };

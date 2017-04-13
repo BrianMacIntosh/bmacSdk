@@ -1,149 +1,160 @@
 
 import { ThreeUtils } from "../threeutils";
 
-export namespace Mouse
+export enum MouseButton
+{
+	Left	= 1,
+	Middle	= 2,
+	Right	= 3,
+	Other	= 4,
+}
+
+export class Mouse
 {
 	/**
 	 * Read-only. Set if 'document' was not found.
 	 * @type {boolean}
 	 */
-	export var isHeadless = false;
+	public isHeadless: boolean = false;
 
-	export var mousePos = { x: 0, y:0 };
+	public mousePos = { x: 0, y:0 };
 	
 	//stores current button state
-	var mouseDown: { [s: string]: boolean } = {};
+	private mouseDown: { [s: string]: boolean } = {};
 	
 	//buffers button changes for one frame
 	//duplicated in order to remember the states into the next frame
-	var mousePressed: { [s: string]: boolean } = {};
-	var mouseReleased: { [s: string]: boolean } = {};
-	var mousePressedBuffer: { [s: string]: boolean } = {};
-	var mouseReleasedBuffer: { [s: string]: boolean } = {};
+	private mousePressed: { [s: string]: boolean } = {};
+	private mouseReleased: { [s: string]: boolean } = {};
+	private mousePressedBuffer: { [s: string]: boolean } = {};
+	private mouseReleasedBuffer: { [s: string]: boolean } = {};
 
-	var wheelDelta: number = 0;
-	var wheelDeltaBuffer: number = 0;
+	private wheelDelta: number = 0;
+	private wheelDeltaBuffer: number = 0;
 
-	export enum Button
-	{
-		Left	= 1,
-		Middle	= 2,
-		Right	= 3,
-		Other	= 4,
-	}
+	private boundMouseMove: any;
+	private boundDragOver: any;
+	private boundMouseDown: any;
+	private boundMouseUp: any;
+	private boundMouseWheel: any;
 
 	/**
 	 * Called by the SDK to start listening to the mouse.
 	 */
-	export function _init()
+	public _init()
 	{
 		if (typeof document !== "undefined")
 		{
-			document.addEventListener("mousemove", _onMouseMove, false);
-			document.addEventListener("dragover", _onDragOver, false);
-			document.addEventListener("mousedown", _onMouseDown, false);
-			document.addEventListener("mouseup", _onMouseUp, false);
-			document.addEventListener("wheel", _onMouseWheel, false);
+			this.boundMouseMove = this._onMouseMove.bind(this);
+			this.boundDragOver = this._onDragOver.bind(this);
+			this.boundMouseDown = this._onMouseDown.bind(this);
+			this.boundMouseUp = this._onMouseUp.bind(this);
+			this.boundMouseWheel = this._onMouseWheel.bind(this);
+			document.addEventListener("mousemove", this.boundMouseMove, false);
+			document.addEventListener("dragover", this.boundDragOver, false);
+			document.addEventListener("mousedown", this.boundMouseDown, false);
+			document.addEventListener("mouseup", this.boundMouseUp, false);
+			document.addEventListener("wheel", this.boundMouseWheel, false);
 		}
 		else
 		{
-			isHeadless = true;
+			this.isHeadless = true;
 		}
 	};
 
 	/**
 	 * Called by the SDK to stop mouse listening.
 	 */
-	export function _destroy()
+	public _destroy()
 	{
 		if (typeof document !== "undefined")
 		{
-			document.removeEventListener("mousemove", _onMouseMove, false);
-			document.removeEventListener("dragover", _onDragOver, false);
-			document.removeEventListener("mousedown", _onMouseDown, false);
-			document.removeEventListener("mouseup", _onMouseUp, false);
-			document.removeEventListener("wheel", _onMouseWheel, false);
+			document.removeEventListener("mousemove", this.boundMouseMove, false);
+			document.removeEventListener("dragover", this.boundDragOver, false);
+			document.removeEventListener("mousedown", this.boundMouseDown, false);
+			document.removeEventListener("mouseup", this.boundMouseUp, false);
+			document.removeEventListener("wheel", this.boundMouseWheel, false);
 		}
 	};
 
 	/**
 	 * Called by the SDK each frame to update the input state.
 	 */
-	export function _update()
+	public _update()
 	{
 		//cycle buffers
-		var temp = mousePressed;
-		mousePressed = mousePressedBuffer;
-		mousePressedBuffer = temp;
-		var temp = mouseReleased;
-		mouseReleased = mouseReleasedBuffer;
-		mouseReleasedBuffer = temp;
+		var temp = this.mousePressed;
+		this.mousePressed = this.mousePressedBuffer;
+		this.mousePressedBuffer = temp;
+		var temp = this.mouseReleased;
+		this.mouseReleased = this.mouseReleasedBuffer;
+		this.mouseReleasedBuffer = temp;
 
-		wheelDelta = wheelDeltaBuffer;
-		wheelDeltaBuffer = 0;
+		this.wheelDelta = this.wheelDeltaBuffer;
+		this.wheelDeltaBuffer = 0;
 		
 		//clear new buffer
-		for (var i in mousePressedBuffer)
+		for (var i in this.mousePressedBuffer)
 		{
-			mousePressedBuffer[i] = false;
+			this.mousePressedBuffer[i] = false;
 		}
-		for (var i in mouseReleasedBuffer)
+		for (var i in this.mouseReleasedBuffer)
 		{
-			mouseReleasedBuffer[i] = false;
+			this.mouseReleasedBuffer[i] = false;
 		}
 		
 		//update button down states
-		for (var i in mousePressed)
+		for (var i in this.mousePressed)
 		{
-			if (mousePressed[i] && !mouseReleased[i])
-				mouseDown[i] = true;
+			if (this.mousePressed[i] && !this.mouseReleased[i])
+				this.mouseDown[i] = true;
 		}
-		for (var i in mouseReleased)
+		for (var i in this.mouseReleased)
 		{
-			if (mouseReleased[i] && !mousePressed[i])
-				mouseDown[i] = false;
+			if (this.mouseReleased[i] && !this.mousePressed[i])
+				this.mouseDown[i] = false;
 		}
 	};
 
-	function _onMouseMove(e)
+	private _onMouseMove(e)
 	{
 		e = e || window.event;
-		mousePos.x = e.pageX;
-		mousePos.y = e.pageY;
+		this.mousePos.x = e.pageX;
+		this.mousePos.y = e.pageY;
 	};
 
-	function _onDragOver(e)
+	private _onDragOver(e)
 	{
 		e = e || window.event;
-		mousePos.x = e.pageX,
-		mousePos.y = e.pageY;
+		this.mousePos.x = e.pageX,
+		this.mousePos.y = e.pageY;
 	}
 
-	function _onMouseDown(e)
+	private _onMouseDown(e)
 	{
 		e = e || window.event;
-		mousePressedBuffer[e.which || e.keyCode] = true;
+		this.mousePressedBuffer[e.which || e.keyCode] = true;
 	}
 
-	function _onMouseUp(e)
+	private _onMouseUp(e)
 	{
 		e = e || window.event;
-		mouseReleasedBuffer[e.which || e.keyCode] = true;
+		this.mouseReleasedBuffer[e.which || e.keyCode] = true;
 	}
 
-	function _onMouseWheel(e)
+	private _onMouseWheel(e)
 	{
 		e = e || window.event;
-		wheelDeltaBuffer = e.wheelDelta;
+		this.wheelDeltaBuffer = e.wheelDelta;
 	}
 
 	/**
 	 * Returns the mousewheel delta on this frame.
 	 * @returns {number}
 	 */
-	export function getMouseWheelDelta(): number
+	public getMouseWheelDelta(): number
 	{
-		return wheelDelta;
+		return this.wheelDelta;
 	}
 
 	/**
@@ -152,13 +163,13 @@ export namespace Mouse
 	 * @param {THREE.Vector2} buffer Object to fill (optional)
 	 * @returns {Object}
 	 */
-	export function getPosition(relativeTo: HTMLElement, buffer?: THREE.Vector2): THREE.Vector2
+	public getPosition(relativeTo: HTMLElement, buffer?: THREE.Vector2): THREE.Vector2
 	{
 		if (!buffer) buffer = ThreeUtils.newVector2();
 
 		if (!relativeTo)
 		{
-			buffer.set(mousePos.x, mousePos.y);
+			buffer.set(this.mousePos.x, this.mousePos.y);
 			return buffer;
 		}
 		
@@ -173,7 +184,7 @@ export namespace Mouse
 		}
 		
 		//Calculate relative position of mouse
-		buffer.set(mousePos.x - elemX, mousePos.y - elemY);
+		buffer.set(this.mousePos.x - elemX, this.mousePos.y - elemY);
 		return buffer;
 	};
 
@@ -182,9 +193,9 @@ export namespace Mouse
 	 * @param {number} button See constant definitions.
 	 * @returns {boolean}
 	 */
-	export function buttonPressed(button: Button): boolean
+	public buttonPressed(button: MouseButton): boolean
 	{
-		return !!mousePressed[button];
+		return !!this.mousePressed[button];
 	};
 
 	/**
@@ -192,9 +203,9 @@ export namespace Mouse
 	 * @param {number} button See constant definitions.
 	 * @returns {boolean}
 	 */
-	export function buttonReleased(button: Button): boolean
+	public buttonReleased(button: MouseButton): boolean
 	{
-		return !!mouseReleased[button];
+		return !!this.mouseReleased[button];
 	};
 
 	/**
@@ -202,9 +213,9 @@ export namespace Mouse
 	 * @param {number} button See constant definitions.
 	 * @returns {boolean}
 	 */
-	export function buttonDown(button: Button): boolean
+	public buttonDown(button: MouseButton): boolean
 	{
-		return !!mouseDown[button];
+		return !!this.mouseDown[button];
 	};
 
 	/**
@@ -212,8 +223,8 @@ export namespace Mouse
 	 * @param {number} button See constant definitions.
 	 * @returns {boolean}
 	 */
-	export function buttonUp(button: Button): boolean
+	public buttonUp(button: MouseButton): boolean
 	{
-		return !mouseDown[button];
+		return !this.mouseDown[button];
 	};
 };

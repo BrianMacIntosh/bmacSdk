@@ -3,8 +3,6 @@ exports.__esModule = true;
 var THREE = require("three");
 require("../typings");
 require("../polyfills");
-var _1 = require("./");
-var input_1 = require("../input");
 var threeutils_1 = require("../threeutils");
 var domutils_1 = require("../domutils");
 var threex_rendererstats_1 = require("../thirdparty/threex.rendererstats");
@@ -36,7 +34,8 @@ var Engine = (function () {
      *
      * @param param The name of the element to create the canvas under, or an existing Engine to share with.
      */
-    function Engine(param) {
+    function Engine(bmacSdk, param) {
+        this.bmacSdk = bmacSdk;
         this.debugRenderer = true;
         this.objects = [];
         this.scene = new THREE.Scene();
@@ -66,7 +65,7 @@ var Engine = (function () {
         object.owner = this;
         if (this.objects.contains(object))
             return object;
-        if (object.added && _1.bmacSdk.domAttached)
+        if (object.added && this.bmacSdk.domAttached)
             object.added();
         this.objects.push(object);
         return object;
@@ -100,7 +99,7 @@ var Engine = (function () {
      * Initializes the engine.
      */
     Engine.prototype._attachDom = function () {
-        if (!_1.bmacSdk.isHeadless && this.canvasDivName) {
+        if (!this.bmacSdk.isHeadless && this.canvasDivName) {
             this.canvasDiv = document.getElementById(this.canvasDivName);
             this.renderer = new THREE.WebGLRenderer();
             this.renderer.autoClearColor = false;
@@ -173,10 +172,10 @@ var Engine = (function () {
         else
             return this;
     };
-    Engine.prototype._animate = function () {
+    Engine.prototype._animate = function (deltaSec) {
         var master = this.getContextMaster();
         // calculate mouse pos
-        this.mousePosRel = input_1.Mouse.getPosition(master.canvasDiv, this.mousePosRel);
+        this.mousePosRel = this.bmacSdk.input.mouse.getPosition(master.canvasDiv, this.mousePosRel);
         if (!this.mousePosWorld)
             this.mousePosWorld = threeutils_1.ThreeUtils.newVector3();
         this.mousePosWorld.set(this.mousePosRel.x / (this.screenWidth / 2) - 1, 1 - this.mousePosRel.y / (this.screenHeight / 2), 0);
@@ -185,11 +184,11 @@ var Engine = (function () {
         // update objects
         for (var c = 0; c < this.objects.length; c++) {
             if (this.objects[c].update) {
-                this.objects[c].update(_1.bmacSdk.getDeltaSec());
+                this.objects[c].update(deltaSec);
             }
         }
-        this.cameraShaker.update(_1.bmacSdk.getDeltaSec());
-        domutils_1.DomUtils.update(_1.bmacSdk.getDeltaSec());
+        this.cameraShaker.update(deltaSec);
+        domutils_1.DomUtils.update(deltaSec);
         // render
         this._callPreRender();
         if (master.renderer) {

@@ -78,7 +78,7 @@ export class Engine
 	 * 
 	 * @param param The name of the element to create the canvas under, or an existing Engine to share with.
 	 */
-	constructor(param: string|Engine)
+	constructor(public bmacSdk: bmacSdk, param: string|Engine)
 	{
 		if (param instanceof Engine)
 		{
@@ -107,7 +107,7 @@ export class Engine
 		object.owner = this;
 		if (this.objects.contains(object))
 			return object;
-		if (object.added && bmacSdk.domAttached)
+		if (object.added && this.bmacSdk.domAttached)
 			object.added();
 		this.objects.push(object);
 		return object;
@@ -149,7 +149,7 @@ export class Engine
 	 */
 	public _attachDom() : void
 	{
-		if (!bmacSdk.isHeadless && this.canvasDivName)
+		if (!this.bmacSdk.isHeadless && this.canvasDivName)
 		{
 			this.canvasDiv = document.getElementById(this.canvasDivName) as HTMLCanvasElement;
 			this.renderer = new THREE.WebGLRenderer();
@@ -245,12 +245,12 @@ export class Engine
 		else return this;
 	}
 
-	public _animate(): void
+	public _animate(deltaSec: number): void
 	{
 		var master = this.getContextMaster();
 
 		// calculate mouse pos
-		this.mousePosRel = Mouse.getPosition(master.canvasDiv, this.mousePosRel);
+		this.mousePosRel = this.bmacSdk.input.mouse.getPosition(master.canvasDiv, this.mousePosRel);
 		if (!this.mousePosWorld) this.mousePosWorld = ThreeUtils.newVector3();
 		this.mousePosWorld.set(
 			this.mousePosRel.x/(this.screenWidth/2) - 1,
@@ -264,13 +264,13 @@ export class Engine
 		{
 			if (this.objects[c].update)
 			{
-				this.objects[c].update(bmacSdk.getDeltaSec());
+				this.objects[c].update(deltaSec);
 			}
 		}
 
-		this.cameraShaker.update(bmacSdk.getDeltaSec());
+		this.cameraShaker.update(deltaSec);
 
-		DomUtils.update(bmacSdk.getDeltaSec());
+		DomUtils.update(deltaSec);
 		
 		// render
 		this._callPreRender();

@@ -2,119 +2,119 @@
 exports.__esModule = true;
 var keyboard_1 = require("./keyboard");
 var mouse_1 = require("./mouse");
-var gamepad_1 = require("./gamepad");
+var gamepads_1 = require("./gamepads");
 var keyboard_2 = require("./keyboard");
+exports.Key = keyboard_2.Key;
 exports.Keyboard = keyboard_2.Keyboard;
 var mouse_2 = require("./mouse");
+exports.MouseButton = mouse_2.MouseButton;
 exports.Mouse = mouse_2.Mouse;
-var gamepad_2 = require("./gamepad");
-exports.Gamepad = gamepad_2.Gamepad;
-var Input;
-(function (Input) {
-    Input.FIRST_PLAYER = 0; //TODO: dynamic
+var gamepads_2 = require("./gamepads");
+exports.GamepadButton = gamepads_2.GamepadButton;
+exports.GamepadAxis = gamepads_2.GamepadAxis;
+exports.Gamepads = gamepads_2.Gamepads;
+var Input = (function () {
+    function Input() {
+        this.FIRST_PLAYER = 0; //TODO: dynamic
+        this.keyboard = new keyboard_1.Keyboard();
+        this.mouse = new mouse_1.Mouse();
+        this.gamepads = new gamepads_1.Gamepads();
+    }
     /**
      * Called by the SDK to initialize the input system.
      */
-    function _init() {
-        keyboard_1.Keyboard._init();
-        mouse_1.Mouse._init();
-        gamepad_1.Gamepad._init();
-    }
-    Input._init = _init;
+    Input.prototype._init = function () {
+        this.keyboard._init();
+        this.mouse._init();
+        this.gamepads._init();
+    };
     ;
     /**
      * Called by the SDK to destroy the input system.
      */
-    function _destroy() {
-        keyboard_1.Keyboard._destroy();
-        mouse_1.Mouse._destroy();
-        gamepad_1.Gamepad._destroy();
-    }
-    Input._destroy = _destroy;
+    Input.prototype._destroy = function () {
+        this.keyboard._destroy();
+        this.mouse._destroy();
+        this.gamepads._destroy();
+    };
     ;
     /**
      * Returns true if a 'left' control was pressed.
      * @returns {boolean}
      */
-    function actionMenuLeft() {
-        return keyboard_1.Keyboard.keyPressed(keyboard_1.Keyboard.Key.Left) || keyboard_1.Keyboard.keyPressed("a")
-            || gamepad_1.Gamepad.axisPressed(Input.FIRST_PLAYER, gamepad_1.Gamepad.Axis.LeftStickX) < 0
-            || gamepad_1.Gamepad.buttonPressed(Input.FIRST_PLAYER, gamepad_1.Gamepad.Button.DPadLeft);
-    }
-    Input.actionMenuLeft = actionMenuLeft;
+    Input.prototype.actionMenuLeft = function () {
+        return this.keyboard.keyPressed(keyboard_1.Key.Left) || this.keyboard.keyPressed("a")
+            || this.gamepads.axisPressed(this.FIRST_PLAYER, gamepads_1.GamepadAxis.LeftStickX) < 0
+            || this.gamepads.buttonPressed(this.FIRST_PLAYER, gamepads_1.GamepadButton.DPadLeft);
+    };
     ;
     /**
      * Returns true if a 'right' control was pressed.
      * @returns {boolean}
      */
-    function actionMenuRight() {
-        return keyboard_1.Keyboard.keyPressed(keyboard_1.Keyboard.Key.Right) || keyboard_1.Keyboard.keyPressed("d")
-            || gamepad_1.Gamepad.axisPressed(Input.FIRST_PLAYER, gamepad_1.Gamepad.Axis.LeftStickX) > 0
-            || gamepad_1.Gamepad.buttonPressed(Input.FIRST_PLAYER, gamepad_1.Gamepad.Button.DPadRight);
-    }
-    Input.actionMenuRight = actionMenuRight;
+    Input.prototype.actionMenuRight = function () {
+        return this.keyboard.keyPressed(keyboard_1.Key.Right) || this.keyboard.keyPressed("d")
+            || this.gamepads.axisPressed(this.FIRST_PLAYER, gamepads_1.GamepadAxis.LeftStickX) > 0
+            || this.gamepads.buttonPressed(this.FIRST_PLAYER, gamepads_1.GamepadButton.DPadRight);
+    };
     ;
     /**
      * Returns true if an 'up' control was pressed.
      * @returns {boolean}
      */
-    function actionMenuUp() {
-        return keyboard_1.Keyboard.keyPressed(keyboard_1.Keyboard.Key.Up) || keyboard_1.Keyboard.keyPressed("w")
-            || gamepad_1.Gamepad.axisPressed(Input.FIRST_PLAYER, gamepad_1.Gamepad.Axis.LeftStickY) < 0
-            || gamepad_1.Gamepad.buttonPressed(Input.FIRST_PLAYER, gamepad_1.Gamepad.Button.DPadUp);
-    }
-    Input.actionMenuUp = actionMenuUp;
+    Input.prototype.actionMenuUp = function () {
+        return this.keyboard.keyPressed(keyboard_1.Key.Up) || this.keyboard.keyPressed("w")
+            || this.gamepads.axisPressed(this.FIRST_PLAYER, gamepads_1.GamepadAxis.LeftStickY) < 0
+            || this.gamepads.buttonPressed(this.FIRST_PLAYER, gamepads_1.GamepadButton.DPadUp);
+    };
     ;
     /**
      * Returns true if a 'down' control was pressed.
      * @returns {boolean}
      */
-    function actionMenuDown() {
-        return keyboard_1.Keyboard.keyPressed(keyboard_1.Keyboard.Key.Down) || keyboard_1.Keyboard.keyPressed("s")
-            || gamepad_1.Gamepad.axisPressed(Input.FIRST_PLAYER, gamepad_1.Gamepad.Axis.LeftStickY) > 0
-            || gamepad_1.Gamepad.buttonPressed(Input.FIRST_PLAYER, gamepad_1.Gamepad.Button.DPadDown);
-    }
-    Input.actionMenuDown = actionMenuDown;
+    Input.prototype.actionMenuDown = function () {
+        return this.keyboard.keyPressed(keyboard_1.Key.Down) || this.keyboard.keyPressed("s")
+            || this.gamepads.axisPressed(this.FIRST_PLAYER, gamepads_1.GamepadAxis.LeftStickY) > 0
+            || this.gamepads.buttonPressed(this.FIRST_PLAYER, gamepads_1.GamepadButton.DPadDown);
+    };
     ;
     /**
      * Returns true if an 'accept' control was pressed.
      * @returns {boolean}
      */
-    function actionMenuAccept() {
-        return keyboard_1.Keyboard.keyPressed(keyboard_1.Keyboard.Key.Space) || keyboard_1.Keyboard.keyPressed(keyboard_1.Keyboard.Key.Enter)
-            || gamepad_1.Gamepad.buttonPressed(Input.FIRST_PLAYER, gamepad_1.Gamepad.Button.A);
-    }
-    Input.actionMenuAccept = actionMenuAccept;
+    Input.prototype.actionMenuAccept = function () {
+        return this.keyboard.keyPressed(keyboard_1.Key.Space) || this.keyboard.keyPressed(keyboard_1.Key.Enter)
+            || this.gamepads.buttonPressed(this.FIRST_PLAYER, gamepads_1.GamepadButton.A);
+    };
     ;
     /**
      * Returns true if a 'cancel' control was pressed.
      * @returns {boolean}
      */
-    function actionMenuCancel() {
-        return keyboard_1.Keyboard.keyPressed(keyboard_1.Keyboard.Key.Escape)
-            || gamepad_1.Gamepad.buttonPressed(Input.FIRST_PLAYER, gamepad_1.Gamepad.Button.B);
-    }
-    Input.actionMenuCancel = actionMenuCancel;
+    Input.prototype.actionMenuCancel = function () {
+        return this.keyboard.keyPressed(keyboard_1.Key.Escape)
+            || this.gamepads.buttonPressed(this.FIRST_PLAYER, gamepads_1.GamepadButton.B);
+    };
     ;
     /**
      * Returns true if a 'pause' control was pressed.
      * @returns {boolean}
      */
-    function actionGamePause() {
-        return keyboard_1.Keyboard.keyPressed(keyboard_1.Keyboard.Key.Escape)
-            || gamepad_1.Gamepad.buttonPressed(Input.FIRST_PLAYER, gamepad_1.Gamepad.Button.Start);
-    }
-    Input.actionGamePause = actionGamePause;
+    Input.prototype.actionGamePause = function () {
+        return this.keyboard.keyPressed(keyboard_1.Key.Escape)
+            || this.gamepads.buttonPressed(this.FIRST_PLAYER, gamepads_1.GamepadButton.Start);
+    };
     ;
     /**
      * Called by the SDK each frame.
      */
-    function _update() {
-        keyboard_1.Keyboard._update();
-        mouse_1.Mouse._update();
-        gamepad_1.Gamepad._update();
-    }
-    Input._update = _update;
+    Input.prototype._update = function () {
+        this.keyboard._update();
+        this.mouse._update();
+        this.gamepads._update();
+    };
     ;
-})(Input = exports.Input || (exports.Input = {}));
+    return Input;
+}());
+exports.Input = Input;
 ;

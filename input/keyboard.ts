@@ -1,112 +1,117 @@
 
-export namespace Keyboard
+export enum Key
+{
+	Left	= 37,
+	Up		= 38,
+	Right	= 39,
+	Down	= 40,
+	Space	= 32,
+	PageUp	= 33,
+	PageDown= 34,
+	Tab		=  9,
+	Escape	= 27,
+	Enter	= 13,
+	Shift	= 16,
+	Ctrl	= 17,
+	Alt		= 18,
+}
+
+export class Keyboard
 {
 	/**
 	 * Read-only. Set if 'document' was not found.
 	 * @type {boolean}
 	 */
-	export var isHeadless = false;
+	public isHeadless: boolean = false;
 
 	//stores current button state
-	var keysDown: { [s: string]: boolean } = {};
+	private keysDown: { [s: string]: boolean } = {};
 	
 	//buffers button changes for one frame
-	var keysPressed: { [s: string]: boolean } = {};
-	var keysReleased: { [s: string]: boolean } = {};
-	var keysPressedBuffer: { [s: string]: boolean } = {};
-	var keysReleasedBuffer: { [s: string]: boolean } = {};
+	private keysPressed: { [s: string]: boolean } = {};
+	private keysReleased: { [s: string]: boolean } = {};
+	private keysPressedBuffer: { [s: string]: boolean } = {};
+	private keysReleasedBuffer: { [s: string]: boolean } = {};
 
-	export enum Key
-	{
-		Left	= 37,
-		Up		= 38,
-		Right	= 39,
-		Down	= 40,
-		Space	= 32,
-		PageUp	= 33,
-		PageDown= 34,
-		Tab		=  9,
-		Escape	= 27,
-		Enter	= 13,
-		Shift	= 16,
-		Ctrl	= 17,
-		Alt		= 18,
-	}
+	private boundKeyDown: any;
+	private boundKeyUp: any;
 
 	/**
 	 * Called by the SDK to initialize keyboard listening.
 	 */
-	export function _init()
+	public _init()
 	{
 		if (typeof document !== "undefined")
 		{
-			document.addEventListener("keydown", _onKeyDown, false);
-			document.addEventListener("keyup", _onKeyUp, false);
+			this.boundKeyDown = this._onKeyDown.bind(this);
+			this.boundKeyUp = this._onKeyUp.bind(this);
+			document.addEventListener("keydown", this.boundKeyDown, false);
+			document.addEventListener("keyup", this.boundKeyUp, false);
 		}
 		else
 		{
-			isHeadless = true;
+			this.isHeadless = true;
 		}
 	};
 
 	/**
 	 * Called by the SDK to stop keyboard listening.
 	 */
-	export function _destroy()
+	public _destroy()
 	{
 		if (typeof document !== "undefined")
 		{
-			document.removeEventListener("keydown", _onKeyDown, false);
-			document.removeEventListener("keyup", _onKeyUp, false);
+			document.removeEventListener("keydown", this.boundKeyDown, false);
+			document.removeEventListener("keyup", this.boundKeyUp, false);
 		}
 	};
 
 	/**
 	 * Called each frame by the SDK.
 	 */
-	export function _update()
+	public _update()
 	{
 		//cycle buffers
-		var temp = keysPressed;
-		keysPressed = keysPressedBuffer;
-		keysPressedBuffer = temp;
-		var temp = keysReleased;
-		keysReleased = keysReleasedBuffer;
-		keysReleasedBuffer = temp;
+		var temp = this.keysPressed;
+		this.keysPressed = this.keysPressedBuffer;
+		this.keysPressedBuffer = temp;
+		var temp = this.keysReleased;
+		this.keysReleased = this.keysReleasedBuffer;
+		this.keysReleasedBuffer = temp;
 		
 		//clear new buffer
-		for (var i in keysPressedBuffer)
+		for (var i in this.keysPressedBuffer)
 		{
-			keysPressedBuffer[i] = false;
+			this.keysPressedBuffer[i] = false;
 		}
-		for (var i in keysReleasedBuffer)
+		for (var i in this.keysReleasedBuffer)
 		{
-			keysReleasedBuffer[i] = false;
+			this.keysReleasedBuffer[i] = false;
 		}
 		
 		//update button down states
-		for (var i in keysPressed)
+		for (var i in this.keysPressed)
 		{
 			//ignore repeats
-			if (keysDown[i])
-				keysPressed[i] = false;
-			else if (keysPressed[i] && !keysReleased[i])
-				keysDown[i] = true;
+			if (this.keysDown[i])
+				this.keysPressed[i] = false;
+			else if (this.keysPressed[i] && !this.keysReleased[i])
+				this.keysDown[i] = true;
 		}
-		for (var i in keysReleased)
+		for (var i in this.keysReleased)
 		{
 			//ignore repeats
-			if (!keysDown[i])
-				keysReleased[i] = false;
-			else if (keysReleased[i] && !keysPressed[i])
-				keysDown[i] = false;
+			if (!this.keysDown[i])
+				this.keysReleased[i] = false;
+			else if (this.keysReleased[i] && !this.keysPressed[i])
+				this.keysDown[i] = false;
 		}
 	};
 
-	function _onKeyDown(e)
+	private _onKeyDown(e)
 	{
 		e = e || window.event;
-		keysPressedBuffer[e.keyCode] = true;
+		this.keysPressedBuffer[e.keyCode] = true;
 		
 		// prevent scrolling
 		if (e.keyCode == Key.Space)
@@ -120,13 +125,13 @@ export namespace Keyboard
 		}
 	};
 
-	function _onKeyUp(e)
+	private _onKeyUp(e)
 	{
 		e = e || window.event;
-		keysReleasedBuffer[e.keyCode] = true;
+		this.keysReleasedBuffer[e.keyCode] = true;
 	};
 
-	function _translateKey(code: string|Key|number): number
+	private _translateKey(code: string|Key|number): number
 	{
 		if (typeof code == 'string')
 		{
@@ -143,9 +148,9 @@ export namespace Keyboard
 	 * @param {string|Key} code A character or a key scancode (see constant definitions).
 	 * @returns {boolean}
 	 */
-	export function keyPressed(code: string|Key): boolean
+	public keyPressed(code: string|Key): boolean
 	{
-		return !!keysPressed[_translateKey(code)];
+		return !!this.keysPressed[this._translateKey(code)];
 	};
 
 	/**
@@ -153,9 +158,9 @@ export namespace Keyboard
 	 * @param {string|Key} code A character or a key scancode (see constant definitions).
 	 * @returns {boolean}
 	 */
-	export function keyReleased(code: string|Key): boolean
+	public keyReleased(code: string|Key): boolean
 	{
-		return !!keysReleased[_translateKey(code)];
+		return !!this.keysReleased[this._translateKey(code)];
 	};
 
 	/**
@@ -163,9 +168,9 @@ export namespace Keyboard
 	 * @param {string|Key} code A character or a key scancode (see constant definitions).
 	 * @returns {boolean}
 	 */
-	export function keyDown(code: string|Key): boolean
+	public keyDown(code: string|Key): boolean
 	{
-		return !!keysDown[_translateKey(code)];
+		return !!this.keysDown[this._translateKey(code)];
 	};
 
 	/**
@@ -173,20 +178,20 @@ export namespace Keyboard
 	 * @param {string|Key} code A character or a key scancode (see constant definitions).
 	 * @returns {boolean}
 	 */
-	export function keyUp(code: string|Key): boolean
+	public keyUp(code: string|Key): boolean
 	{
-		return !keysDown[_translateKey(code)];
+		return !this.keysDown[this._translateKey(code)];
 	};
 
 	/**
 	 * Returns the number key pressed this frame, or -1 if none.
 	 * @returns {number}
 	 */
-	export function getNumberPressed(): number
+	public getNumberPressed(): number
 	{
 		for (var i = 48; i <= 57; i++)
 		{
-			if (keyPressed(i)) return i - 48;
+			if (this.keyPressed(i)) return i - 48;
 		}
 		return -1;
 	};

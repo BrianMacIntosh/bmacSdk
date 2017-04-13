@@ -1,136 +1,138 @@
 "use strict";
 exports.__esModule = true;
 var threeutils_1 = require("../threeutils");
-var Mouse;
-(function (Mouse) {
-    /**
-     * Read-only. Set if 'document' was not found.
-     * @type {boolean}
-     */
-    Mouse.isHeadless = false;
-    Mouse.mousePos = { x: 0, y: 0 };
-    //stores current button state
-    var mouseDown = {};
-    //buffers button changes for one frame
-    //duplicated in order to remember the states into the next frame
-    var mousePressed = {};
-    var mouseReleased = {};
-    var mousePressedBuffer = {};
-    var mouseReleasedBuffer = {};
-    var wheelDelta = 0;
-    var wheelDeltaBuffer = 0;
-    var Button;
-    (function (Button) {
-        Button[Button["Left"] = 1] = "Left";
-        Button[Button["Middle"] = 2] = "Middle";
-        Button[Button["Right"] = 3] = "Right";
-        Button[Button["Other"] = 4] = "Other";
-    })(Button = Mouse.Button || (Mouse.Button = {}));
+var MouseButton;
+(function (MouseButton) {
+    MouseButton[MouseButton["Left"] = 1] = "Left";
+    MouseButton[MouseButton["Middle"] = 2] = "Middle";
+    MouseButton[MouseButton["Right"] = 3] = "Right";
+    MouseButton[MouseButton["Other"] = 4] = "Other";
+})(MouseButton = exports.MouseButton || (exports.MouseButton = {}));
+var Mouse = (function () {
+    function Mouse() {
+        /**
+         * Read-only. Set if 'document' was not found.
+         * @type {boolean}
+         */
+        this.isHeadless = false;
+        this.mousePos = { x: 0, y: 0 };
+        //stores current button state
+        this.mouseDown = {};
+        //buffers button changes for one frame
+        //duplicated in order to remember the states into the next frame
+        this.mousePressed = {};
+        this.mouseReleased = {};
+        this.mousePressedBuffer = {};
+        this.mouseReleasedBuffer = {};
+        this.wheelDelta = 0;
+        this.wheelDeltaBuffer = 0;
+    }
     /**
      * Called by the SDK to start listening to the mouse.
      */
-    function _init() {
+    Mouse.prototype._init = function () {
         if (typeof document !== "undefined") {
-            document.addEventListener("mousemove", _onMouseMove, false);
-            document.addEventListener("dragover", _onDragOver, false);
-            document.addEventListener("mousedown", _onMouseDown, false);
-            document.addEventListener("mouseup", _onMouseUp, false);
-            document.addEventListener("wheel", _onMouseWheel, false);
+            this.boundMouseMove = this._onMouseMove.bind(this);
+            this.boundDragOver = this._onDragOver.bind(this);
+            this.boundMouseDown = this._onMouseDown.bind(this);
+            this.boundMouseUp = this._onMouseUp.bind(this);
+            this.boundMouseWheel = this._onMouseWheel.bind(this);
+            document.addEventListener("mousemove", this.boundMouseMove, false);
+            document.addEventListener("dragover", this.boundDragOver, false);
+            document.addEventListener("mousedown", this.boundMouseDown, false);
+            document.addEventListener("mouseup", this.boundMouseUp, false);
+            document.addEventListener("wheel", this.boundMouseWheel, false);
         }
         else {
-            Mouse.isHeadless = true;
+            this.isHeadless = true;
         }
-    }
-    Mouse._init = _init;
+    };
     ;
     /**
      * Called by the SDK to stop mouse listening.
      */
-    function _destroy() {
+    Mouse.prototype._destroy = function () {
         if (typeof document !== "undefined") {
-            document.removeEventListener("mousemove", _onMouseMove, false);
-            document.removeEventListener("dragover", _onDragOver, false);
-            document.removeEventListener("mousedown", _onMouseDown, false);
-            document.removeEventListener("mouseup", _onMouseUp, false);
-            document.removeEventListener("wheel", _onMouseWheel, false);
+            document.removeEventListener("mousemove", this.boundMouseMove, false);
+            document.removeEventListener("dragover", this.boundDragOver, false);
+            document.removeEventListener("mousedown", this.boundMouseDown, false);
+            document.removeEventListener("mouseup", this.boundMouseUp, false);
+            document.removeEventListener("wheel", this.boundMouseWheel, false);
         }
-    }
-    Mouse._destroy = _destroy;
+    };
     ;
     /**
      * Called by the SDK each frame to update the input state.
      */
-    function _update() {
+    Mouse.prototype._update = function () {
         //cycle buffers
-        var temp = mousePressed;
-        mousePressed = mousePressedBuffer;
-        mousePressedBuffer = temp;
-        var temp = mouseReleased;
-        mouseReleased = mouseReleasedBuffer;
-        mouseReleasedBuffer = temp;
-        wheelDelta = wheelDeltaBuffer;
-        wheelDeltaBuffer = 0;
+        var temp = this.mousePressed;
+        this.mousePressed = this.mousePressedBuffer;
+        this.mousePressedBuffer = temp;
+        var temp = this.mouseReleased;
+        this.mouseReleased = this.mouseReleasedBuffer;
+        this.mouseReleasedBuffer = temp;
+        this.wheelDelta = this.wheelDeltaBuffer;
+        this.wheelDeltaBuffer = 0;
         //clear new buffer
-        for (var i in mousePressedBuffer) {
-            mousePressedBuffer[i] = false;
+        for (var i in this.mousePressedBuffer) {
+            this.mousePressedBuffer[i] = false;
         }
-        for (var i in mouseReleasedBuffer) {
-            mouseReleasedBuffer[i] = false;
+        for (var i in this.mouseReleasedBuffer) {
+            this.mouseReleasedBuffer[i] = false;
         }
         //update button down states
-        for (var i in mousePressed) {
-            if (mousePressed[i] && !mouseReleased[i])
-                mouseDown[i] = true;
+        for (var i in this.mousePressed) {
+            if (this.mousePressed[i] && !this.mouseReleased[i])
+                this.mouseDown[i] = true;
         }
-        for (var i in mouseReleased) {
-            if (mouseReleased[i] && !mousePressed[i])
-                mouseDown[i] = false;
+        for (var i in this.mouseReleased) {
+            if (this.mouseReleased[i] && !this.mousePressed[i])
+                this.mouseDown[i] = false;
         }
-    }
-    Mouse._update = _update;
+    };
     ;
-    function _onMouseMove(e) {
+    Mouse.prototype._onMouseMove = function (e) {
         e = e || window.event;
-        Mouse.mousePos.x = e.pageX;
-        Mouse.mousePos.y = e.pageY;
-    }
+        this.mousePos.x = e.pageX;
+        this.mousePos.y = e.pageY;
+    };
     ;
-    function _onDragOver(e) {
+    Mouse.prototype._onDragOver = function (e) {
         e = e || window.event;
-        Mouse.mousePos.x = e.pageX,
-            Mouse.mousePos.y = e.pageY;
-    }
-    function _onMouseDown(e) {
+        this.mousePos.x = e.pageX,
+            this.mousePos.y = e.pageY;
+    };
+    Mouse.prototype._onMouseDown = function (e) {
         e = e || window.event;
-        mousePressedBuffer[e.which || e.keyCode] = true;
-    }
-    function _onMouseUp(e) {
+        this.mousePressedBuffer[e.which || e.keyCode] = true;
+    };
+    Mouse.prototype._onMouseUp = function (e) {
         e = e || window.event;
-        mouseReleasedBuffer[e.which || e.keyCode] = true;
-    }
-    function _onMouseWheel(e) {
+        this.mouseReleasedBuffer[e.which || e.keyCode] = true;
+    };
+    Mouse.prototype._onMouseWheel = function (e) {
         e = e || window.event;
-        wheelDeltaBuffer = e.wheelDelta;
-    }
+        this.wheelDeltaBuffer = e.wheelDelta;
+    };
     /**
      * Returns the mousewheel delta on this frame.
      * @returns {number}
      */
-    function getMouseWheelDelta() {
-        return wheelDelta;
-    }
-    Mouse.getMouseWheelDelta = getMouseWheelDelta;
+    Mouse.prototype.getMouseWheelDelta = function () {
+        return this.wheelDelta;
+    };
     /**
      * Returns the current position of the mouse relative to the specified HTML element.
      * @param {Element} relativeTo
      * @param {THREE.Vector2} buffer Object to fill (optional)
      * @returns {Object}
      */
-    function getPosition(relativeTo, buffer) {
+    Mouse.prototype.getPosition = function (relativeTo, buffer) {
         if (!buffer)
             buffer = threeutils_1.ThreeUtils.newVector2();
         if (!relativeTo) {
-            buffer.set(Mouse.mousePos.x, Mouse.mousePos.y);
+            buffer.set(this.mousePos.x, this.mousePos.y);
             return buffer;
         }
         //Find global position of element
@@ -142,50 +144,47 @@ var Mouse;
             elemY += relativeTo.offsetTop;
         }
         //Calculate relative position of mouse
-        buffer.set(Mouse.mousePos.x - elemX, Mouse.mousePos.y - elemY);
+        buffer.set(this.mousePos.x - elemX, this.mousePos.y - elemY);
         return buffer;
-    }
-    Mouse.getPosition = getPosition;
+    };
     ;
     /**
      * Returns true on the first frame the specified mouse button is pressed.
      * @param {number} button See constant definitions.
      * @returns {boolean}
      */
-    function buttonPressed(button) {
-        return !!mousePressed[button];
-    }
-    Mouse.buttonPressed = buttonPressed;
+    Mouse.prototype.buttonPressed = function (button) {
+        return !!this.mousePressed[button];
+    };
     ;
     /**
      * Returns true on the first frame the specified mouse button is released.
      * @param {number} button See constant definitions.
      * @returns {boolean}
      */
-    function buttonReleased(button) {
-        return !!mouseReleased[button];
-    }
-    Mouse.buttonReleased = buttonReleased;
+    Mouse.prototype.buttonReleased = function (button) {
+        return !!this.mouseReleased[button];
+    };
     ;
     /**
      * Returns true if the specified mouse button is down.
      * @param {number} button See constant definitions.
      * @returns {boolean}
      */
-    function buttonDown(button) {
-        return !!mouseDown[button];
-    }
-    Mouse.buttonDown = buttonDown;
+    Mouse.prototype.buttonDown = function (button) {
+        return !!this.mouseDown[button];
+    };
     ;
     /**
      * Returns true if the specified mouse button is not down.
      * @param {number} button See constant definitions.
      * @returns {boolean}
      */
-    function buttonUp(button) {
-        return !mouseDown[button];
-    }
-    Mouse.buttonUp = buttonUp;
+    Mouse.prototype.buttonUp = function (button) {
+        return !this.mouseDown[button];
+    };
     ;
-})(Mouse = exports.Mouse || (exports.Mouse = {}));
+    return Mouse;
+}());
+exports.Mouse = Mouse;
 ;
