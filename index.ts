@@ -1,6 +1,6 @@
 
 export { AudioManager } from "./audiomanager";
-export { b2Utils, PhysicsLinkedObject } from "./b2utils"
+export { Box2DManager, b2ContactListener, b2ContactFilter, PhysicsLinkedObject } from "./b2utils"
 export { CircularQueue } from "./circularqueue";
 export { DataViewStream } from "./dataviewstream";
 export { bmacSdk, Engine, EngineObject } from "./engine";

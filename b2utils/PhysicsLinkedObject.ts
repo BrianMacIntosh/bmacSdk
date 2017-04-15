@@ -2,7 +2,8 @@
 import THREE = require("three")
 import "../typings";
 
-import { b2Utils } from "./";
+import { Box2DManager } from "./";
+import { ThreeUtils } from "../";
 import { Box2D } from "../thirdparty/box2d";
 
 /**
@@ -12,18 +13,23 @@ export class PhysicsLinkedObject extends THREE.Object3D
 {
 	public body: Box2D.b2Body;
 
-	constructor(body: Box2D.b2Body)
+	constructor(protected manager: Box2DManager, body?: Box2D.b2Body)
 	{
 		super();
 
-		b2Utils.AllObjects.push(this);
+		this.manager.AllObjects.push(this);
 		
 		if (body)
 		{
-			this.body = body;
-			this.body.SetUserData(this);
-			this.syncTransformToBody(true);
+			this.linkBody(body);
 		}
+	}
+
+	protected linkBody(body : Box2D.b2Body)
+	{
+		this.body = body;
+		this.body.SetUserData(this);
+		this.syncTransformToBody(true);
 	}
 
 	/**
@@ -31,7 +37,7 @@ export class PhysicsLinkedObject extends THREE.Object3D
 	 */
 	public undestroy(): void
 	{
-		b2Utils.AllObjects.push(this);
+		this.manager.AllObjects.push(this);
 		if (this.body)
 		{
 			this.body.SetActive(true);
@@ -49,10 +55,10 @@ export class PhysicsLinkedObject extends THREE.Object3D
 			this.parent.remove(this);
 		}
 
-		var index = b2Utils.AllObjects.indexOf(this);
+		var index = this.manager.AllObjects.indexOf(this);
 		if (index >= 0)
 		{
-			b2Utils.AllObjects.splice(index, 1);
+			this.manager.AllObjects.splice(index, 1);
 		}
 
 		if (soft) this.body.SetActive(false);
@@ -88,10 +94,12 @@ export class PhysicsLinkedObject extends THREE.Object3D
 		if (this.body
 			&& (force || (this.body.IsAwake() && this.body.GetType() != Box2D.b2Body.b2_staticBody)))
 		{
+			var z = this.position.z;
 			var physicsPos = this.body.GetPosition();
-			this.position.set(
-				physicsPos.x * b2Utils.B2_SCALE, physicsPos.y * b2Utils.B2_SCALE, this.position.z);
-			this.rotation.z = this.body.GetAngle();
+			this.position.set(physicsPos.x, physicsPos.y, 0);
+			this.position.applyMatrix4(this.manager.Box2DToGame);
+			this.rotation.z = this.body.GetAngle(); //TODO: matrix
+			this.position.z = z;
 			//this.updateMatrix();
 		}
 	}
@@ -103,9 +111,12 @@ export class PhysicsLinkedObject extends THREE.Object3D
 	{
 		if (this.body)
 		{
-			b2Utils.tempVector2.x = this.position.x / b2Utils.B2_SCALE;
-			b2Utils.tempVector2.y = this.position.y / b2Utils.B2_SCALE;
-			this.body.SetPositionAndAngle(b2Utils.tempVector2, this.rotation.z);
+			ThreeUtils.tempVector3.copy(this.position);
+			ThreeUtils.tempVector3.z = 0;
+			ThreeUtils.tempVector3.applyMatrix4(this.manager.GameToBox2D);
+			this.manager.tempVector2.x = ThreeUtils.tempVector3.x;
+			this.manager.tempVector2.y = ThreeUtils.tempVector3.y;
+			this.body.SetPositionAndAngle(this.manager.tempVector2, this.rotation.z); //TODO: matrix rotation
 		}
 	}
 

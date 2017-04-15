@@ -1,19 +1,31 @@
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 exports.__esModule = true;
 var THREE = require("three");
 require("../typings");
-var b2utils_1 = require("../b2utils");
 /**
  * An object that manages drawing debug shapes for bodies in a Box2D world.
  * @namespace
  */
-var ThreeJsDebugDraw = (function () {
-    function ThreeJsDebugDraw() {
+var ThreeJsDebugDraw = (function (_super) {
+    __extends(ThreeJsDebugDraw, _super);
+    function ThreeJsDebugDraw(manager) {
+        var _this = _super.call(this) || this;
+        _this.manager = manager;
         // nested array, indexed by vert count
-        this.meshPools = {};
-        this.poolIndices = {};
-        this.drawFlags = 0;
-        this.transform = new THREE.Object3D();
+        _this.meshPools = {};
+        _this.poolIndices = {};
+        _this.drawFlags = 0;
+        return _this;
     }
     ThreeJsDebugDraw.prototype.getGeometry = function (color, vertCount) {
         if (!this.meshPools[vertCount]) {
@@ -32,7 +44,7 @@ var ThreeJsDebugDraw = (function () {
             var lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
             mesh = new THREE.Line(geometry, lineMaterial);
             pool[index] = mesh;
-            this.transform.add(mesh);
+            this.add(mesh);
         }
         else {
             mesh = pool[index];
@@ -60,6 +72,11 @@ var ThreeJsDebugDraw = (function () {
         }
     };
     ;
+    ThreeJsDebugDraw.prototype.Box2DToThree = function (point) {
+        point.applyMatrix4(this.manager.Box2DToGame);
+        point.z = 0;
+        return point;
+    };
     ThreeJsDebugDraw.prototype.SetFlags = function (flags) {
         if (flags === undefined)
             flags = 0;
@@ -84,12 +101,10 @@ var ThreeJsDebugDraw = (function () {
     ;
     ThreeJsDebugDraw.prototype.DrawSegment = function (vert1, vert2, color) {
         var geometry = this.getGeometry(color, 2);
-        var x1 = vert1.x * b2utils_1.b2Utils.B2_SCALE;
-        var y1 = vert1.y * b2utils_1.b2Utils.B2_SCALE;
-        var x2 = vert2.x * b2utils_1.b2Utils.B2_SCALE;
-        var y2 = vert2.y * b2utils_1.b2Utils.B2_SCALE;
-        geometry.vertices[0].set(x1, y1, 0);
-        geometry.vertices[1].set(x2, y2, 0);
+        geometry.vertices[0].set(vert1.x, vert1.y, 0);
+        this.Box2DToThree(geometry.vertices[0]);
+        geometry.vertices[1].set(vert2.x, vert2.y, 0);
+        this.Box2DToThree(geometry.vertices[1]);
         geometry.verticesNeedUpdate = true;
         geometry.computeBoundingSphere();
     };
@@ -97,14 +112,12 @@ var ThreeJsDebugDraw = (function () {
     ThreeJsDebugDraw.prototype.DrawPolygon = function (vertices, vertexCount, color) {
         var geometry = this.getGeometry(color, vertexCount + 1);
         for (var i = 0; i < vertexCount; i++) {
-            var x = vertices[i].x * b2utils_1.b2Utils.B2_SCALE;
-            var y = vertices[i].y * b2utils_1.b2Utils.B2_SCALE;
-            geometry.vertices[i].set(x, y, 0);
+            geometry.vertices[i].set(vertices[i].x, vertices[i].y, 0);
+            this.Box2DToThree(geometry.vertices[i]);
         }
         // close by drawing the first vert again
-        var x = vertices[0].x * b2utils_1.b2Utils.B2_SCALE;
-        var y = vertices[0].y * b2utils_1.b2Utils.B2_SCALE;
-        geometry.vertices[i].set(x, y, 0);
+        geometry.vertices[i].set(vertices[0].x, vertices[0].y, 0);
+        this.Box2DToThree(geometry.vertices[i]);
         geometry.verticesNeedUpdate = true;
         geometry.computeBoundingSphere();
     };
@@ -117,18 +130,18 @@ var ThreeJsDebugDraw = (function () {
     ThreeJsDebugDraw.prototype.DrawCircle = function (center, radius, color) {
         var circleRes = 16;
         var geometry = this.getGeometry(color, circleRes + 1);
-        var cx = center.x * b2utils_1.b2Utils.B2_SCALE;
-        var cy = center.y * b2utils_1.b2Utils.B2_SCALE;
         for (var i = 0; i < circleRes; i++) {
             var angle = i * Math.PI * 2 / circleRes;
-            var x = Math.cos(angle) * radius * b2utils_1.b2Utils.B2_SCALE + cx;
-            var y = Math.sin(angle) * radius * b2utils_1.b2Utils.B2_SCALE + cy;
+            var x = Math.cos(angle) * radius + center.x;
+            var y = Math.sin(angle) * radius + center.y;
             geometry.vertices[i].set(x, y, 0);
+            this.Box2DToThree(geometry.vertices[i]);
         }
         // close by drawing the first vert again
-        var x = Math.cos(0) * radius * b2utils_1.b2Utils.B2_SCALE + cx;
-        var y = Math.sin(0) * radius * b2utils_1.b2Utils.B2_SCALE + cy;
+        var x = Math.cos(0) * radius + center.x;
+        var y = Math.sin(0) * radius + center.y;
         geometry.vertices[i].set(x, y, 0);
+        this.Box2DToThree(geometry.vertices[i]);
         geometry.verticesNeedUpdate = true;
         geometry.computeBoundingSphere();
     };
@@ -142,6 +155,98 @@ var ThreeJsDebugDraw = (function () {
         //TODO:
     };
     ;
+    /**
+    * Get the alpha value used for lines.
+    * @return Alpha value used for drawing lines.
+    **/
+    ThreeJsDebugDraw.prototype.GetAlpha = function () {
+        //TODO:
+        return 1;
+    };
+    /**
+    * Get the draw scale.
+    * @return Draw scale ratio.
+    **/
+    ThreeJsDebugDraw.prototype.GetDrawScale = function () {
+        //TODO:
+        return 1;
+    };
+    /**
+    * Get the alpha value used for fills.
+    * @return Alpha value used for drawing fills.
+    **/
+    ThreeJsDebugDraw.prototype.GetFillAlpha = function () {
+        //TODO:
+        return 0;
+    };
+    /**
+    * Get the line thickness.
+    * @return Line thickness.
+    **/
+    ThreeJsDebugDraw.prototype.GetLineThickness = function () {
+        //TODO:
+        return 1;
+    };
+    /**
+    * Get the HTML Canvas Element for drawing.
+    * @note box2dflash uses Sprite object, box2dweb uses CanvasRenderingContext2D, that is why this function is called GetSprite().
+    * @return The HTML Canvas Element used for debug drawing.
+    **/
+    ThreeJsDebugDraw.prototype.GetSprite = function () {
+        //TODO:
+        return undefined;
+    };
+    /**
+    * Get the scale used for drawing XForms.
+    * @return Scale for drawing transforms.
+    **/
+    ThreeJsDebugDraw.prototype.GetXFormScale = function () {
+        //TODO:
+        return 1;
+    };
+    /**
+    * Set the alpha value used for lines.
+    * @param alpha Alpha value for drawing lines.
+    **/
+    ThreeJsDebugDraw.prototype.SetAlpha = function (alpha) {
+        //TODO:
+    };
+    /**
+    * Set the draw scale.
+    * @param drawScale Draw scale ratio.
+    **/
+    ThreeJsDebugDraw.prototype.SetDrawScale = function (drawScale) {
+        //TODO:
+    };
+    /**
+    * Set the alpha value used for fills.
+    * @param alpha Alpha value for drawing fills.
+    **/
+    ThreeJsDebugDraw.prototype.SetFillAlpha = function (alpha) {
+        //TODO:
+    };
+    /**
+    * Set the line thickness.
+    * @param lineThickness The new line thickness.
+    **/
+    ThreeJsDebugDraw.prototype.SetLineThickness = function (lineThickness) {
+        //TODO:
+    };
+    /**
+    * Set the HTML Canvas Element for drawing.
+    * @note box2dflash uses Sprite object, box2dweb uses CanvasRenderingContext2D, that is why this function is called SetSprite().
+    * @param canvas HTML Canvas Element to draw debug information to.
+    **/
+    ThreeJsDebugDraw.prototype.SetSprite = function (canvas) {
+        //TODO:
+    };
+    /**
+    * Set the scale used for drawing XForms.
+    * @param xformScale The transform scale.
+    **/
+    ThreeJsDebugDraw.prototype.SetXFormScale = function (xformScale) {
+        //TODO:
+    };
     return ThreeJsDebugDraw;
-}());
+}(THREE.Object3D));
 exports.ThreeJsDebugDraw = ThreeJsDebugDraw;

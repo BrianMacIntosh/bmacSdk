@@ -12,28 +12,32 @@ var __extends = (this && this.__extends) || (function () {
 exports.__esModule = true;
 var THREE = require("three");
 require("../typings");
-var _1 = require("./");
+var _1 = require("../");
 var box2d_1 = require("../thirdparty/box2d");
 /**
  * Base class for an object that has three.js visuals and a Box2D body.
  */
 var PhysicsLinkedObject = (function (_super) {
     __extends(PhysicsLinkedObject, _super);
-    function PhysicsLinkedObject(body) {
+    function PhysicsLinkedObject(manager, body) {
         var _this = _super.call(this) || this;
-        _1.b2Utils.AllObjects.push(_this);
+        _this.manager = manager;
+        _this.manager.AllObjects.push(_this);
         if (body) {
-            _this.body = body;
-            _this.body.SetUserData(_this);
-            _this.syncTransformToBody(true);
+            _this.linkBody(body);
         }
         return _this;
     }
+    PhysicsLinkedObject.prototype.linkBody = function (body) {
+        this.body = body;
+        this.body.SetUserData(this);
+        this.syncTransformToBody(true);
+    };
     /**
      * Undestroys a soft-destroyed object (for pooling).
      */
     PhysicsLinkedObject.prototype.undestroy = function () {
-        _1.b2Utils.AllObjects.push(this);
+        this.manager.AllObjects.push(this);
         if (this.body) {
             this.body.SetActive(true);
         }
@@ -46,9 +50,9 @@ var PhysicsLinkedObject = (function (_super) {
         if (this.parent) {
             this.parent.remove(this);
         }
-        var index = _1.b2Utils.AllObjects.indexOf(this);
+        var index = this.manager.AllObjects.indexOf(this);
         if (index >= 0) {
-            _1.b2Utils.AllObjects.splice(index, 1);
+            this.manager.AllObjects.splice(index, 1);
         }
         if (soft)
             this.body.SetActive(false);
@@ -77,9 +81,12 @@ var PhysicsLinkedObject = (function (_super) {
     PhysicsLinkedObject.prototype.syncTransformToBody = function (force) {
         if (this.body
             && (force || (this.body.IsAwake() && this.body.GetType() != box2d_1.Box2D.b2Body.b2_staticBody))) {
+            var z = this.position.z;
             var physicsPos = this.body.GetPosition();
-            this.position.set(physicsPos.x * _1.b2Utils.B2_SCALE, physicsPos.y * _1.b2Utils.B2_SCALE, this.position.z);
-            this.rotation.z = this.body.GetAngle();
+            this.position.set(physicsPos.x, physicsPos.y, 0);
+            this.position.applyMatrix4(this.manager.Box2DToGame);
+            this.rotation.z = this.body.GetAngle(); //TODO: matrix
+            this.position.z = z;
             //this.updateMatrix();
         }
     };
@@ -88,9 +95,12 @@ var PhysicsLinkedObject = (function (_super) {
      */
     PhysicsLinkedObject.prototype.syncBodyToTransform = function () {
         if (this.body) {
-            _1.b2Utils.tempVector2.x = this.position.x / _1.b2Utils.B2_SCALE;
-            _1.b2Utils.tempVector2.y = this.position.y / _1.b2Utils.B2_SCALE;
-            this.body.SetPositionAndAngle(_1.b2Utils.tempVector2, this.rotation.z);
+            _1.ThreeUtils.tempVector3.copy(this.position);
+            _1.ThreeUtils.tempVector3.z = 0;
+            _1.ThreeUtils.tempVector3.applyMatrix4(this.manager.GameToBox2D);
+            this.manager.tempVector2.x = _1.ThreeUtils.tempVector3.x;
+            this.manager.tempVector2.y = _1.ThreeUtils.tempVector3.y;
+            this.body.SetPositionAndAngle(this.manager.tempVector2, this.rotation.z); //TODO: matrix rotation
         }
     };
     /**

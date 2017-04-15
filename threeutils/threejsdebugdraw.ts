@@ -2,14 +2,14 @@
 import THREE = require("three")
 import "../typings";
 
-import { b2Utils } from "../b2utils";
+import { Box2DManager } from "../b2utils";
 import { Box2D } from "../thirdparty/box2d";
 
 /**
  * An object that manages drawing debug shapes for bodies in a Box2D world.
  * @namespace
  */
-export class ThreeJsDebugDraw
+export class ThreeJsDebugDraw extends THREE.Object3D
 {
 	// nested array, indexed by vert count
 	private meshPools: { [s: string]: (THREE.Mesh|THREE.Line)[] } = {};
@@ -17,7 +17,10 @@ export class ThreeJsDebugDraw
 
 	private drawFlags: number = 0;
 
-	public transform: THREE.Object3D = new THREE.Object3D();
+	constructor(private manager: Box2DManager)
+	{
+		super();
+	}
 
 	private getGeometry(color: Box2D.b2Color, vertCount: number): THREE.Geometry
 	{
@@ -45,7 +48,7 @@ export class ThreeJsDebugDraw
 			mesh = new THREE.Line(geometry, lineMaterial);
 
 			pool[index] = mesh;
-			this.transform.add(mesh);
+			this.add(mesh);
 		}
 		else
 		{
@@ -83,6 +86,13 @@ export class ThreeJsDebugDraw
 		}
 	};
 
+	private Box2DToThree(point : THREE.Vector3) : THREE.Vector3
+	{
+		point.applyMatrix4(this.manager.Box2DToGame);
+		point.z = 0;
+		return point;
+	}
+
 	public SetFlags(flags: number): void
 	{
 		if (flags === undefined) flags = 0;
@@ -110,13 +120,10 @@ export class ThreeJsDebugDraw
 	{
 		var geometry = this.getGeometry(color, 2);
 
-		var x1 = vert1.x * b2Utils.B2_SCALE;
-		var y1 = vert1.y * b2Utils.B2_SCALE;
-		var x2 = vert2.x * b2Utils.B2_SCALE;
-		var y2 = vert2.y * b2Utils.B2_SCALE;
-
-		geometry.vertices[0].set(x1, y1, 0);
-		geometry.vertices[1].set(x2, y2, 0);
+		geometry.vertices[0].set(vert1.x, vert1.y, 0);
+		this.Box2DToThree(geometry.vertices[0]);
+		geometry.vertices[1].set(vert2.x, vert2.y, 0);
+		this.Box2DToThree(geometry.vertices[1]);
 
 		geometry.verticesNeedUpdate = true;
 		geometry.computeBoundingSphere();
@@ -128,15 +135,13 @@ export class ThreeJsDebugDraw
 
 		for (var i = 0; i < vertexCount; i++)
 		{
-			var x = vertices[i].x * b2Utils.B2_SCALE;
-			var y = vertices[i].y * b2Utils.B2_SCALE;
-			geometry.vertices[i].set(x, y, 0);
+			geometry.vertices[i].set(vertices[i].x, vertices[i].y, 0);
+			this.Box2DToThree(geometry.vertices[i]);
 		}
 
 		// close by drawing the first vert again
-		var x = vertices[0].x * b2Utils.B2_SCALE;
-		var y = vertices[0].y * b2Utils.B2_SCALE;
-		geometry.vertices[i].set(x, y, 0);
+		geometry.vertices[i].set(vertices[0].x, vertices[0].y, 0);
+		this.Box2DToThree(geometry.vertices[i]);
 
 		geometry.verticesNeedUpdate = true;
 		geometry.computeBoundingSphere();
@@ -153,21 +158,20 @@ export class ThreeJsDebugDraw
 		var circleRes = 16;
 		var geometry = this.getGeometry(color, circleRes + 1);
 
-		var cx = center.x * b2Utils.B2_SCALE;
-		var cy = center.y * b2Utils.B2_SCALE;
-
 		for (var i = 0; i < circleRes; i++)
 		{
 			var angle = i * Math.PI * 2 / circleRes;
-			var x = Math.cos(angle) * radius * b2Utils.B2_SCALE + cx;
-			var y = Math.sin(angle) * radius * b2Utils.B2_SCALE + cy;
+			var x = Math.cos(angle) * radius + center.x;
+			var y = Math.sin(angle) * radius + center.y;
 			geometry.vertices[i].set(x, y, 0);
+			this.Box2DToThree(geometry.vertices[i]);
 		}
 
 		// close by drawing the first vert again
-		var x = Math.cos(0) * radius * b2Utils.B2_SCALE + cx;
-		var y = Math.sin(0) * radius * b2Utils.B2_SCALE + cy;
+		var x = Math.cos(0) * radius + center.x;
+		var y = Math.sin(0) * radius + center.y;
 		geometry.vertices[i].set(x, y, 0);
+		this.Box2DToThree(geometry.vertices[i]);
 
 		geometry.verticesNeedUpdate = true;
 		geometry.computeBoundingSphere();
@@ -183,4 +187,120 @@ export class ThreeJsDebugDraw
 	{
 		//TODO:
 	};
+
+	/**
+	* Get the alpha value used for lines.
+	* @return Alpha value used for drawing lines.
+	**/
+	public GetAlpha(): number
+	{
+		//TODO:
+		return 1;
+	}
+
+	/**
+	* Get the draw scale.
+	* @return Draw scale ratio.
+	**/
+	public GetDrawScale(): number
+	{
+		//TODO:
+		return 1;
+	}
+
+	/**
+	* Get the alpha value used for fills.
+	* @return Alpha value used for drawing fills.
+	**/
+	public GetFillAlpha(): number
+	{
+		//TODO:
+		return 0;
+	}
+
+	/**
+	* Get the line thickness.
+	* @return Line thickness.
+	**/
+	public GetLineThickness(): number
+	{
+		//TODO:
+		return 1;
+	}
+
+	/**
+	* Get the HTML Canvas Element for drawing.
+	* @note box2dflash uses Sprite object, box2dweb uses CanvasRenderingContext2D, that is why this function is called GetSprite().
+	* @return The HTML Canvas Element used for debug drawing.
+	**/
+	public GetSprite(): CanvasRenderingContext2D
+	{
+		//TODO:
+		return undefined;
+	}
+
+	/**
+	* Get the scale used for drawing XForms.
+	* @return Scale for drawing transforms.
+	**/
+	public GetXFormScale(): number
+	{
+		//TODO:
+		return 1;
+	}
+
+	/**
+	* Set the alpha value used for lines.
+	* @param alpha Alpha value for drawing lines.
+	**/
+	public SetAlpha(alpha: number): void
+	{
+		//TODO:
+	}
+
+	/**
+	* Set the draw scale.
+	* @param drawScale Draw scale ratio.
+	**/
+	public SetDrawScale(drawScale: number): void
+	{
+		//TODO:
+	}
+
+	/**
+	* Set the alpha value used for fills.
+	* @param alpha Alpha value for drawing fills.
+	**/
+	public SetFillAlpha(alpha: number): void
+	{
+		//TODO:
+	}
+
+	/**
+	* Set the line thickness.
+	* @param lineThickness The new line thickness.
+	**/
+	public SetLineThickness(lineThickness: number): void
+	{
+		//TODO:
+	}
+
+	/**
+	* Set the HTML Canvas Element for drawing.
+	* @note box2dflash uses Sprite object, box2dweb uses CanvasRenderingContext2D, that is why this function is called SetSprite().
+	* @param canvas HTML Canvas Element to draw debug information to.
+	**/
+	public SetSprite(canvas: CanvasRenderingContext2D): void
+	{
+		//TODO:
+	}
+
+	/**
+	* Set the scale used for drawing XForms.
+	* @param xformScale The transform scale.
+	**/
+	public SetXFormScale(xformScale: number): void
+	{
+		//TODO:
+	}
 }

@@ -16,32 +16,95 @@ exports.__esModule = true;
 var box2d_1 = require("../thirdparty/box2d");
 var PhysicsLinkedObject_1 = require("./PhysicsLinkedObject");
 exports.PhysicsLinkedObject = PhysicsLinkedObject_1.PhysicsLinkedObject;
-var b2Utils;
-(function (b2Utils) {
-    b2Utils.B2_SCALE = 50;
-    /**
-     * List of all PhysicsLinkedObject that exist.
-     * @type {PhysicsLinkedObject[]}
-     */
-    b2Utils.AllObjects = [];
-    /**
-     * Temporary vector used for math, to prevent garbage allocation. Use only VERY locally.
-     * @type {Box2D.b2Vec2}
-     */
-    b2Utils.tempVector2 = new box2d_1.Box2D.b2Vec2();
-    b2Utils.filter_all = new box2d_1.Box2D.b2FilterData();
-    b2Utils.filter_all.maskBits = 0xFFFF;
-    b2Utils.filter_all.categoryBits = 0xFFFF;
-    b2Utils.filter_none = new box2d_1.Box2D.b2FilterData();
-    b2Utils.filter_none.maskBits = 0;
-    b2Utils.filter_none.categoryBits = 0;
-    b2Utils.staticBodyDef = new box2d_1.Box2D.b2BodyDef();
-    b2Utils.dynamicBodyDef = new box2d_1.Box2D.b2BodyDef();
-    b2Utils.dynamicBodyDef.type = box2d_1.Box2D.b2Body.b2_dynamicBody;
-    b2Utils.kinematicBodyDef = new box2d_1.Box2D.b2BodyDef();
-    b2Utils.kinematicBodyDef.type = box2d_1.Box2D.b2Body.b2_kinematicBody;
-    var contactFilter;
-    var contactListener;
+var b2ContactListener = (function (_super) {
+    __extends(b2ContactListener, _super);
+    function b2ContactListener() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    b2ContactListener.prototype.BeginContact = function (contact) {
+        var fixtureA = contact.GetFixtureA();
+        var fixtureB = contact.GetFixtureB();
+        var objectA = fixtureA.GetBody().GetUserData();
+        var objectB = fixtureB.GetBody().GetUserData();
+        if (objectA)
+            objectA.onBeginContact(contact, fixtureB);
+        if (objectB)
+            objectB.onBeginContact(contact, fixtureA);
+    };
+    b2ContactListener.prototype.EndContact = function (contact) {
+        var fixtureA = contact.GetFixtureA();
+        var fixtureB = contact.GetFixtureB();
+        var objectA = fixtureA.GetBody().GetUserData();
+        var objectB = fixtureB.GetBody().GetUserData();
+        if (objectA)
+            objectA.onEndContact(contact, fixtureB);
+        if (objectB)
+            objectB.onEndContact(contact, fixtureA);
+    };
+    b2ContactListener.prototype.PreSolve = function (contact, oldManifold) {
+        var fixtureA = contact.GetFixtureA();
+        var fixtureB = contact.GetFixtureB();
+        var objectA = fixtureA.GetBody().GetUserData();
+        var objectB = fixtureB.GetBody().GetUserData();
+        if (objectA)
+            objectA.onPreSolve(contact, oldManifold, fixtureB);
+        if (objectB)
+            objectB.onPreSolve(contact, oldManifold, fixtureA);
+    };
+    b2ContactListener.prototype.PostSolve = function (contact, impulse) {
+        var fixtureA = contact.GetFixtureA();
+        var fixtureB = contact.GetFixtureB();
+        var objectA = fixtureA.GetBody().GetUserData();
+        var objectB = fixtureB.GetBody().GetUserData();
+        if (objectA)
+            objectA.onPostSolve(contact, impulse, fixtureB);
+        if (objectB)
+            objectB.onPostSolve(contact, impulse, fixtureA);
+    };
+    return b2ContactListener;
+}(box2d_1.Box2D.b2ContactListener));
+exports.b2ContactListener = b2ContactListener;
+var b2ContactFilter = (function (_super) {
+    __extends(b2ContactFilter, _super);
+    function b2ContactFilter(shouldCollide) {
+        var _this = _super.call(this) || this;
+        _this.shouldCollide = shouldCollide;
+        return _this;
+    }
+    b2ContactFilter.prototype.ShouldCollide = function (fixtureA, fixtureB) {
+        return this.shouldCollide(fixtureA, fixtureB);
+    };
+    return b2ContactFilter;
+}(box2d_1.Box2D.b2ContactFilter));
+exports.b2ContactFilter = b2ContactFilter;
+var Box2DManager = (function () {
+    function Box2DManager() {
+        //TODO: replace with matrices below
+        this.B2_SCALE = 50;
+        this.Box2DToGame = new THREE.Matrix4();
+        this.GameToBox2D = new THREE.Matrix4();
+        /**
+         * List of all PhysicsLinkedObject that exist.
+         * @type {PhysicsLinkedObject[]}
+         */
+        this.AllObjects = [];
+        /**
+         * Temporary vector used for math, to prevent garbage allocation. Use only VERY locally.
+         * @type {Box2D.b2Vec2}
+         */
+        this.tempVector2 = new box2d_1.Box2D.b2Vec2();
+        this.filter_all = new box2d_1.Box2D.b2FilterData();
+        this.filter_none = new box2d_1.Box2D.b2FilterData();
+        this.staticBodyDef = new box2d_1.Box2D.b2BodyDef();
+        this.dynamicBodyDef = new box2d_1.Box2D.b2BodyDef();
+        this.kinematicBodyDef = new box2d_1.Box2D.b2BodyDef();
+        this.filter_all.maskBits = 0xFFFF;
+        this.filter_all.categoryBits = 0xFFFF;
+        this.filter_none.maskBits = 0;
+        this.filter_none.categoryBits = 0;
+        this.dynamicBodyDef.type = box2d_1.Box2D.b2Body.b2_dynamicBody;
+        this.kinematicBodyDef.type = box2d_1.Box2D.b2Body.b2_kinematicBody;
+    }
     /**
      * Creates an edge shape.
      * @param {number} x1 First x coordinate in world units.
@@ -50,35 +113,32 @@ var b2Utils;
      * @param {number} y2 Second y coordinate in world units.
      * @returns {Box2D.b2Shape}
      */
-    function createEdgeShape(x1, y1, x2, y2) {
+    Box2DManager.prototype.createEdgeShape = function (x1, y1, x2, y2) {
         var shape = new box2d_1.Box2D.b2PolygonShape();
-        shape.SetAsEdge(new box2d_1.Box2D.b2Vec2(x1 / b2Utils.B2_SCALE, y1 / b2Utils.B2_SCALE), new box2d_1.Box2D.b2Vec2(x2 / b2Utils.B2_SCALE, y2 / b2Utils.B2_SCALE));
+        shape.SetAsEdge(new box2d_1.Box2D.b2Vec2(x1 / this.B2_SCALE, y1 / this.B2_SCALE), new box2d_1.Box2D.b2Vec2(x2 / this.B2_SCALE, y2 / this.B2_SCALE));
         return shape;
-    }
-    b2Utils.createEdgeShape = createEdgeShape;
+    };
     /**
      * Creates a rectangle shape.
      * @param {number} w The width of the rectangle in world units.
      * @param {number} h The height of the rectangle in world units.
      * @returns {Box2D.b2Shape}
      */
-    function createRectShape(w, h) {
+    Box2DManager.prototype.createRectShape = function (w, h) {
         var shape = new box2d_1.Box2D.b2PolygonShape();
-        shape.SetAsBox(0.5 * w / b2Utils.B2_SCALE, 0.5 * h / b2Utils.B2_SCALE);
+        shape.SetAsBox(0.5 * w / this.B2_SCALE, 0.5 * h / this.B2_SCALE);
         return shape;
-    }
-    b2Utils.createRectShape = createRectShape;
+    };
     /**
      * Creates a circle shape.
      * @param {number} radius The radius of the circle in world units.
      * @returns {Box2D.b2Shape}
      */
-    function createCircleShape(radius) {
+    Box2DManager.prototype.createCircleShape = function (radius) {
         var shape = new box2d_1.Box2D.b2CircleShape();
-        shape.SetRadius(radius / b2Utils.B2_SCALE);
+        shape.SetRadius(radius / this.B2_SCALE);
         return shape;
-    }
-    b2Utils.createCircleShape = createCircleShape;
+    };
     /**
      * Creates a definition that can be used to add fixtures to bodies.
      * @param {Box2D.b2Shape} shape
@@ -87,15 +147,14 @@ var b2Utils;
      * @param {number} restitution
      * @returns {Box2D.b2FixtureDef}
      */
-    function createFixtureDef(shape, density, friction, restitution) {
+    Box2DManager.prototype.createFixtureDef = function (shape, density, friction, restitution) {
         var def = new box2d_1.Box2D.b2FixtureDef();
         def.shape = shape;
         def.density = density;
         def.friction = friction;
         def.restitution = restitution;
         return def;
-    }
-    b2Utils.createFixtureDef = createFixtureDef;
+    };
     /**
      * Creates a static body.
      * @param {Box2D.b2World} world
@@ -105,12 +164,11 @@ var b2Utils;
      * @param {Box2D.b2BodyDef} bodyDef (Optional) definition to use for the body
      * @returns {Box2D.b2Body}
      */
-    function createStaticBody(world, x, y, fixtureDef, bodyDef) {
+    Box2DManager.prototype.createStaticBody = function (world, x, y, fixtureDef, bodyDef) {
         if (!bodyDef)
-            bodyDef = b2Utils.staticBodyDef;
-        return createBody(world, x, y, fixtureDef, bodyDef);
-    }
-    b2Utils.createStaticBody = createStaticBody;
+            bodyDef = this.staticBodyDef;
+        return this.createBody(world, x, y, fixtureDef, bodyDef);
+    };
     /**
      * Creates a dynamic body.
      * @param {Box2D.b2World} world
@@ -120,12 +178,11 @@ var b2Utils;
      * @param {Box2D.b2BodyDef} bodyDef (Optional) definition to use for the body
      * @returns {Box2D.b2Body}
      */
-    function createDynamicBody(world, x, y, fixtureDef, bodyDef) {
+    Box2DManager.prototype.createDynamicBody = function (world, x, y, fixtureDef, bodyDef) {
         if (!bodyDef)
-            bodyDef = b2Utils.dynamicBodyDef;
-        return createBody(world, x, y, fixtureDef, bodyDef);
-    }
-    b2Utils.createDynamicBody = createDynamicBody;
+            bodyDef = this.dynamicBodyDef;
+        return this.createBody(world, x, y, fixtureDef, bodyDef);
+    };
     /**
      * Creates a kinematic body.
      * @param {Box2D.b2World} world
@@ -135,101 +192,38 @@ var b2Utils;
      * @param {Box2D.b2BodyDef} bodyDef (Optional) definition to use for the body
      * @returns {Box2D.b2Body}
      */
-    function createKinematicBody(world, x, y, fixtureDef, bodyDef) {
+    Box2DManager.prototype.createKinematicBody = function (world, x, y, fixtureDef, bodyDef) {
         if (!bodyDef)
-            bodyDef = b2Utils.kinematicBodyDef;
-        return createBody(world, x, y, fixtureDef, bodyDef);
-    }
-    b2Utils.createKinematicBody = createKinematicBody;
-    function createBody(world, x, y, fixtureDef, bodyDef) {
-        b2Utils.tempVector2.x = x / b2Utils.B2_SCALE;
-        b2Utils.tempVector2.y = y / b2Utils.B2_SCALE;
-        bodyDef.position = b2Utils.tempVector2;
+            bodyDef = this.kinematicBodyDef;
+        return this.createBody(world, x, y, fixtureDef, bodyDef);
+    };
+    Box2DManager.prototype.createBody = function (world, x, y, fixtureDef, bodyDef) {
+        this.tempVector2.x = x / this.B2_SCALE;
+        this.tempVector2.y = y / this.B2_SCALE;
+        bodyDef.position = this.tempVector2;
         var body = world.CreateBody(bodyDef);
         if (fixtureDef) {
             body.CreateFixture(fixtureDef);
         }
         return body;
-    }
-    var ContactListener = (function (_super) {
-        __extends(ContactListener, _super);
-        function ContactListener() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        ContactListener.prototype.BeginContact = function (contact) {
-            var fixtureA = contact.GetFixtureA();
-            var fixtureB = contact.GetFixtureB();
-            var objectA = fixtureA.GetBody().GetUserData();
-            var objectB = fixtureB.GetBody().GetUserData();
-            if (objectA)
-                objectA.onBeginContact(contact, fixtureB);
-            if (objectB)
-                objectB.onBeginContact(contact, fixtureA);
-        };
-        ContactListener.prototype.EndContact = function (contact) {
-            var fixtureA = contact.GetFixtureA();
-            var fixtureB = contact.GetFixtureB();
-            var objectA = fixtureA.GetBody().GetUserData();
-            var objectB = fixtureB.GetBody().GetUserData();
-            if (objectA)
-                objectA.onEndContact(contact, fixtureB);
-            if (objectB)
-                objectB.onEndContact(contact, fixtureA);
-        };
-        ContactListener.prototype.PreSolve = function (contact, oldManifold) {
-            var fixtureA = contact.GetFixtureA();
-            var fixtureB = contact.GetFixtureB();
-            var objectA = fixtureA.GetBody().GetUserData();
-            var objectB = fixtureB.GetBody().GetUserData();
-            if (objectA)
-                objectA.onPreSolve(contact, oldManifold, fixtureB);
-            if (objectB)
-                objectB.onPreSolve(contact, oldManifold, fixtureA);
-        };
-        ContactListener.prototype.PostSolve = function (contact, impulse) {
-            var fixtureA = contact.GetFixtureA();
-            var fixtureB = contact.GetFixtureB();
-            var objectA = fixtureA.GetBody().GetUserData();
-            var objectB = fixtureB.GetBody().GetUserData();
-            if (objectA)
-                objectA.onPostSolve(contact, impulse, fixtureB);
-            if (objectB)
-                objectB.onPostSolve(contact, impulse, fixtureA);
-        };
-        return ContactListener;
-    }(box2d_1.Box2D.b2ContactListener));
-    b2Utils.ContactListener = ContactListener;
+    };
     /**
      * Returns the contact filter for the game.
      * @returns {Box2D.b2ContactFilter}
      */
-    function getContactFilter(shouldCollide) {
-        if (!contactFilter) {
-            contactFilter = new ContactFilter(shouldCollide);
+    Box2DManager.prototype.getContactFilter = function (shouldCollide) {
+        if (!this.contactFilter) {
+            this.contactFilter = new b2ContactFilter(shouldCollide);
         }
-        return contactFilter;
-    }
-    b2Utils.getContactFilter = getContactFilter;
-    var ContactFilter = (function (_super) {
-        __extends(ContactFilter, _super);
-        function ContactFilter(shouldCollide) {
-            var _this = _super.call(this) || this;
-            _this.shouldCollide = shouldCollide;
-            return _this;
-        }
-        ContactFilter.prototype.ShouldCollide = function (fixtureA, fixtureB) {
-            return this.shouldCollide(fixtureA, fixtureB);
-        };
-        return ContactFilter;
-    }(box2d_1.Box2D.b2ContactFilter));
-    b2Utils.ContactFilter = ContactFilter;
+        return this.contactFilter;
+    };
     /**
      * If the specified object is involved in the contact, returns the other fixture involved.
      * @param {Box2D.b2Contact} contact
      * @param {PhysicsLinkedObject} linkedObject
      * @returns {Box2D.b2Fixture}
      */
-    function getOtherObject(contact, linkedObject) {
+    Box2DManager.getOtherObject = function (contact, linkedObject) {
         if (contact.GetFixtureA().GetBody() == linkedObject.body) {
             return contact.GetFixtureB();
         }
@@ -239,6 +233,7 @@ var b2Utils;
         else {
             return undefined;
         }
-    }
-    b2Utils.getOtherObject = getOtherObject;
-})(b2Utils = exports.b2Utils || (exports.b2Utils = {}));
+    };
+    return Box2DManager;
+}());
+exports.Box2DManager = Box2DManager;
