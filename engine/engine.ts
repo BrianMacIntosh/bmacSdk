@@ -5,7 +5,7 @@ import "../polyfills";
 
 import { bmacSdk } from "./";
 import { Mouse } from "../input";
-import { ThreeUtils, Shaker } from "../threeutils";
+import { ThreeManager, Shaker } from "../threeutils";
 import { DomUtils } from "../domutils";
 import { THREEX } from "../thirdparty/threex.rendererstats";
 
@@ -251,7 +251,7 @@ export class Engine
 
 		// calculate mouse pos
 		this.mousePosRel = this.bmacSdk.input.mouse.getPosition(master.canvasDiv, this.mousePosRel);
-		if (!this.mousePosWorld) this.mousePosWorld = ThreeUtils.newVector3();
+		if (!this.mousePosWorld) this.mousePosWorld = new THREE.Vector3();
 		this.mousePosWorld.set(
 			this.mousePosRel.x/(this.screenWidth/2) - 1,
 			1 - this.mousePosRel.y/(this.screenHeight/2),

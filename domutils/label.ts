@@ -1,6 +1,6 @@
 
 import { DomUtils } from "./";
-import { ThreeUtils } from "../threeutils";
+import { ThreeManager } from "../threeutils";
 
 export class Label
 {

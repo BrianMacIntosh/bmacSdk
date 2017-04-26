@@ -3,7 +3,6 @@ import THREE = require("three")
 import "../typings";
 
 import { Box2DManager } from "./";
-import { ThreeUtils } from "../";
 import { Box2D } from "../thirdparty/box2d";
 
 /**
@@ -13,11 +12,15 @@ export class PhysicsLinkedObject extends THREE.Object3D
 {
 	public body: Box2D.b2Body;
 
-	constructor(protected manager: Box2DManager, body?: Box2D.b2Body)
+	private static tempVector3: THREE.Vector3 = new THREE.Vector3();
+
+	constructor(
+		protected physicsManager: Box2DManager,
+		body?: Box2D.b2Body)
 	{
 		super();
 
-		this.manager.AllObjects.push(this);
+		this.physicsManager.AllObjects.push(this);
 		
 		if (body)
 		{
@@ -37,7 +40,7 @@ export class PhysicsLinkedObject extends THREE.Object3D
 	 */
 	public undestroy(): void
 	{
-		this.manager.AllObjects.push(this);
+		this.physicsManager.AllObjects.push(this);
 		if (this.body)
 		{
 			this.body.SetActive(true);
@@ -55,10 +58,10 @@ export class PhysicsLinkedObject extends THREE.Object3D
 			this.parent.remove(this);
 		}
 
-		var index = this.manager.AllObjects.indexOf(this);
+		var index = this.physicsManager.AllObjects.indexOf(this);
 		if (index >= 0)
 		{
-			this.manager.AllObjects.splice(index, 1);
+			this.physicsManager.AllObjects.splice(index, 1);
 		}
 
 		if (soft) this.body.SetActive(false);
@@ -91,13 +94,13 @@ export class PhysicsLinkedObject extends THREE.Object3D
 	 */
 	public syncTransformToBody(force): void
 	{
-		if (this.body
-			&& (force || (this.body.IsAwake() && this.body.GetType() != Box2D.b2Body.b2_staticBody)))
+		//TODO: check that body has actually moved?
+		if (this.body && (force || this.body.IsAwake()))
 		{
 			var z = this.position.z;
 			var physicsPos = this.body.GetPosition();
 			this.position.set(physicsPos.x, physicsPos.y, 0);
-			this.position.applyMatrix4(this.manager.Box2DToGame);
+			this.position.applyMatrix4(this.physicsManager.Box2DToGame);
 			this.rotation.z = this.body.GetAngle(); //TODO: matrix
 			this.position.z = z;
 			//this.updateMatrix();
@@ -111,12 +114,12 @@ export class PhysicsLinkedObject extends THREE.Object3D
 	{
 		if (this.body)
 		{
-			ThreeUtils.tempVector3.copy(this.position);
-			ThreeUtils.tempVector3.z = 0;
-			ThreeUtils.tempVector3.applyMatrix4(this.manager.GameToBox2D);
-			this.manager.tempVector2.x = ThreeUtils.tempVector3.x;
-			this.manager.tempVector2.y = ThreeUtils.tempVector3.y;
-			this.body.SetPositionAndAngle(this.manager.tempVector2, this.rotation.z); //TODO: matrix rotation
+			PhysicsLinkedObject.tempVector3.copy(this.position);
+			PhysicsLinkedObject.tempVector3.z = 0;
+			PhysicsLinkedObject.tempVector3.applyMatrix4(this.physicsManager.GameToBox2D);
+			this.physicsManager.tempVector2.x = PhysicsLinkedObject.tempVector3.x;
+			this.physicsManager.tempVector2.y = PhysicsLinkedObject.tempVector3.y;
+			this.body.SetPositionAndAngle(this.physicsManager.tempVector2, this.rotation.z); //TODO: matrix rotation
 		}
 	}
 
@@ -130,17 +133,14 @@ export class PhysicsLinkedObject extends THREE.Object3D
 	}
 
 	/**
-	 * Applies the specified impulse to the center of the body, but does not allow it to
-	 * increase the velocity above 'maxSpeed'. If the velocity is already above that, it can stay there.
+	 * Applies the specified impulse to the center of the body.
 	 * @param {Box2D.b2Vec2} impulse
-	 * @param {Number} maxSpeed
 	 */
-	public applyLinearImpulseWithVelocityCap(impulse: Box2D.b2Vec2, maxSpeed: number): void
+	public applyLinearImpulse(impulse: Box2D.b2Vec2): void
 	{
 		if (impulse.x == 0 && impulse.y == 0) return;
 		
 		var velocity = this.body.GetLinearVelocity();
-		var velocityLength = velocity.Length();
 		if (this.body.GetType() == Box2D.b2Body.b2_kinematicBody)
 		{
 			velocity.x += impulse.x;
@@ -151,6 +151,19 @@ export class PhysicsLinkedObject extends THREE.Object3D
 		{
 			this.body.ApplyImpulse(impulse, this.body.GetPosition());
 		}
+	}
+
+	/**
+	 * Applies the specified impulse to the center of the body, but does not allow it to
+	 * increase the velocity above 'maxSpeed'. If the velocity is already above that, it can stay there.
+	 * @param {Box2D.b2Vec2} impulse
+	 * @param {Number} maxSpeed
+	 */
+	public applyLinearImpulseWithVelocityCap(impulse: Box2D.b2Vec2, maxSpeed: number): void
+	{
+		var velocity = this.body.GetLinearVelocity();
+		var velocityLength = velocity.Length();
+		this.applyLinearImpulse(impulse);
 		this.limitSpeed(Math.max(maxSpeed, velocityLength));
 	}
 

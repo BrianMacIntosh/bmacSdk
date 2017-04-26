@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var Key;
 (function (Key) {
     Key[Key["Left"] = 37] = "Left";

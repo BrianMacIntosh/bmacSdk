@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var keyboard_1 = require("./keyboard");
 var mouse_1 = require("./mouse");
 var gamepads_1 = require("./gamepads");

@@ -1,8 +1,9 @@
 
-import { ThreeUtils } from "./";
+import { ThreeManager } from "./";
 
 export class Atlas
 {
+	public isAtlas: boolean = true;
 	public url: string;
 	public width: number;
 	public height: number;
@@ -20,7 +21,7 @@ export class Atlas
 	 * @param {Object} sprites The atlas key data.
 	 * @param {boolean} suppressTextureLoad If set, does not automatically load the texture.
 	 */
-	constructor(data, suppressTextureLoad?: boolean)
+	constructor(private threeMananger : ThreeManager, data, suppressTextureLoad?: boolean)
 	{
 		this.url = data.url;
 		this.width = data.width;
@@ -28,9 +29,9 @@ export class Atlas
 		this.sprites = data.sprites;
 		if (!suppressTextureLoad)
 		{
-			this.texture = ThreeUtils.loadTexture(this.url);
+			this.texture = this.threeMananger.loadTexture(this.url);
 			//this.texture.minFilter = this.texture.magFilter = data.filter;
-			ThreeUtils.setTextureNpot(this.texture);
+			this.threeMananger.setTextureNpot(this.texture);
 		}
 	}
 

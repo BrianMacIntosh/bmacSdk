@@ -3928,8 +3928,8 @@ declare namespace THREE {
 
         x: number;
         y: number;
-        width: number;
-        height: number;
+        //width: number;
+        //height: number;
 
         /**
          * Sets value of this vector.

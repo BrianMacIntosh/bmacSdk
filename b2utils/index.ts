@@ -149,6 +149,59 @@ export class Box2DManager
 	}
 
 	/**
+	 * Creates a body for a rectangle shape out of edges.
+	 * @param {Box2D.b2World} world
+	 * @param {number} x The starting x position of the body in world coordinates.
+	 * @param {number} y The starting y position of the body in world coordinates.
+	 * @param {number} w The width of the rectangle in world units.
+	 * @param {number} h The height of the rectangle in world units.
+	 * @param {number} density
+	 * @param {number} friction
+	 * @param {number} restitution
+	 * @returns {Box2D.b2Shape}
+	 */
+	public createStaticHollowRectBody(world : Box2D.b2World,
+		x : number, y : number,
+		w: number, h: number,
+		density: number, friction: number, restitution: number,
+		bodyDef?: Box2D.b2BodyDef): Box2D.b2Body
+	{
+		if (!bodyDef) bodyDef = this.staticBodyDef;
+		
+		var def = new Box2D.b2FixtureDef();
+		def.density = density;
+		def.friction = friction;
+		def.restitution = restitution;
+
+		var body = this.createBody(world, x, y, undefined, bodyDef);
+		
+		var polyShape = new Box2D.b2PolygonShape();
+		def.shape = polyShape;
+
+		polyShape.SetAsEdge(
+			new Box2D.b2Vec2((x-w/2)/this.B2_SCALE, (y-h/2)/this.B2_SCALE),
+			new Box2D.b2Vec2((x+w/2)/this.B2_SCALE, (y-h/2)/this.B2_SCALE));
+		body.CreateFixture(def);
+
+		polyShape.SetAsEdge(
+			new Box2D.b2Vec2((x+w/2)/this.B2_SCALE, (y-h/2)/this.B2_SCALE),
+			new Box2D.b2Vec2((x+w/2)/this.B2_SCALE, (y+h/2)/this.B2_SCALE));
+		body.CreateFixture(def);
+
+		polyShape.SetAsEdge(
+			new Box2D.b2Vec2((x+w/2)/this.B2_SCALE, (y+h/2)/this.B2_SCALE),
+			new Box2D.b2Vec2((x-w/2)/this.B2_SCALE, (y+h/2)/this.B2_SCALE));
+		body.CreateFixture(def);
+
+		polyShape.SetAsEdge(
+			new Box2D.b2Vec2((x-w/2)/this.B2_SCALE, (y+h/2)/this.B2_SCALE),
+			new Box2D.b2Vec2((x-w/2)/this.B2_SCALE, (y-h/2)/this.B2_SCALE));
+		body.CreateFixture(def);
+
+		return body;
+	}
+
+	/**
 	 * Creates a definition that can be used to add fixtures to bodies.
 	 * @param {Box2D.b2Shape} shape
 	 * @param {number} density

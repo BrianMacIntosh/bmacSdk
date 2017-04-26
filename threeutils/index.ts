@@ -13,47 +13,47 @@ interface Position
 	position : THREE.Vector3;
 }
 
-export module ThreeUtils
+export class ThreeManager
 {
-	export var c_planeCorrection: THREE.Matrix4 = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI, 0, 0));
+	public c_planeCorrection: THREE.Matrix4 = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI, 0, 0));
 	
-	export var textureLoader = new THREE.TextureLoader();
+	public textureLoader = new THREE.TextureLoader();
 
-	export var tempVector2: THREE.Vector2 = new THREE.Vector2();
+	public tempVector2: THREE.Vector2 = new THREE.Vector2();
 
-	export var tempVector3: THREE.Vector3 = new THREE.Vector3();
+	public tempVector3: THREE.Vector3 = new THREE.Vector3();
 
-	var vector2Pool: THREE.Vector2[] = [];
+	private vector2Pool: THREE.Vector2[] = [];
 
-	var vector3Pool: THREE.Vector3[] = [];
+	private vector3Pool: THREE.Vector3[] = [];
 
 	/**
 	 * If set, all mesh creation calls return dummy objects instead of real visual objects.
 	 */
-	export var serverMode: boolean = false;
+	public serverMode: boolean = false;
 
-	var textureCache: { [s: string]: THREE.Texture } = {};
+	private textureCache: { [s: string]: THREE.Texture } = {};
 
 	/**
 	 * Map of callbacks waiting on each texture to load.
 	 */
-	var textureCallbacks: { [s: string]: ((texture: THREE.Texture) => void)[]} = {};
+	private textureCallbacks: { [s: string]: ((texture: THREE.Texture) => void)[]} = {};
 
-	var atlasCache: { [s: string]: Atlas } = {};
+	private atlasCache: { [s: string]: Atlas } = {};
 
 	/**
 	 * Raw JSON atlas data.
 	 */
-	var allAtlasData : any;
+	private allAtlasData : any;
 
 	/**
 	 * Returns an empty {THREE.Vector2}.
 	 */
-	export function newVector2(x?: number, y?: number): THREE.Vector2
+	public newVector2(x?: number, y?: number): THREE.Vector2
 	{
-		if (vector2Pool.length > 0)
+		if (this.vector2Pool.length > 0)
 		{
-			var vec = vector2Pool.pop();
+			var vec = this.vector2Pool.pop();
 			if (x !== undefined) vec.set(x, y);
 			return vec;
 		}
@@ -63,11 +63,11 @@ export module ThreeUtils
 	/**
 	 * Returns an empty {THREE.Vector3}.
 	 */
-	export function newVector3(x?: number, y?: number, z?: number): THREE.Vector3
+	public newVector3(x?: number, y?: number, z?: number): THREE.Vector3
 	{
-		if (vector3Pool.length > 0)
+		if (this.vector3Pool.length > 0)
 		{
-			var vec = vector3Pool.pop();
+			var vec = this.vector3Pool.pop();
 			if (x !== undefined) vec.set(x, y, z);
 			return vec;
 		}
@@ -77,24 +77,24 @@ export module ThreeUtils
 	/**
 	 * Releases a {THREE.Vector2} to the pool.
 	 */
-	export function releaseVector2(vec: THREE.Vector2): void
+	public releaseVector2(vec: THREE.Vector2): void
 	{
 		if (vec)
 		{
 			vec.x = vec.y = 0;
-			vector2Pool.push(vec);
+			this.vector2Pool.push(vec);
 		}
 	}
 
 	/**
 	 * Releases a {THREE.Vector3} to the pool.
 	 */
-	export function releaseVector3(vec: THREE.Vector3): void
+	public releaseVector3(vec: THREE.Vector3): void
 	{
 		if (vec)
 		{
 			vec.x = vec.y = vec.z = 0;
-			vector3Pool.push(vec);
+			this.vector3Pool.push(vec);
 		}
 	}
 
@@ -103,9 +103,9 @@ export module ThreeUtils
 	 * @param {THREE.Texture} texture Texture for the mesh.
 	 * @param {THREE.Geometry} geometry Geometry for the mesh.
 	 */
-	export function makeSpriteMesh(texture: THREE.Texture, geometry: THREE.Geometry|THREE.BufferGeometry): THREE.Mesh
+	public makeSpriteMesh(texture: THREE.Texture, geometry: THREE.Geometry|THREE.BufferGeometry): THREE.Mesh
 	{
-		if (serverMode)
+		if (this.serverMode)
 		{
 			return new THREE.Object3D() as THREE.Mesh;
 		}
@@ -122,10 +122,10 @@ export module ThreeUtils
 	 * @param {number} width The width of the plane.
 	 * @param {number} height The height of the plane.
 	 */
-	export function makeSpriteGeo(width: number, height: number): THREE.BufferGeometry
+	public makeSpriteGeo(width: number, height: number): THREE.BufferGeometry
 	{
 		var baseGeometry = new THREE.PlaneGeometry(width, height);
-		baseGeometry.applyMatrix(ThreeUtils.c_planeCorrection);
+		baseGeometry.applyMatrix(this.c_planeCorrection);
 		var geometry = new THREE.BufferGeometry();
 		geometry = geometry.fromGeometry(baseGeometry);
 		geometry.computeBoundingBox();
@@ -136,7 +136,7 @@ export module ThreeUtils
 	/**
 	 * Returns the angle from 'from' to 'to'.
 	 */
-	export function toFromAngle(from: THREE.Vector2, to: THREE.Vector2): number
+	public toFromAngle(from: THREE.Vector2, to: THREE.Vector2): number
 	{
 		return Math.atan2(to.y - from.y, to.x - from.x);
 	};
@@ -144,15 +144,15 @@ export module ThreeUtils
 	/**
 	 * Calculates the distance between two THREE.Object3D or THREE.Vector3.
 	 */
-	export function distance(thing1: THREE.Object3D, thing2: THREE.Object3D): number
+	public distance(thing1: THREE.Object3D, thing2: THREE.Object3D): number
 	{
-		return Math.sqrt(ThreeUtils.distanceSq(thing1, thing2));
+		return Math.sqrt(this.distanceSq(thing1, thing2));
 	};
 
 	/**
 	 * Calculates the squared distance between two THREE.Object3D or THREE.Vector3.
 	 */
-	export function distanceSq(thing1: THREE.Object3D|THREE.Vector3, thing2: THREE.Object3D|THREE.Vector3): number
+	public distanceSq(thing1: THREE.Object3D|THREE.Vector3, thing2: THREE.Object3D|THREE.Vector3): number
 	{
 		if ((<THREE.Object3D>thing1).position)
 			var position1 = (<THREE.Object3D>thing1).position;
@@ -172,17 +172,17 @@ export module ThreeUtils
 	 * @param {string} url The URL of the texture.
 	 * @param {(texture: THREE.Texture) => void} callback Function to call when the image is completely loaded.
 	 */
-	export function loadTexture(url: string, callback?: (texture: THREE.Texture) => void): THREE.Texture
+	public loadTexture(url: string, callback?: (texture: THREE.Texture) => void): THREE.Texture
 	{
-		if (serverMode)
+		if (this.serverMode)
 		{
 			return undefined;
 		}
 
-		var tex = textureCache[url];
+		var tex = this.textureCache[url];
 		if (!tex)
 		{
-			tex = textureCache[url] = textureLoader.load(url, imageLoadedCallback);
+			tex = this.textureCache[url] = this.textureLoader.load(url, this.imageLoadedCallback.bind(this));
 			(tex as any).relativeUrl = url;
 		}
 
@@ -194,8 +194,8 @@ export module ThreeUtils
 			}
 			else
 			{
-				if (!textureCallbacks[url]) textureCallbacks[url] = [];
-				textureCallbacks[url].push(callback);
+				if (!this.textureCallbacks[url]) this.textureCallbacks[url] = [];
+				this.textureCallbacks[url].push(callback);
 			}
 		}
 
@@ -205,10 +205,10 @@ export module ThreeUtils
 	/**
 	 * @param {any} image HTML image being loaded.
 	 */
-	function imageLoadedCallback(texture: THREE.Texture)
+	private imageLoadedCallback(texture: THREE.Texture)
 	{
 		var src = (texture as any).relativeUrl;
-		var callbacks = textureCallbacks[src];
+		var callbacks = this.textureCallbacks[src];
 		if (callbacks)
 		{
 			for (var i = 0; i < callbacks.length; i++)
@@ -216,13 +216,13 @@ export module ThreeUtils
 				callbacks[i](texture);
 			}
 		}
-		textureCallbacks[src] = undefined;
+		this.textureCallbacks[src] = undefined;
 	};
 
 	/**
 	 * Sets the texture as okay to be non-power-of-two.
 	 */
-	export function setTextureNpot(texture: THREE.Texture): THREE.Texture
+	public setTextureNpot(texture: THREE.Texture): THREE.Texture
 	{
 		if (texture)
 		{
@@ -243,22 +243,22 @@ export module ThreeUtils
 	 * @param {boolean} flipX Flip the image horizontally?
 	 * @param {boolean} flipY Flip the image vertically?
 	 */
-	export function setTilesheetGeometry(geometry: THREE.Geometry|THREE.BufferGeometry,
+	public setTilesheetGeometry(geometry: THREE.Geometry|THREE.BufferGeometry,
 		x: number, y: number,
 		countX: number, countY: number,
 		flipX: boolean, flipY: boolean): THREE.Geometry|THREE.BufferGeometry
 	{
 		if ((<THREE.BufferGeometry>geometry).isBufferGeometry)
 		{
-			return _setTilesheetBufferGeometry(<THREE.BufferGeometry>geometry, x, y, countX, countY, flipX, flipY);
+			return this._setTilesheetBufferGeometry(<THREE.BufferGeometry>geometry, x, y, countX, countY, flipX, flipY);
 		}
 		else
 		{
-			return _setTilesheetGeometry(<THREE.Geometry>geometry, x, y, countX, countY, flipX, flipY);
+			return this._setTilesheetGeometry(<THREE.Geometry>geometry, x, y, countX, countY, flipX, flipY);
 		}
 	};
 
-	function _setTilesheetGeometry(geometry: THREE.Geometry,
+	private _setTilesheetGeometry(geometry: THREE.Geometry,
 		x: number, y: number,
 		countX: number, countY: number,
 		flipX: boolean, flipY: boolean): THREE.Geometry
@@ -280,7 +280,7 @@ export module ThreeUtils
 		return geometry;
 	};
 
-	function _setTilesheetBufferGeometry(geometry: THREE.BufferGeometry,
+	private _setTilesheetBufferGeometry(geometry: THREE.BufferGeometry,
 		x: number, y: number,
 		countX: number, countY: number,
 		flipX: boolean, flipY: boolean): THREE.BufferGeometry
@@ -308,7 +308,7 @@ export module ThreeUtils
 	 * Call once to initialize all atlases.
 	 * @param atlasData 
 	 */
-	export function loadAtlases(atlasData: any) : void
+	public loadAtlases(atlasData: any) : void
 	{
 		this.allAtlasData = atlasData;
 	};
@@ -316,18 +316,18 @@ export module ThreeUtils
 	/**
 	 * Loads the atlas represented by the specified key or returns a cached version.
 	 */
-	export function loadAtlas(key: string): Atlas
+	public loadAtlas(key: string): Atlas
 	{
 		if (!this.allAtlasData) throw "Atlas data has not yet been loaded with 'loadAtlases'.";
 
 		var atlasData = this.allAtlasData[key];
 		if (atlasData)
 		{
-			if (!atlasCache[atlasData.url])
+			if (!this.atlasCache[atlasData.url])
 			{
-				atlasCache[atlasData.url] = new Atlas(atlasData);
+				this.atlasCache[atlasData.url] = new Atlas(this, atlasData);
 			}
-			return atlasCache[atlasData.url];
+			return this.atlasCache[atlasData.url];
 		}
 		else
 		{
@@ -342,7 +342,7 @@ export module ThreeUtils
 	 * @param {Atlas} atlas The atlas to us.
 	 * @param {string} key The key to use from the atlas.
 	 */
-	export function setElementToAtlasImage(element: HTMLElement, atlas: Atlas, key: string): HTMLElement
+	public setElementToAtlasImage(element: HTMLElement, atlas: Atlas, key: string): HTMLElement
 	{
 		// set icon using background position
 		var atlasCoords = atlas.sprites[key];
@@ -364,10 +364,19 @@ export module ThreeUtils
 	 * Creates a mesh for the given sprite in the atlas.
 	 * @param {boolean} dynamicGeometry Set if you want to be able to flip the sprite or dynamically switch its texture.
 	 */
-	export function makeAtlasMesh(atlas: Atlas, key: string,
+	public makeAtlasMesh(atlasKey: Atlas|string, key: string,
 		dynamicGeometry?: boolean,
 		dynamicMaterial?: boolean|THREE.Material): THREE.Mesh
 	{
+		var atlas;
+		if ((<Atlas>atlasKey).isAtlas)
+		{
+			atlas = atlasKey;
+		}
+		else
+		{
+			atlas = this.loadAtlas(<string>atlasKey);
+		}
 		if (atlas.sprites[key] === undefined)
 		{
 			console.error("Atlas '"+atlas.url+"' has no key '"+key+"'.");
@@ -375,8 +384,8 @@ export module ThreeUtils
 		}
 		if (!atlas.sprites[key].geometry)
 		{
-			atlas.sprites[key].geometry = makeSpriteGeo(atlas.sprites[key][2], atlas.sprites[key][3]);
-			setAtlasUVs(atlas.sprites[key].geometry, atlas, key);
+			atlas.sprites[key].geometry = this.makeSpriteGeo(atlas.sprites[key][2], atlas.sprites[key][3]);
+			this.setAtlasUVs(atlas.sprites[key].geometry, atlas, key);
 		}
 		if (!atlas.material)
 		{
@@ -387,8 +396,8 @@ export module ThreeUtils
 		var geometry: THREE.BufferGeometry;
 		if (dynamicGeometry)
 		{
-			geometry = makeSpriteGeo(atlas.sprites[key][2], atlas.sprites[key][3]);
-			setAtlasUVs(geometry, atlas, key);
+			geometry = this.makeSpriteGeo(atlas.sprites[key][2], atlas.sprites[key][3]);
+			this.setAtlasUVs(geometry, atlas, key);
 		}
 		else
 		{
@@ -423,7 +432,7 @@ export module ThreeUtils
 	/**
 	 * @param {number} uvChannel The index of the UV set to set.
 	 */
-	export function setAtlasUVs(
+	public setAtlasUVs(
 		geometry: THREE.Geometry|THREE.BufferGeometry,
 		atlas: Atlas, key: string,
 		flipX?: boolean, flipY?: boolean,
@@ -431,18 +440,18 @@ export module ThreeUtils
 	{
 		if ((<THREE.BufferGeometry>geometry).isBufferGeometry)
 		{
-			return _setAtlasUVsBuffer(<THREE.BufferGeometry>geometry, atlas, key, flipX, flipY, channel);
+			return this._setAtlasUVsBuffer(<THREE.BufferGeometry>geometry, atlas, key, flipX, flipY, channel);
 		}
 		else
 		{
-			return _setAtlasUVs(<THREE.Geometry>geometry, atlas, key, flipX, flipY);
+			return this._setAtlasUVs(<THREE.Geometry>geometry, atlas, key, flipX, flipY);
 		}
 	}
 
 	/**
 	 * @param {number} uvChannel The index of the UV set to set.
 	 */
-	function _setAtlasUVs(
+	private _setAtlasUVs(
 		geometry: THREE.Geometry,
 		atlas: Atlas, key: string,
 		flipX?: boolean, flipY?: boolean): THREE.Geometry
@@ -467,14 +476,14 @@ export module ThreeUtils
 		if (flipY){var temp=t;t=b;b=temp;}
 		if (uvs[0] === undefined)
 		{
-			uvs[0] = [ThreeUtils.newVector2(),ThreeUtils.newVector2(),ThreeUtils.newVector2()];
+			uvs[0] = [this.newVector2(),this.newVector2(),this.newVector2()];
 		}
 		uvs[0][0].set(l,b);
 		uvs[0][1].set(l,t);
 		uvs[0][2].set(r,b);
 		if (uvs[1] === undefined)
 		{
-			uvs[1] = [ThreeUtils.newVector2(),ThreeUtils.newVector2(),ThreeUtils.newVector2()];
+			uvs[1] = [this.newVector2(),this.newVector2(),this.newVector2()];
 		}
 		uvs[1][0].set(l,t);
 		uvs[1][1].set(r,t);
@@ -486,7 +495,7 @@ export module ThreeUtils
 	/**
 	 * @param {number} uvChannel The index of the UV set to set.
 	 */
-	function _setAtlasUVsBuffer(
+	private _setAtlasUVsBuffer(
 		geometry: THREE.BufferGeometry,
 		atlas: Atlas, key: string,
 		flipX?: boolean, flipY?: boolean,
@@ -534,7 +543,7 @@ export module ThreeUtils
 	/**
 	 * Sets the UVs of the specified geometry to display the specified atlas sprite.
 	 */
-	export function setAtlasGeometry(
+	public setAtlasGeometry(
 		geometry: THREE.BufferGeometry,
 		atlas: Atlas, key: string,
 		flipX?: boolean, flipY?: boolean): THREE.BufferGeometry
@@ -549,7 +558,7 @@ export module ThreeUtils
 			console.error("Atlas '"+atlas.url+"' has not key '"+key+"'");
 			return geometry;
 		}
-		setAtlasUVs(geometry,atlas,key,flipX,flipY);
+		this.setAtlasUVs(geometry,atlas,key,flipX,flipY);
 		
 		var w = atlas.sprites[key][2]/2;
 		var h = atlas.sprites[key][3]/2;
@@ -568,7 +577,7 @@ export module ThreeUtils
 	/**
 	 * Sets the flipped state of the specified atlas mesh.
 	 */
-	export function setAtlasMeshFlip(mesh: THREE.Mesh, flipX: boolean, flipY: boolean): THREE.Mesh
+	public setAtlasMeshFlip(mesh: THREE.Mesh, flipX: boolean, flipY: boolean): THREE.Mesh
 	{
 		if (!mesh.geometry)
 		{
@@ -585,14 +594,14 @@ export module ThreeUtils
 		}
 		mesh.userData.atlasFlipX = flipX;
 		mesh.userData.atlasFlipY = flipY;
-		setAtlasUVs(mesh.geometry, mesh.userData.atlas, mesh.userData.atlasKey, flipX, flipY);
+		this.setAtlasUVs(mesh.geometry, mesh.userData.atlas, mesh.userData.atlasKey, flipX, flipY);
 		return mesh;
 	};
 
 	/**
 	 * Sets the UVs of the specified atlas mesh to the specified sprite key.
 	 */
-	export function setAtlasMeshKey(mesh: THREE.Mesh, key: string): THREE.Mesh
+	public setAtlasMeshKey(mesh: THREE.Mesh, key: string): THREE.Mesh
 	{
 		if (!mesh.geometry)
 		{
@@ -613,7 +622,7 @@ export module ThreeUtils
 			return mesh;
 		}
 		mesh.userData.atlasKey = key;
-		setAtlasGeometry(<THREE.BufferGeometry>mesh.geometry, mesh.userData.atlas, mesh.userData.atlasKey,
+		this.setAtlasGeometry(<THREE.BufferGeometry>mesh.geometry, mesh.userData.atlas, mesh.userData.atlasKey,
 			mesh.userData.atlasFlipX, mesh.userData.atlasFlipY);
 		return mesh;
 	};
@@ -623,17 +632,17 @@ export module ThreeUtils
 	 * @param {THREE.Vector2} center The center of the circle.
 	 * @param {number} radius The radius of the circle.
 	 */
-	export function lineCircleIntersection(a: THREE.Vector2, b: THREE.Vector2, center: THREE.Vector2, radius: number): boolean
+	public lineCircleIntersection(a: THREE.Vector2, b: THREE.Vector2, center: THREE.Vector2, radius: number): boolean
 	{
-		var attackVector = ThreeUtils.newVector2().subVectors(b, a).normalize();
-		var meToTargetVector = ThreeUtils.newVector2().subVectors(center, a);
+		var attackVector = this.newVector2().subVectors(b, a).normalize();
+		var meToTargetVector = this.newVector2().subVectors(center, a);
 		var dot = meToTargetVector.dot(attackVector);
 		attackVector.multiplyScalar(dot).add(a).sub(center);
 
 		var result = attackVector.lengthSq() <= radius * radius;
 
-		ThreeUtils.releaseVector2(attackVector);
-		ThreeUtils.releaseVector2(meToTargetVector);
+		this.releaseVector2(attackVector);
+		this.releaseVector2(meToTargetVector);
 
 		return result;
 	};
@@ -643,14 +652,14 @@ export module ThreeUtils
 	 * @param {THREE.Vector2} center The center of the circle.
 	 * @param {number} radius The radius of the circle.
 	 */
-	export function lineSegmentCircleIntersection(a: THREE.Vector2, b: THREE.Vector2, center: THREE.Vector2, radius: number): boolean
+	public lineSegmentCircleIntersection(a: THREE.Vector2, b: THREE.Vector2, center: THREE.Vector2, radius: number): boolean
 	{
-		var attackVector = ThreeUtils.newVector2().subVectors(b, a);
+		var attackVector = this.newVector2().subVectors(b, a);
 		var segmentLengthSq = attackVector.lengthSq();
 		attackVector.normalize();
-		var meToTargetVector = ThreeUtils.newVector2().subVectors(center, a);
+		var meToTargetVector = this.newVector2().subVectors(center, a);
 		var dot = meToTargetVector.dot(attackVector);
-		ThreeUtils.releaseVector2(meToTargetVector);
+		this.releaseVector2(meToTargetVector);
 		attackVector.multiplyScalar(dot).add(a).sub(center);
 		
 		// circle is behind the segment
@@ -667,7 +676,7 @@ export module ThreeUtils
 			attackVector = attackVector.sub(center).add(a);
 			result = attackVector.lengthSq() <= radius * radius;
 		}
-		ThreeUtils.releaseVector2(attackVector);
+		this.releaseVector2(attackVector);
 		return result;
 	};
 }

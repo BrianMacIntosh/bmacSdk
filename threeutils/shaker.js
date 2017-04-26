@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var THREE = require("three");
 require("../typings");
 var noise_1 = require("../thirdparty/noise");

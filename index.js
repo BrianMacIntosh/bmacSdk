@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var audiomanager_1 = require("./audiomanager");
 exports.AudioManager = audiomanager_1.AudioManager;
 var b2utils_1 = require("./b2utils");
@@ -24,7 +24,7 @@ exports.GamepadAxis = input_1.GamepadAxis;
 var box2d_1 = require("./thirdparty/box2d");
 exports.Box2D = box2d_1.Box2D;
 var threeutils_1 = require("./threeutils");
-exports.ThreeUtils = threeutils_1.ThreeUtils;
+exports.ThreeManager = threeutils_1.ThreeManager;
 exports.Atlas = threeutils_1.Atlas;
 exports.ThreeJsDebugDraw = threeutils_1.ThreeJsDebugDraw;
 var polyfills_1 = require("./polyfills");

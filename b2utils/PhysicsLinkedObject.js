@@ -9,20 +9,19 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var THREE = require("three");
 require("../typings");
-var _1 = require("../");
 var box2d_1 = require("../thirdparty/box2d");
 /**
  * Base class for an object that has three.js visuals and a Box2D body.
  */
 var PhysicsLinkedObject = (function (_super) {
     __extends(PhysicsLinkedObject, _super);
-    function PhysicsLinkedObject(manager, body) {
+    function PhysicsLinkedObject(physicsManager, body) {
         var _this = _super.call(this) || this;
-        _this.manager = manager;
-        _this.manager.AllObjects.push(_this);
+        _this.physicsManager = physicsManager;
+        _this.physicsManager.AllObjects.push(_this);
         if (body) {
             _this.linkBody(body);
         }
@@ -37,7 +36,7 @@ var PhysicsLinkedObject = (function (_super) {
      * Undestroys a soft-destroyed object (for pooling).
      */
     PhysicsLinkedObject.prototype.undestroy = function () {
-        this.manager.AllObjects.push(this);
+        this.physicsManager.AllObjects.push(this);
         if (this.body) {
             this.body.SetActive(true);
         }
@@ -50,9 +49,9 @@ var PhysicsLinkedObject = (function (_super) {
         if (this.parent) {
             this.parent.remove(this);
         }
-        var index = this.manager.AllObjects.indexOf(this);
+        var index = this.physicsManager.AllObjects.indexOf(this);
         if (index >= 0) {
-            this.manager.AllObjects.splice(index, 1);
+            this.physicsManager.AllObjects.splice(index, 1);
         }
         if (soft)
             this.body.SetActive(false);
@@ -79,12 +78,12 @@ var PhysicsLinkedObject = (function (_super) {
      * Moves the object to match the body position.
      */
     PhysicsLinkedObject.prototype.syncTransformToBody = function (force) {
-        if (this.body
-            && (force || (this.body.IsAwake() && this.body.GetType() != box2d_1.Box2D.b2Body.b2_staticBody))) {
+        //TODO: check that body has actually moved?
+        if (this.body && (force || this.body.IsAwake())) {
             var z = this.position.z;
             var physicsPos = this.body.GetPosition();
             this.position.set(physicsPos.x, physicsPos.y, 0);
-            this.position.applyMatrix4(this.manager.Box2DToGame);
+            this.position.applyMatrix4(this.physicsManager.Box2DToGame);
             this.rotation.z = this.body.GetAngle(); //TODO: matrix
             this.position.z = z;
             //this.updateMatrix();
@@ -95,12 +94,12 @@ var PhysicsLinkedObject = (function (_super) {
      */
     PhysicsLinkedObject.prototype.syncBodyToTransform = function () {
         if (this.body) {
-            _1.ThreeUtils.tempVector3.copy(this.position);
-            _1.ThreeUtils.tempVector3.z = 0;
-            _1.ThreeUtils.tempVector3.applyMatrix4(this.manager.GameToBox2D);
-            this.manager.tempVector2.x = _1.ThreeUtils.tempVector3.x;
-            this.manager.tempVector2.y = _1.ThreeUtils.tempVector3.y;
-            this.body.SetPositionAndAngle(this.manager.tempVector2, this.rotation.z); //TODO: matrix rotation
+            PhysicsLinkedObject.tempVector3.copy(this.position);
+            PhysicsLinkedObject.tempVector3.z = 0;
+            PhysicsLinkedObject.tempVector3.applyMatrix4(this.physicsManager.GameToBox2D);
+            this.physicsManager.tempVector2.x = PhysicsLinkedObject.tempVector3.x;
+            this.physicsManager.tempVector2.y = PhysicsLinkedObject.tempVector3.y;
+            this.body.SetPositionAndAngle(this.physicsManager.tempVector2, this.rotation.z); //TODO: matrix rotation
         }
     };
     /**
@@ -112,16 +111,13 @@ var PhysicsLinkedObject = (function (_super) {
         this.syncTransformToBody(true);
     };
     /**
-     * Applies the specified impulse to the center of the body, but does not allow it to
-     * increase the velocity above 'maxSpeed'. If the velocity is already above that, it can stay there.
+     * Applies the specified impulse to the center of the body.
      * @param {Box2D.b2Vec2} impulse
-     * @param {Number} maxSpeed
      */
-    PhysicsLinkedObject.prototype.applyLinearImpulseWithVelocityCap = function (impulse, maxSpeed) {
+    PhysicsLinkedObject.prototype.applyLinearImpulse = function (impulse) {
         if (impulse.x == 0 && impulse.y == 0)
             return;
         var velocity = this.body.GetLinearVelocity();
-        var velocityLength = velocity.Length();
         if (this.body.GetType() == box2d_1.Box2D.b2Body.b2_kinematicBody) {
             velocity.x += impulse.x;
             velocity.y += impulse.y;
@@ -130,6 +126,17 @@ var PhysicsLinkedObject = (function (_super) {
         else {
             this.body.ApplyImpulse(impulse, this.body.GetPosition());
         }
+    };
+    /**
+     * Applies the specified impulse to the center of the body, but does not allow it to
+     * increase the velocity above 'maxSpeed'. If the velocity is already above that, it can stay there.
+     * @param {Box2D.b2Vec2} impulse
+     * @param {Number} maxSpeed
+     */
+    PhysicsLinkedObject.prototype.applyLinearImpulseWithVelocityCap = function (impulse, maxSpeed) {
+        var velocity = this.body.GetLinearVelocity();
+        var velocityLength = velocity.Length();
+        this.applyLinearImpulse(impulse);
         this.limitSpeed(Math.max(maxSpeed, velocityLength));
     };
     /**
@@ -182,5 +189,6 @@ var PhysicsLinkedObject = (function (_super) {
     };
     return PhysicsLinkedObject;
 }(THREE.Object3D));
+PhysicsLinkedObject.tempVector3 = new THREE.Vector3();
 exports.PhysicsLinkedObject = PhysicsLinkedObject;
 ;

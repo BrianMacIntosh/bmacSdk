@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var THREE = require("three");
 require("../typings");
 require("../polyfills");
@@ -177,7 +177,7 @@ var Engine = (function () {
         // calculate mouse pos
         this.mousePosRel = this.bmacSdk.input.mouse.getPosition(master.canvasDiv, this.mousePosRel);
         if (!this.mousePosWorld)
-            this.mousePosWorld = threeutils_1.ThreeUtils.newVector3();
+            this.mousePosWorld = new THREE.Vector3();
         this.mousePosWorld.set(this.mousePosRel.x / (this.screenWidth / 2) - 1, 1 - this.mousePosRel.y / (this.screenHeight / 2), 0);
         this.mousePosWorld.applyMatrix4(this.projectionMatrixInverse.getInverse(this.mainCamera.projectionMatrix));
         this.mousePosWorld.applyMatrix4(this.mainCamera.matrixWorld);

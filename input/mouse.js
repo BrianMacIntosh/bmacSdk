@@ -1,6 +1,5 @@
 "use strict";
-exports.__esModule = true;
-var threeutils_1 = require("../threeutils");
+Object.defineProperty(exports, "__esModule", { value: true });
 var MouseButton;
 (function (MouseButton) {
     MouseButton[MouseButton["Left"] = 1] = "Left";
@@ -130,7 +129,7 @@ var Mouse = (function () {
      */
     Mouse.prototype.getPosition = function (relativeTo, buffer) {
         if (!buffer)
-            buffer = threeutils_1.ThreeUtils.newVector2();
+            buffer = new THREE.Vector2();
         if (!relativeTo) {
             buffer.set(this.mousePos.x, this.mousePos.y);
             return buffer;

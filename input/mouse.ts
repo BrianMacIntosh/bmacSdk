@@ -1,5 +1,5 @@
 
-import { ThreeUtils } from "../threeutils";
+import { ThreeManager } from "../threeutils";
 
 export enum MouseButton
 {
@@ -165,7 +165,7 @@ export class Mouse
 	 */
 	public getPosition(relativeTo: HTMLElement, buffer?: THREE.Vector2): THREE.Vector2
 	{
-		if (!buffer) buffer = ThreeUtils.newVector2();
+		if (!buffer) buffer = new THREE.Vector2();
 
 		if (!relativeTo)
 		{

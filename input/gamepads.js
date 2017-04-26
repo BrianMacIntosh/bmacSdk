@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var GamepadButton;
 (function (GamepadButton) {
     GamepadButton[GamepadButton["A"] = 0] = "A";

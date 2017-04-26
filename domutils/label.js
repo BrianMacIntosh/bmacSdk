@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var Label = (function () {
     function Label(cssClass, parent, camera, renderer) {
         this.parent = parent;

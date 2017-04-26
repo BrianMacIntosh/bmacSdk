@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var CircularQueue = (function () {
     function CircularQueue(length) {
         this.head = 0;

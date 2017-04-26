@@ -52,6 +52,11 @@ export class Tweener extends BaseTweener
 		this.func = func;
 	}
 
+	public getRatio() : number
+	{
+		return Math.clamp(this.timer / this.duration, 0, 1);
+	}
+
 	public sample() : number
 	{
 		return this.func(this.timer, this.from, this.getDelta(), this.duration);

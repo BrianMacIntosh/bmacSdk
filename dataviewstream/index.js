@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var goog = require("../thirdparty/crypt");
 var DataViewStream = (function () {
     function DataViewStream(sizeOrBuffer) {

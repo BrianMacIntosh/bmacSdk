@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 require("../typings");
 require("../polyfills");
 var input_1 = require("../input");

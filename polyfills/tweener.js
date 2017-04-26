@@ -9,7 +9,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var BaseTweener = (function () {
     function BaseTweener(duration) {
         this.duration = duration;
@@ -46,6 +46,9 @@ var Tweener = (function (_super) {
         this.to = to;
         this.timer = 0;
         this.func = func;
+    };
+    Tweener.prototype.getRatio = function () {
+        return Math.clamp(this.timer / this.duration, 0, 1);
     };
     Tweener.prototype.sample = function () {
         return this.func(this.timer, this.from, this.getDelta(), this.duration);
