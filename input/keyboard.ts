@@ -114,7 +114,7 @@ export class Keyboard
 		this.keysPressedBuffer[e.keyCode] = true;
 		
 		// prevent scrolling
-		if (e.keyCode == Key.Space)
+		if (e.keyCode == Key.Space || e.keyCode == Key.Tab)
 		{
 			e.preventDefault();
 			return false;

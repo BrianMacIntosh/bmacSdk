@@ -95,7 +95,7 @@ var Keyboard = (function () {
         e = e || window.event;
         this.keysPressedBuffer[e.keyCode] = true;
         // prevent scrolling
-        if (e.keyCode == Key.Space) {
+        if (e.keyCode == Key.Space || e.keyCode == Key.Tab) {
             e.preventDefault();
             return false;
         }
