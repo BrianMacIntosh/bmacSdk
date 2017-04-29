@@ -1,21 +1,22 @@
 {
-	"name": "bmacsdk",
-	"displayName": "bmacSdk",
-	"version": "0.0.1",
-	"description": "A Javascript game engine built around Three.JS for the Ludum Dare game jam.",
-	"author": {
-		"name": "Brian MacIntosh",
-		"email": "brianamacintosh@gmail.com",
-		"url": "http://www.brianmacintosh.com/"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/BrianMacIntosh/bmacSdk.git"
-	},
-	"dependencies": {
-		"three": "latest"
-	},
-	"scripts": {
-		"test": "mocha"
-	}
+  "name": "bmacsdk",
+  "displayName": "bmacSdk",
+  "version": "0.0.1",
+  "description": "A Javascript game engine built around Three.JS for the Ludum Dare game jam.",
+  "author": {
+    "name": "Brian MacIntosh",
+    "email": "brianamacintosh@gmail.com",
+    "url": "http://www.brianmacintosh.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BrianMacIntosh/bmacSdk.git"
+  },
+  "dependencies": {
+    "three": "latest",
+    "three-effectcomposer": "0.0.1"
+  },
+  "scripts": {
+    "test": "mocha"
+  }
 }

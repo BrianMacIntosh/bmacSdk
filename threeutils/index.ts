@@ -15,7 +15,7 @@ interface Position
 
 export class ThreeManager
 {
-	public c_planeCorrection: THREE.Matrix4 = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI, 0, 0));
+	public static c_planeCorrection: THREE.Matrix4 = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI, 0, 0));
 	
 	public textureLoader = new THREE.TextureLoader();
 
@@ -125,7 +125,7 @@ export class ThreeManager
 	public makeSpriteGeo(width: number, height: number): THREE.BufferGeometry
 	{
 		var baseGeometry = new THREE.PlaneGeometry(width, height);
-		baseGeometry.applyMatrix(this.c_planeCorrection);
+		baseGeometry.applyMatrix(ThreeManager.c_planeCorrection);
 		var geometry = new THREE.BufferGeometry();
 		geometry = geometry.fromGeometry(baseGeometry);
 		geometry.computeBoundingBox();

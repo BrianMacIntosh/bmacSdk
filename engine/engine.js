@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var THREE = require("three");
+var EffectComposer = require("three-effectcomposer")(THREE);
 require("../typings");
 require("../polyfills");
 var threeutils_1 = require("../threeutils");
@@ -94,6 +95,24 @@ var Engine = (function () {
     Engine.prototype.setCameraZoom = function (factor) {
         this.cameraZoom = Math.clamp(factor, 0.1, 100);
         this._updateCameraSize();
+    };
+    /**
+     * Adds a fullscreen shader pass to the game.
+     */
+    Engine.prototype.addShaderPass = function (uniforms, fragmentShader) {
+        if (!this.effectComposer) {
+            this.effectComposer = new EffectComposer(this.renderer);
+            this.effectComposer.addPass(new EffectComposer.ClearColorPass());
+            this.renderPass = new EffectComposer.RenderPass(this.scene, this.mainCamera, null, this.renderer ? this.renderer.getClearColor() : undefined);
+            this.effectComposer.addPass(this.renderPass);
+        }
+        this.shaderPass = new EffectComposer.ShaderPass({
+            uniforms: uniforms,
+            vertexShader: "varying vec2 vUv;void main(){vUv=uv;gl_Position = projectionMatrix * (modelViewMatrix * vec4(position,1.0));}",
+            fragmentShader: fragmentShader,
+        });
+        this.shaderPass.renderToScreen = true; //TODO: only on last
+        this.effectComposer.addPass(this.shaderPass);
     };
     /**
      * Initializes the engine.
@@ -192,9 +211,16 @@ var Engine = (function () {
         // render
         this._callPreRender();
         if (master.renderer) {
-            if (!this.shareContextWith)
-                master.renderer.clearColor();
-            master.renderer.render(this.scene, this.mainCamera);
+            if (this.effectComposer) {
+                this.renderPass.scene = this.scene;
+                this.renderPass.camera = this.mainCamera;
+                this.effectComposer.render();
+            }
+            else {
+                if (!this.shareContextWith)
+                    master.renderer.clearColor();
+                master.renderer.render(this.scene, this.mainCamera);
+            }
             //HACK: doesn't support sharing well
             if (master == this && master.rendererStats) {
                 master.rendererStats.update(master.renderer);

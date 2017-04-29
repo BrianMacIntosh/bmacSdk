@@ -1,5 +1,6 @@
 
-import THREE = require("three")
+import THREE = require("three");
+const EffectComposer = require("three-effectcomposer")(THREE);
 import "../typings";
 import "../polyfills";
 
@@ -74,6 +75,10 @@ export class Engine
 
 	private postRenderCallbacks : ParameterlessCallback[] = [];
 
+	public effectComposer : any;
+	private renderPass : any;
+	private shaderPass : any;
+
 	/**
 	 * 
 	 * @param param The name of the element to create the canvas under, or an existing Engine to share with.
@@ -142,6 +147,29 @@ export class Engine
 	{
 		this.cameraZoom = Math.clamp(factor, 0.1, 100);
 		this._updateCameraSize();
+	}
+
+	/**
+	 * Adds a fullscreen shader pass to the game.
+	 */
+	public addShaderPass(uniforms : any, fragmentShader : string)
+	{
+		if (!this.effectComposer)
+		{
+			this.effectComposer = new EffectComposer(this.renderer);
+			this.effectComposer.addPass(new EffectComposer.ClearColorPass());
+			this.renderPass = new EffectComposer.RenderPass(
+				this.scene, this.mainCamera, null,
+				this.renderer ? this.renderer.getClearColor() : undefined);
+			this.effectComposer.addPass(this.renderPass);
+		}
+		this.shaderPass = new EffectComposer.ShaderPass({
+			uniforms: uniforms,
+			vertexShader: "varying vec2 vUv;void main(){vUv=uv;gl_Position = projectionMatrix * (modelViewMatrix * vec4(position,1.0));}",
+			fragmentShader: fragmentShader,
+		});
+		this.shaderPass.renderToScreen = true; //TODO: only on last
+		this.effectComposer.addPass(this.shaderPass);
 	}
 
 	/**
@@ -276,8 +304,17 @@ export class Engine
 		this._callPreRender();
 		if (master.renderer)
 		{
-			if (!this.shareContextWith) master.renderer.clearColor();
-			master.renderer.render(this.scene, this.mainCamera);
+			if (this.effectComposer)
+			{
+				this.renderPass.scene = this.scene;
+				this.renderPass.camera = this.mainCamera;
+				this.effectComposer.render();
+			}
+			else
+			{
+				if (!this.shareContextWith) master.renderer.clearColor();
+				master.renderer.render(this.scene, this.mainCamera);
+			}
 
 			//HACK: doesn't support sharing well
 			if (master == this && master.rendererStats)

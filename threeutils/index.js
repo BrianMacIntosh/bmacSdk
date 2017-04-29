@@ -11,7 +11,6 @@ var shaker_1 = require("./shaker");
 exports.Shaker = shaker_1.Shaker;
 var ThreeManager = (function () {
     function ThreeManager() {
-        this.c_planeCorrection = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI, 0, 0));
         this.textureLoader = new THREE.TextureLoader();
         this.tempVector2 = new THREE.Vector2();
         this.tempVector3 = new THREE.Vector3();
@@ -95,7 +94,7 @@ var ThreeManager = (function () {
      */
     ThreeManager.prototype.makeSpriteGeo = function (width, height) {
         var baseGeometry = new THREE.PlaneGeometry(width, height);
-        baseGeometry.applyMatrix(this.c_planeCorrection);
+        baseGeometry.applyMatrix(ThreeManager.c_planeCorrection);
         var geometry = new THREE.BufferGeometry();
         geometry = geometry.fromGeometry(baseGeometry);
         geometry.computeBoundingBox();
@@ -600,4 +599,5 @@ var ThreeManager = (function () {
     ;
     return ThreeManager;
 }());
+ThreeManager.c_planeCorrection = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI, 0, 0));
 exports.ThreeManager = ThreeManager;
