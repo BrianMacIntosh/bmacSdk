@@ -51,7 +51,7 @@ export class PhysicsLinkedObject extends THREE.Object3D
 	 * Destroys this object.
 	 * @param {boolean} soft If set, does not actually destroy memory (for pooling).
 	 */
-	public destroy(soft : boolean): void
+	public destroy(soft? : boolean): void
 	{
 		if (this.parent)
 		{
